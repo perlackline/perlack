@@ -6,7 +6,9 @@ use warnings;
 
 # リストコンテキスト
 my @ltime = localtime;
-print "list   : ", map { "$_ " } @ltime, "\n";
+print "list   :", map { " $_" } @ltime, "\n";
+#print "list   : @ltime\n";
+
 # スカラコンテキスト
 my $ltime = localtime;
 print "scalar : $ltime\n";
