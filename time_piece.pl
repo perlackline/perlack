@@ -1,10 +1,11 @@
 #!/usr/bin/perl
 use strict;
 use warnings;
-use utf8:
+#use utf8:
 
 use Time::Piece;
 
+# コメント
 my @days = qw/ 日 月 火 水 木 金 土 /;
 
 #my $ja_day = localtime->day(@days);
