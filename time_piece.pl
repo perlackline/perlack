@@ -4,16 +4,14 @@ use warnings;
 
 use Time::Piece;
 
+my @days = qw/ 日 月 火 水 木 金 土 /;
+
+#my $ja_day = localtime->day(@days);
+#print "ja_day:  $ja_day\n";
+#
 my $t = localtime;
-print "Time is  $t\n";
+#printf "ja_day2: %s\n", $t->day(@days);
 
-print "Year is  ", $t->year, "\n";
-print "Month is ", $t->month, "\n";
-print "Day is   ", $t->day, "\n";
-print "Mday is  ", $t->mday, "\n";
+Time::Piece::day_list(@days);
 
-print "ymd() ", $t->ymd, "\n";
-print "epoch() ", $t->epoch, "\n";
-
-my $time = localtime;
-print "\n$time\n";
+printf "jp_day: %s\n", $t->day();
