@@ -2,7 +2,7 @@
 use strict;
 use warnings;
 use utf8;
-use Encode 'encode';
+use Encode;
 
 use Time::Piece;
 
@@ -12,14 +12,14 @@ my @days = qw/ 日 月 火 水 木 金 土 /;
 #my @months = ( '睦月', '如月', '弥生', '卯月', '皐月', '水無月',
 #               '文月', '葉月', '長月', '神無月', '霜月', '師走' );
 
+my $uduki = '卯月';
+
 #my @months = qw/ 睦月 如月 弥生 卯月 皐月 水無月
 #               文月 葉月 長月 神無月 霜月 師走 /;
 my @months = qw/ 睦月 如月 弥生
-                 卯月 皐月 水無月
+                 $uduki 皐月 水無月
                  文月 葉月 長月
                  神無月 霜月 師走 /;
-              # 如月 弥生 卯月 皐月 水無月/;
-               #文月 葉月 長月 神無月 霜月 師走 /;
 
 my $comma = ',';
 
