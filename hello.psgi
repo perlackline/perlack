@@ -1,14 +1,25 @@
-my $app = sub {
-  my $env = shift;
-  return [
-    200,
-    [ 'Content-Type' => 'text/plain' ],
-    [ "Hello $env->{REMOTE_ADDR}" ],
-  ];
-};
+use strict;
+package Hello;
+use parent 'Tatsumaki::Handler';
 
-my $mw = sub {
-  my $env = shift;
-  $env->{REMOTE_ADDR} = '1.2.3.4' if rand(1) > 0.5;
-  $app->($env);
-};
+sub get {
+  my $self = shift;
+  $self->write("Hello ", $self->request->user);
+}
+
+use Tatsumaki::Application;
+my $app = Tatsumaki::Application->new([
+  '/hello' => 'Hello',
+]);
+
+#$app->psgi_app;
+
+use Plack::Middleware::Auth::Basic;
+$app = Plack::Middleware::Auth::Basic->wrap(
+  $app->psgi_app,
+  authenticator => sub {
+    my($user, $pass) = @_;
+    return $user eq 'admin' && $pass eq 'gihyo';
+  },
+);
+
