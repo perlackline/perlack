@@ -7,7 +7,16 @@ my $file = shift or die "please specify any file to argument:$!";
 
 my $mode = (stat($file))[2];
 
-print "mode is $mode\n";
+warn "グループとその他ユーザが書き込み可能\n"
+  if $mode & 0022;
+warn "すべてのユーザが読み込み可能\n"
+  if $mode & 0444;
+print "設定ファイルとして適切な権限だと思われる\n"
+  if $mode & 0644;
+
+
+
+
 
 my $classical_mode = 0777 & $mode;
 
