@@ -18,8 +18,8 @@ use strict;
   # P179 Add, name を反復処理するハッシュで拡張する
   our %REGISTRY;
   # P181 Add, 弱いリファレンス weaken を追加
-  #use Scalar::Util qw(weaken); # 5.8 以降の場合
-  use WeakRef qw(weaken);    # CPAN モジュールをインストールした 5.6
+  use Scalar::Util qw(weaken); # 5.8 以降の場合
+  #use WeakRef qw(weaken);    # CPAN モジュールをインストールした 5.6
 
   sub named {
     ref (my $class = shift) and croak "class name needed";
@@ -39,9 +39,9 @@ use strict;
     $self;
   }
 
-$SIG{__WARN__} = sub {
-  $DB::single = 1;
-}
+#$SIG{__WARN__} = sub {
+#  $DB::single = 1;
+#}
   # P179 Add, ハッシュの処理, これですべての動物を見られる
   sub registered {
     return map { 'a '. ref($_) . " named " . $_->name } values %REGISTRY;
