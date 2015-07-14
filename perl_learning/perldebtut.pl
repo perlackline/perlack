@@ -2,7 +2,7 @@
 use strict;
 
 # http://perldoc.jp/docs/perl/5.10.0/perldebtut.pod
-# $B%G%P%C%,(B example code 1.
+# デバッガ example code 1.
 
 my $key = 'welcome';
 my %data = (

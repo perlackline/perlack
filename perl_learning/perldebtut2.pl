@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
 # http://perldoc.jp/docs/perl/5.10.0/perldebtut.pod
-# $B%G%P%C%,(B example code 2.
+# デバッガ example code 2.
 
 use strict;
 
