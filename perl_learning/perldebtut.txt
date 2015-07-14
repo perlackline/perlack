@@ -199,8 +199,156 @@ main 内の変数を指定する。例えば「 %ENV 」。指定する場合シ
    'welcome' => undef
 ---
 
-#// 簡単なオブジェクトを作る
+#// 簡単なオブジェクトを作るためにデバッガを起動
 
-簡単なオブジェクトを作って、見てみましょう ・・・
+標準入力「 STDIN 」から入力を受け付けるデバッガを、シェルのコマンドライン上で起動。
+
+オプションの「 -d 」はデバッガの機動、「 -e 」はワンライナーで Perl を実行するためのオプション。
+
+引数の「 0 」は、この後のデバッガに進むための無害な値として指定。
+
+---
+$ perl -de 0
+
+Loading DB routines from perl5db.pl version 1.32
+Editor support available.
+
+Enter h or `h h' for help, or `man perldebug' for more help.
+
+main::(-e:1):	0
+  DB<1> 
+---
+
+#/ オブジェクトを構築
+
+複数行にかき分ける場合の行末の「 \ 」に注意。
+
+---
+main::(-e:1):	0
+  DB<1> $obj = bless ({'unique_id'=>'123', 'attr'=>\
+  cont:   { 'col' => 'black', 'things'=>[qw(this that etc)]}}, 'MY_class')
+---
+
+#// コマンド「 x 」でオブジェクトの中身を確認
+
+---
+  DB<2> x $obj
+0  MY_class=HASH(0x124a528)
+   'attr' => HASH(0x124a4c8)
+      'col' => 'black'
+      'things' => ARRAY(0xe2abe8)
+         0  'this'
+         1  'that'
+         2  'etc'
+   'unique_id' => 123
+---
+
+#// 配列にデータを格納
+
+---
+  DB<4> @data = qw(this that the other atheism leather theory scythe)
+---
+
+#// 正規表現などを利用して「 p 」で出力
+
+---
+  DB<5> p 'saw -> '.($cnt += map { print "\t:\t$_\n"} grep(/the/, sort @data))
+	:	atheism
+	:	leather
+	:	other
+	:	scythe
+	:	the
+	:	theory
+saw -> 6
+---
+
+#// コマンド履歴を「 H 」で確認する
+
+---
+  DB<6> H
+5: p 'saw -> '.($cnt += map { print "\t:\t$_\n"} grep(/the/, sort @data))
+4: @data = qw(this that other atheism leather theory scythe)
+3: x \$obj
+2: x $obj
+1: $obj = bless ({'unique_id'=>'123', 'attr'=>
+  { 'col' => 'black', 'things'=>[qw(this that etc)]}}, 'MY_class')
+---
+
+#// 以前利用したコマンドを利用する
+
+「 H 」で確認した履歴から番号と「 ! 」を利用してコマンドを再利用する。Uinx 系システムのコマンド「 history 」と同じ利用方法。
+
+---
+  DB<6> !5
+p 'saw -> '.($cnt += map { print "\t:\t$_\n"} grep(/the/, sort @data))
+	:	atheism
+	:	leather
+	:	other
+	:	scythe
+	:	theory
+saw -> 10
+---
+
+#// 摂氏と華氏を変換するプログラム
+
+これは何らかの問題を抱えている。
+
+---
+#!/usr/bin/perl -w
+use strict;
+
+my $arg = $ARGV[0] || '-c20';
+
+if ($arg =~ /^\-(c|f)((\-|\+)*\d+(\.\d+)*)$/) {
+    my ($deg, $num) = ($1, $2);
+    my ($in, $out) = ($num, $num);
+    if ($deg eq 'c') {
+        $deg = 'f';
+        $out = &c2f($num);
+    } else {
+        $deg = 'c';
+        $out = &f2c($num);
+    }
+    $out = sprintf('%0.2f', $out);
+    $out =~ s/^((\-|\+)*\d+)\.0+$/$1/;
+    print "$out $deg\n";
+} else {
+    print "Usage: $0 -[c|f] num\n";
+}
+exit;
+
+sub f2c {
+      my $f = shift;
+      my $c = 5 * $f - 32 / 9;
+      return $c;
+}
+
+sub c2f {
+      my $c = shift;
+      my $f = 9 * $c / 5 + 32;
+      return $f;
+}
+---
+
+#// プログラムの実行結果
+
+計算があわない。
+
+摂氏から華氏はおよそ問題ない。
+---
+> program -c0.72
+33.30 f
+---
+
+華氏から摂氏はなにかがおかしい。
+---
+> program -f33.3
+162.94 c
+---
+
+全く一貫していません! ・・・
+http://perldoc.jp/docs/perl/5.10.0/perldebtut.pod
+
+
 
 
