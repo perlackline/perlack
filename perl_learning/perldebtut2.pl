@@ -1,4 +1,8 @@
 #!/usr/bin/perl -w
+
+# http://perldoc.jp/docs/perl/5.10.0/perldebtut.pod
+# デバッガ example code 2.
+
 use strict;
 
 my $arg = $ARGV[0] || '-c20';

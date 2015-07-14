@@ -1,6 +1,9 @@
 #!/usr/bin/perl
 use strict;
 
+# http://perldoc.jp/docs/perl/5.10.0/perldebtut.pod
+# デバッガ example code 1.
+
 my $key = 'welcome';
 my %data = (
     'this' => qw(that),
