@@ -1,8 +1,4 @@
 #!/usr/bin/perl -w
-
-# http://perldoc.jp/docs/perl/5.10.0/perldebtut.pod
-# デバッガ example code 2.
-
 use strict;
 
 my $arg = $ARGV[0] || '-c20';
@@ -10,6 +6,7 @@ my $arg = $ARGV[0] || '-c20';
 if ($arg =~ /^\-(c|f)((\-|\+)*\d+(\.\d+)*)$/) {
     my ($deg, $num) = ($1, $2);
     my ($in, $out) = ($num, $num);
+    # $DB::single=2; # insert at line 9! it's break point.
     if ($deg eq 'c') {
         $deg = 'f';
         $out = &c2f($num);
@@ -27,7 +24,8 @@ exit;
 
 sub f2c {
       my $f = shift;
-      my $c = 5 * $f - 32 / 9;
+      # my $c = 5 * $f - 32 / 9;
+      my $c = 5 * ($f - 32) / 9;
       return $c;
 }
 
@@ -36,3 +34,7 @@ sub c2f {
       my $f = 9 * $c / 5 + 32;
       return $f;
 }
+
+# http://perldoc.jp/docs/perl/5.10.0/perldebtut.pod
+# デバッガ example code 2.
+
