@@ -6,20 +6,20 @@ use Encode;
 
 use Time::Piece;
 
-# $BMKF|L>$N%j%9%H$r:n@.(B
-my @days = qw/ $BF|(B $B7n(B $B2P(B $B?e(B $BLZ(B $B6b(B $BEZ(B /;
+# 曜日名のリストを作成
+my @days = qw/ 日 月 火 水 木 金 土 /;
 
-#my @months = ( '$BKS7n(B', '$BG!7n(B', '$BLo@8(B', '$B1,7n(B', '$B;)7n(B', '$B?eL57n(B',
-#               '$BJ87n(B', '$BMU7n(B', '$BD97n(B', '$B?@L57n(B', '$BAz7n(B', '$B;UAv(B' );
+#my @months = ( '睦月', '如月', '弥生', '卯月', '皐月', '水無月',
+#               '文月', '葉月', '長月', '神無月', '霜月', '師走' );
 
-my $uduki = '$B1,7n(B';
+my $uduki = '卯月';
 
-#my @months = qw/ $BKS7n(B $BG!7n(B $BLo@8(B $B1,7n(B $B;)7n(B $B?eL57n(B
-#               $BJ87n(B $BMU7n(B $BD97n(B $B?@L57n(B $BAz7n(B $B;UAv(B /;
-my @months = qw/ $BKS7n(B $BG!7n(B $BLo@8(B
-                 $uduki $B;)7n(B $B?eL57n(B
-                 $BJ87n(B $BMU7n(B $BD97n(B
-                 $B?@L57n(B $BAz7n(B $B;UAv(B /;
+#my @months = qw/ 睦月 如月 弥生 卯月 皐月 水無月
+#               文月 葉月 長月 神無月 霜月 師走 /;
+my @months = qw/ 睦月 如月 弥生
+                 $uduki 皐月 水無月
+                 文月 葉月 長月
+                 神無月 霜月 師走 /;
 
 my $comma = ',';
 
