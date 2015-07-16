@@ -525,9 +525,17 @@ Debugged program terminated.  Use q to quit or R to restart,
 
 最後に「 q 」でデバッガを終了し実際のプログラムコードを修正します。
 
-#// a, w, t, T のためのプレースホルダ
+#// 「 a 」でアクションを設定する
 
-...
+コマンド「 a 」は「 アクション 」を設定する。
+
+---
+my $count = 0;
+
+
+
+#// w, t, T のためのプレースホルダ
+
 
 アクション、変数の監視、スタックトレースなど:
 http://perldoc.jp/docs/perl/5.10.0/perldebtut.pod
