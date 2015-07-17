@@ -3,18 +3,21 @@
 use strict;
 use warnings;
 
-foreach my $count ( 0..9 ) {
-  print "original : $count\n";
-  print "changing?: $count\n";
+use re 'debug';
 
-#  $DB::single = 1;
+#foreach my $count ( 0..9 ) {
+#  print "count: $count\n";
+#
+#}
+
+my $string = 'Perl';
+
+if ( $string =~ /^pe(a)*rl$/i ){
+  print "Match!!!\n";
+}
+my $string2 = 'ABC';
+
+if ( $string =~ /^perl$/i ){
+  print "Match???\n";
 }
 
-#$count = 'finish';
-
-#print "@foo\n";
-#print "%foo\n";
-#print "$foo\n";
-
-
-#print "$count\n";

@@ -39,6 +39,8 @@ print "-- Either 'a' or 'b' after 'test_' --\n";
 print map { "nulfh: $_\n" } <test_[ab]*>;
 
 print "-- Home dir --\n";
+my @files = '~/* ~/.*';
 #print map { "$_\n" } glob '~/* ~/.*';
-print map { "nulfh: $_\n" } <~/* ~/.*>;
+#print map { "nulfh: $_\n" } <~/* ~/.*>;
+print map { "array: $_\n" } glob($files[0]);
 

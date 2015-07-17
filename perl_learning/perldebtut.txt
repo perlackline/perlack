@@ -1,6 +1,51 @@
 Perl デバッガ チュートリアル
 http://perldoc.jp/docs/perl/5.10.0/perldebtut.pod
 
+&emsp;・ Perl の文法チェック
+&emsp;・ デバッガで利用するコード
+&emsp;・ デバッガを終了する
+&emsp;・ ヘルプを表示する
+&emsp;・ 読み込まれたモジュールとバージョン番号を表示する
+&emsp;・ 読み込まれたメソッドを表示する
+&emsp;・ すべてのサブルーチンを表示する
+&emsp;・ パッケージ内の変数をデータプリティプリンタで表示する
+&emsp;・ 現在の行周辺のコードを確認する。
+&emsp;・ 任意の行を確認する
+&emsp;・ 実行行に戻る
+&emsp;・ 次に実行可能な文に進む
+&emsp;・ 変数に格納された値を見る
+&emsp;・ 1 回限りのブレークポイントを指定してそこに移動する
+&emsp;・ ハッシュ変数の中身を見る
+&emsp;・ 簡単なオブジェクトを作るためにデバッガを起動
+&emsp;・ コマンド「 x 」でオブジェクトの中身を確認
+&emsp;・ 配列にデータを格納
+&emsp;・ 正規表現などを利用して「 p 」で出力
+&emsp;・ コマンド履歴を「 H 」で確認する
+&emsp;・ 以前利用したコマンドを利用する
+&emsp;・ 摂氏と華氏を変換するプログラム
+&emsp;・ プログラムの実行結果
+&emsp;・ ブレークポイントの挿入
+&emsp;・ 引数を指定しつつデバッガと共にプログラムを起動する
+&emsp;・ 「 c 」でブレークポイントまで進み現在の場所を「 v 」で確認する
+&emsp;・ 「 p 」で現在利用している値を表示
+&emsp;・ 「 b 」を利用して即興のブレークポイントを指定する。
+&emsp;・ 「 L 」でブレークポイントを確認する
+&emsp;・ 「 c 」に名前を指定して任意のサブルーチンの中に進む
+&emsp;・ 「 c 」に行番号を指定して任意の行まで進む
+&emsp;・ 戻り値を確認する
+&emsp;・ 即興で計算式を確認する
+&emsp;・ デバッグ中に値を変更して処理を進める
+&emsp;・ 「 r 」でサブルーチンから戻るまでを実行する
+&emsp;・ プログラムを最後まで進める
+&emsp;・ 「 w 」で値をウォッチする
+&emsp;・ 「 a 」でアクションを設定する
+&emsp;・ 正規表現のチェック
+
+
+#// --------------------------------------------------------------
+#// contents
+#// --------------------------------------------------------------
+
 #// Perl の文法チェック
 
 ---
@@ -523,22 +568,229 @@ Debugged program terminated.  Use q to quit or R to restart,
   h q, h R or h o to get additional info.  
 ---
 
-最後に「 q 」でデバッガを終了し実際のプログラムコードを修正します。
+最後に「 q 」でデバッガを終了し実際のプログラムコードを修正する。
+
+#// 「 w 」で値をウォッチする
+
+コマンド「 w 」は「 ウォッチ 」を設定する。
+
+確認に利用するプログラムコードは次のもの。
+
+---
+foreach my $counf ( 0..9 ) {
+  print "count: $count\n";
+}
+
+---
+
+「 w 」の設定は、「 w expr 」で設定する。今回ウォッチするのはスカラ変数「 $count 」。
+
+---
+ DB<1> w $count
+---
+
+セットしたウォッチはコマンド「 L 」で確認可能。
+
+---
+  DB<2> L
+Watch-expressions:
+ $count
+---
+
+コマンド「 n 」で次 ( next ) の行に進める。一度「 n <Enter> 」で進めばあとは Enter キーの押下のみで進める。
+
+行を進めるなかでウォッチしている値が変更されると次の様に表示される。
+
+---
+  DB<2> n
+main::(perldebtut_N.pl:7):	foreach $count ( 0..9 ) {
+  DB<2> 
+Watchpoint 0:	$count changed:
+    old value:	''
+    new value:	'0'
+main::(perldebtut_N.pl:8):	  print "count: $count\n";
+  DB<2> 
+---
+
+さらに進めてループを出ると最終的に値が破棄されることが見える。
+
+---
+  DB<2> 
+count: 9
+Watchpoint 0:	$count changed:
+    old value:	'9'
+    new value:	''
+---
+
+大文字の「 W 」でウォッチを削除可能。
+
+---
+  DB<2>  W expr  # 指定した expr のみ削除
+  DB<2>  W *     # すべてのウォッチを削除
+---
 
 #// 「 a 」でアクションを設定する
 
-コマンド「 a 」は「 アクション 」を設定する。
+コマンド「 a 」でプログラムコードに対するアクションを指定可能。
+
+まず「 v 」で実行可能な行「 : 」を確認する。
 
 ---
-my $count = 0;
+  DB<1> v
+3:	use strict;
+4:	use warnings;
+5 	
+6==>	foreach my $count ( 0..9 ) {
+7:	  print "count: $count\n";
+8 	
+9 	}
+10 	
+11 	
+  DB<1> 
+---
+
+7 行目にアクションを追加する。
+
+---
+  DB<1> a 7 $count += 10
+---
+
+ウォッチと同様に「 L 」で設定を確認可能。
+
+---
+  DB<2> L
+perldebtut_N.pl:
+ 7:	  print "count: $count\n";
+   action:  $count += 10
+---
+
+ウォッチと同様に「 n 」で処理を進める。
+
+---
+  DB<2> n
+main::(perldebtut_N.pl:7):	  print "count: $count\n";
+  DB<2>  
+count: 10
+main::(perldebtut_N.pl:7):	  print "count: $count\n";
+  DB<2> 
+----
+
+本来は数値「 0 」で出力されるはずの変数「 $count 」の値がアクションの設定「 a 7 $count 」によって数値「 10 」になっている。
+
+ただし、foreach ループの中でアクションが実行されるのは 1 回のみである様子。
+
+---
+  DB<2> n
+count: 10
+main::(perldebtut_N.pl:7):	  print "count: $count\n";
+  DB<2> 
+count: 11
+main::(perldebtut_N.pl:7):	  print "count: $count\n";
+  DB<2> 
+count: 12
+main::(perldebtut_N.pl:7):	  print "count: $count\n";
+  DB<2> 
+count: 13
+main::(perldebtut_N.pl:7):	  print "count: $count\n";
+  DB<2> 
+count: 14
+main::(perldebtut_N.pl:7):	  print "count: $count\n";
+  :
+  .
+---
+
+#?/ スタックのバックトレースと TODO リスト
+
+コマンド「 t 」や「 T 」は、特定のスタックのバックトレースや TODO リストのためのプレースホルダと言うが利用方法がいまいちつかめない。
+
+#// 正規表現のチェック
+
+perldebtut - perldoc.jp (http://perldoc.jp/docs/perl/5.10.0/perldebtut.pod#REGULAR32EXPRESSIONS) では次のようにして正規表現のデバッグが可能とあるがエラーになる。
+
+---
+$ perl -Dr -e '/^pe(a)*rl$/i'
+Recompile perl with -DDEBUGGING to use -D switch (did you mean -d ?)
+---
+
+「 -DDEBUGGING 」というスイッチも試すが同じ結果。
+
+正規表現のデバッグ方法 - こんにちはこんにちはmonmonです！(http://monmon.hateblo.jp/entry/20110502/1304298547) で「 -Mre=degub 」を利用する次の方法を確認。
+
+---
+$ perl -Mre=debug -e '/^pe(a)*rl$/i'
+Compiling REx "^pe(a)*rl$"
+Final program:
+   1: BOL (2)
+   2: EXACTF <pe> (4)
+   4: CURLYN[1] {0,32767} (14)
+   6:   NOTHING (8)
+   8:   EXACTF <a> (0)
+  12: WHILEM (0)
+  13: NOTHING (14)
+  14: EXACTF <rl> (16)
+  16: EOL (17)
+  17: END (0)
+floating ""$ at 4..2147483647 (checking floating) stclass EXACTF <pe> anchored(BOL) minlen 4 
+Freeing REx: "^pe(a)*rl$"
+---
+
+これは、プラグマ「 use 」で「 use re 'debug' 」と指定したのと同じ。
+
+例えば次のコードを実行する。
+
+---
+use re 'debug';
+
+my $string = 'Perl';
+
+if ( $string =~ /^pe(a)*rl$/i ){
+  print "Match!\n";
+}
+---
+
+結果は次のように出力された。
+
+---
+Compiling REx "^pe(a)*rl$"
+Final program:
+   1: BOL (2)
+   2: EXACTF <pe> (4)
+   4: CURLYN[1] {0,32767} (14)
+   6:   NOTHING (8)
+   8:   EXACTF <a> (0)
+  12: WHILEM (0)
+  13: NOTHING (14)
+  14: EXACTF <rl> (16)
+  16: EOL (17)
+  17: END (0)
+floating ""$ at 4..2147483647 (checking floating) stclass EXACTF <pe> anchored(BOL) minlen 4 
+Guessing start of match in sv for REx "^pe(a)*rl$" against "Perl"
+Found floating substr ""$ at offset 4...
+start_shift: 4 check_at: 4 s: 0 endpos: 2
+Does not contradict STCLASS...
+Guessed: match at offset 0
+Matching REx "^pe(a)*rl$" against "Perl"
+   0 <> <Perl>               |  1:BOL(2)
+   0 <> <Perl>               |  2:EXACTF <pe>(4)
+   2 <Pe> <rl>               |  4:CURLYN[1] {0,32767}(14)
+                                  EXACTF <a> can match 0 times out of 2147483647...
+   2 <Pe> <rl>               | 14:  EXACTF <rl>(16)
+   4 <Perl> <>               | 16:  EOL(17)
+   4 <Perl> <>               | 17:  END(0)
+Match successful!
+Match!
+Freeing REx: "^pe(a)*rl$"
+---
+
+出力の詳細は perldebguts - perldoc.jp "正規表現のデバッグ" (http://perldoc.jp/docs/perl/5.10.1/perldebguts.pod#Debugging32regular32expressions) を確認する必要がある。
 
 
 
-#// w, t, T のためのプレースホルダ
 
 
-アクション、変数の監視、スタックトレースなど:
-http://perldoc.jp/docs/perl/5.10.0/perldebtut.pod
+
+
+
 
 
 
