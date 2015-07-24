@@ -3,22 +3,22 @@
 use strict;
 use warnings;
 
-## $B%U%!%$%kL>0l3gJQ49(B ($BB8:_%A%'%C%/$J$7(B)
+## ファイル名一括変換 (存在チェックなし)
 #foreach my $file ( glob "*.old" ) {
-#  # $BHsGK2uCV49(B
+#  # 非破壊置換
 #  (my $newfile = $file) =~ s/\.old$/.new/;
 #  rename $file, $newfile;
 #}
 
-# $B%U%!%$%kL>0l3gJQ49(B ($BB8:_%A%'%C%/$"$j(B)
+# ファイル名一括変換 (存在チェックあり)
 foreach my $file ( glob "*.old" ) {
 
   (my $newfile = $file) =~ s/\.old$/.new/;
-  # $B%U%!%$%k%F%9%H(B
+  # ファイルテスト
   if ( -e $newfile ) {
     warn "$newfile already exists.\n";
   } elsif ( rename $file, $newfile ) {
-    # $B2?$b$7$J$$(B
+    # 何もしない
   } else {
     warn "rename $file to $newfile faild: $!\n";
   }
