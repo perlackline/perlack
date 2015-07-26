@@ -1,0 +1,3 @@
+httpd: /usr/local/apache2
+htdocs: chmod 777
+  -> User gourp の適切な設定が必要。

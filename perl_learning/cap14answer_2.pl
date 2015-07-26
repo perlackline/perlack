@@ -1,6 +1,9 @@
 #!/usr/bin/perl
 
-# cap14 q (P193) の answer (P286)
+# cap14 q2 (P193) の answer (P287)
+# 先頭にタイムスタンプを付けて与えられたメッセージを
+# 表示する UNIVERSAL::debug 関数を追加する。
+# MyDate オブジェクトから debug メソッドを呼び出す。
 
 # AUTOLOAD メソッドを持つ MyDate モジュール。
 
@@ -72,13 +75,21 @@ use warnings;
 # main 空間にシンボルを導入するために import を利用。
 MyDate->import;    # 私たちはこれを使わない
 
-# Mydate のオブジェクトを作成
-
 # Mydate のオブジェクトを作成。
 my $date = MyDate->new( );
 
-print "The not is "  . $date->fame  . "\n";
+# adding for q2
+sub UNIVERSAL::debug {
+      my $self = shift;
+      printf "[%s] %s", scalar localtime, join '|', @_
+}
+
 print "The date is "  . $date->date  . "\n";
 print "The month is " . $date->month . "\n";
 print "The year is "  . $date->year  . "\n";
 
+# UNIVERSAL のメソッドは AUTOLOAD よりも先に
+# @ISA, UNIVERSAL の順に検索される。
+# それから AUTOLOAD が検索されるので UNIVERSAL
+# のメソッド debug が動作する。
+$date->debug( "I'm all done", "adding message\n" );

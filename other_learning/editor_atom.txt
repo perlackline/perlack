@@ -1,0 +1,127 @@
+20150725
+#// ------------------------------------------
+#// atom install
+#// ------------------------------------------
+
+README.md - ATOM - GitHub
+https://github.com/atom/atom/blob/master/README.md#red-hat-linux-fedora-21-and-under-centos-red-hat
+
+現在は 64bit バージョンのみ.
+
+Step.
+---
+1.Atom releaces page から atom.x86_64.rpm を Download.
+
+  Atom releaces page
+  https://github.com/atom/atom/releases/tag/v1.0.2
+
+  atom.x86_64.rpm
+  https://github.com/atom/atom/releases/download/v1.0.2/atom.x86_64.rpm
+
+2.Run "sudo yum localinstall atom.x86_64.rpm" on the downloaded packege.
+
+3. Launch Atom using the installed "atom" command.
+---
+
+Linux バージョンは現在自動でアップデートしないので 今後のリリースにアップグレードするには これらの手順を繰り返す必要がある.
+
+---
+su -
+---
+cd /usr/local/src
+---
+wget https://github.com/atom/atom/releases/download/v1.0.2/atom.x86_64.rpm
+---
+yum localinstall atom.x86_64.rpm
+---
+Dependencies Resolved
+
+==========================================================================
+ Package             Arch      Version              Repository       Size
+==========================================================================
+Installing:
+ atom                x86_64    1.0.2-0.1.fc21       /atom.x86_64    198 M
+Installing for dependencies:
+ pax                 x86_64    3.4-10.1.el6         base             69 k
+ perl-CGI            x86_64    3.51-136.el6_6.1     updates         209 k
+ perl-Test-Simple    x86_64    0.92-136.el6_6.1     updates         112 k
+ redhat-lsb-core     x86_64    4.0-7.el6.centos     base             25 k
+
+Transaction Summary
+==========================================================================
+Install       5 Package(s)
+
+Total size: 198 M
+Total download size: 415 k
+Installed size: 199 M
+Is this ok [y/N]: 
+---
+
+#// ------------------------------------------
+#// atom 実行でエラー
+#// ------------------------------------------
+
+---
+# atom
+# /usr/share/atom/atom: /usr/lib64/libstdc++.so.6: version `GLIBCXX_3.4.14' not found (required by /usr/share/atom/atom)
+/usr/share/atom/atom: /usr/lib64/libstdc++.so.6: version `GLIBCXX_3.4.15' not found (required by /usr/share/atom/atom)
+  :
+  .
+---
+
+python3 をインストールする必要がある様子 (Python 2.6.6 しか入ってない)。
+http://futurismo.biz/archives/2058
+
+CentOS に Python2.7, Python3.3を入れたメモ
+http://qiita.com/a_yasui/items/5f453297855791ed648d
+  -> prefix /opt/local はずして ./configure
+
+... pip3 も /usr/local/bin に install. pip isntall markdown もしたが atom 起動時の GLIBCXX エラーは解消されず。
+
+#// ------------------------------------------
+#// GCC をインストールしてみる
+#// ------------------------------------------
+Installing GCC
+http://gcc.gnu.org/wiki/InstallingGCC
+Installing GCC
+https://gcc.gnu.org/install/index.html
+うれしいブログ
+http://d.hatena.ne.jp/kiyoshi_net/20140416/1397621743
+
+#// GCC 5.2 ダウンロード
+Index of /software/gcc/releases/gcc-5.2.0
+http://ftp.tsukuba.wide.ad.jp/software/gcc/releases/gcc-5.2.0/
+
+#// make で足りないファイル
+---
+configure: error: Building GCC requires GMP 4.2+, MPFR 2.4.0+ and MPC 0.8.0+.
+Try the --with-gmp, --with-mpfr and/or --with-mpc options to specify
+their locations.  Source code for these libraries can be found at
+their respective hosting sites as well as at
+ftp://gcc.gnu.org/pub/gcc/infrastructure/.  See also
+http://gcc.gnu.org/install/prerequisites.html for additional info.  If
+you obtained GMP, MPFR and/or MPC from a vendor distribution package,
+make sure that you have installed both the libraries and the header
+files.  They may be located in separate packages.
+---
+/pub/gcc/infrastructure/ のインデックス
+ftp://gcc.gnu.org/pub/gcc/infrastructure/
+
+  + GMP 4.2+
+    ftp://gcc.gnu.org/pub/gcc/infrastructure/gmp-4.3.2.tar.bz2
+	-> /usr/local/lib
+  + MPFR 2.4.0+
+    ftp://gcc.gnu.org/pub/gcc/infrastructure/mpfr-2.4.2.tar.bz2
+  + MPC 0.8.0+
+    ftp://gcc.gnu.org/pub/gcc/infrastructure/mpc-0.8.1.tar.gz
+
++-------------------------------------------------------------+
+CAUTION:                                                    
+                                                            
+If you have not already run "make check", then we strongly recommend you do so.                                        
+GMP has been carefully tested by its authors, but compilers are all too often released with serious bugs.
+GMP tends to explore interesting corners in compilers and has hit bugs on quite a few occasions.                                   
+                                                            
++-------------------------------------------------------------+
+
+中断....
