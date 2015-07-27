@@ -1,0 +1,3642 @@
+
+open-iscsi README の翻訳。
+
+iscsiadm, iscsid についての概要を網羅している。
+
+---
+    ref: http://www.open-iscsi.org/docs/README
+
+=================================================================
+
+                Linux* Open-iSCSI
+
+=================================================================
+
+                                                   May 20, 2012
+Contents
+========
+
+- 1. In This Release (このリリースでは)
+- 2. Introduction (はじめに)
+- 3. Installation (インストール)
+- 4. Open-iSCSI daemon (デーモン)
+- 5. Open-iSCSI Configuration Utility (環境設定ユーティリティ)
+- 6. Configuration (環境設定)
+- 7. Getting Started (はじめる)
+- 8. Advanced Configuration (高度な環境設定)
+- 9. iSCSI System Info (システムの情報)
+
+#// ============================================================== 
+#// 1. In This Release (このリリースでは)
+#// ============================================================== 
+
+This file describes the Linux* Open-iSCSI Initiator. The software was
+tested on AMD Opteron (TM) and Intel Xeon (TM). 
+
+このファイルは 説明する Linux* Open-iSCSI Initiator を. ソフトウェアは
+テストした AMD Opteron と Intel Xeon で.
+
++++
++ Linux* Open-iSCSI Initiator を説明するファイル.
+
++ AMD Opteron, Intel Xeon でテスト済み.
++++
+
+The latest development release is available at:
+http://www.open-iscsi.org
+
+最新の開発版リリースは入手できます:
+http://www.open-iscsi.org
+
+For questions, comments, contributions send e-mail to:
+open-iscsi@googlegroups.com 
+
+質問, コメント, 貢献は 送信してください e-mail を:
+open-iscsi@googlegroups.com
+
+    1.1. Features (機能)
+    
+    - highly optimized and very small-footprint data path;
+
+      高度な最適化と非常に小さい面積のデータ経路;
+
+    - persistent configuration database;
+
+      永続的な設定データベース;
+
+    - SendTargets discovery;
+
+      SendTargets discovery;
+
+    - CHAP;
+
+      CHAP;
+
+    - PDU header Digest;
+
+      PDU ヘッダダイジェスト (要約);
+
+    - multiple sessions;
+
+      複数の session;
+
+#// ==============================================================    
+#// 2. Introduction (はじめに)
+#// ==============================================================    
+
+Open-iSCSI project is a high-performance, transport independent,
+multi-platform implementation of RFC3720 iSCSI.
+
+Open-iSCSI プロジェクトは 高いパフォーマンス, 転送 独立した, マルチプ
+ラットフォームの RFC3729 iSCSI の実装.
+
+Open-iSCSI is partitioned into user and kernel parts.
+
+Open-iSCSI は 分割される user と kernel 部分に.
+
++++
++ Open-iSCSI は user 部と kernel 部に分割される.
++++
+
+The kernel portion of Open-iSCSI is a from-scratch code
+licensed under GPL. The kernel part implements iSCSI data path
+(that is, iSCSI Read and iSCSI Write), and consists of three
+loadable modules: scsi_transport_iscsi.ko, libiscsi.ko and iscsi_tcp.ko.
+
+kernel の部分は Open-iSCSI の from-scratch (ゼロからの) コード GPL ラ
+イセンス下の. kernel 部分は 実装する iSCSI data path (経路) を (つまり,
+iSCSI 読み込みと iSCSI 書き込み), それと 構成される 3 の ロード可能な
+モジュールで: 
+
++++
++ kernel 部は iSCSI data path (データ経路) を実装.
+
+  + つまり, iSCSI の読み込みと書き込み.
+
++ kernel 部は以下の 3 つの読み込みモジュールで構成
++++
+
+    scsi_tranport_iscsi.ko
+    libiscsi.ko
+    isici_tcp.ko
+
+User space contains the entire control plane: configuration
+manager, iSCSI Discovery, Login and Logout processing,
+connection-level error processing, Nop-In and Nop-Out handling,
+and (in the future:) Text processing, iSNS, SLP, Radius, etc.
+
+ユーザスペースは 含む 全体の制御プレーン (面) を:
+
++++
++ user スペースは以下の全体の制御プレーン (観測機 (?)) を含む.
+
++ user スペースの Open-iSCSI は daemon (iscsid) と iscsiadm で構成される.
++++
+
+    configuration manager
+    iSCSI Discovery
+    Login and Logout 処理
+    connection-level エラー 処理
+    Nop-In and Nop-Out ハンドリング (操作) (?) NOP = no operation ?
+    (将来的に:)
+    テキスト 処理
+    iSNS
+    SLP
+    Radius, etc.
+
+The user space Open-iSCSI consists of a daemon process called
+iscsid, and a management utility iscsiadm.
+
+ユーザスペースの Open-iSCSI は 構成される daemon プロセス iscsd と呼ば
+れる, 管理ユーティリティ iscsiadm.
+
+#// ==============================================================
+#// 3. Installation (インストール)
+#// ==============================================================
+
+As of today, the Open-iSCSI Initiator requires a host running the
+Linux operating system with kernel version 2.6.16, or later. 2.6.14 and
+2.6.15 are partially supported. Known issues with 2.6.14 - .15 support:
+
+今日現在, Open-iSCSI Initiator は 必要とする ホストを 実行する Linux OS
+を kernel バージョンが 2.6.16 以降の.
+
+2.6.14 と 2.6.15 は部分的なサポート. 
+
+既知の問題 (Known issues) 2.6.14 - .15 サポートの:
+
++++
++ Open-iSCSI Initiator は Linux OS の kernel バージョン 2.6.16 以降をサポート.
+
++ 2.6.14 - 2.6.15 は部分的なサポートで以下の既知の問題がある.
++++
+
+    - If the device is using a write back cache, during session logout
+      the cache sync command will fail.
+
+      デバイスが write back cache を利用している場合, セッションログア
+      ウト中に cache sync コマンドは失敗する.
+
+    - iscsiadm's -P 3 option will not print out scsi devices.
+
+      iscsiadm の -P 3 オプションでは scsi デイバイスを出力しない.
+
+    - iscsid will not automatically online devices.
+
+      iscsid は自動的にオンラインデバイスにならない.
+
+You need to enable "Cryptographic API" under "Cryptographic options" in the
+kernel config. And you must enable "CRC32c CRC algorithm" even if
+you do not use header or data digests. They are the kernel options,
+CONFIG_CRYPTO and CONFIG_CRYPTO_CRC32C, respectively.
+
+あなたが 有効にする必要がある "Cryptographic (暗号) API" を 
+"Cryptographic options" の kernel config で.
+
+それから あなたは 有効にしなければならない "CRC32c CRC algorithm" を
+たとえ あなたが利用しないとしても header や data digests を.
+
+それらは kernel option,
+
+    CONFIG_CRYPTO
+    CONFIG_CRYPTO_CRC32C
+
+それぞれ.
+
++++
++ kernel config で Cryptographic options の Cryptographic API を有効に
+  する必要がある.
+
++ 以下の kernel option で header や data digest を利用しない場合でも
+  CRC32c CRC algorithm を有効にする必要がある.
+
+    CONFIG_CRYPTO
+    CONFIG_CRYPTO_CRC32C
++++
+
+By default the kernel's iSCSI modules will be used. Running:
+
+デフォルトでは kernel の iSCSI モジュールが利用される. 実行:
+
+    ---
+    make
+    make install
+    ---
+
++++
++ デフォルトで kernel の iSCSI モジュールが利用される.
+
++ make, make install の実行で /sbin に iscsiadm と iscsid が /sbin に
+  インストールされる.
+
++ 2.6.14 - 2.6.34 ではモジュールを kernel dir 内で構築・インストール可能.
+
+    + コマンドは make kernel
+
++ make kernel KSRC=<kernel-src> で任意の kernel でコンパイルも可能.
+
++ make kernel KSRC=<kernel-src> KARCH="ARCH=um" でクロスコンパイルも可
+  能.
++++
+
+will install the iSCSI tools iscsiadm and iscsid to /sbin.
+
+インストールされる iSCSI tools の iscsiadm と iscsid が /sbin に.
+
+For 2.6.14 - 2.6.34 the modules in the kernel dir can built and install
+by running:
+
+2.6.14 - 2.6.34 では モジュールは kernel dir 内で構築とインストールが
+出来る 実行で:
+
+    ---
+    make kernel
+    ---
+
+When building those modules the kernel source found at
+/lib/modules/`uname -a`/build
+will be used to compile the open-iscsi modules. To specify a different
+kernel to build against use:
+
+これらのモジュールを構築するときに kernel source を
+/lib/modules/`uname -a`/build で見つけて open-iscsi モジュールのコンパ
+イルに利用する.
+
+別の kernel を指定して構築するには 逆らって利用する:
+ 
+    ---
+    make kernel KSRC=<kernel-src>
+    ---
+
+or cross-compilation:
+
+または クロスコンパイル:
+
+    ---
+    make kernel KSRC=<kernel-src> KARCH="ARCH=um"
+    ---
+
++++
++ SUSE Linux でのインストール
++++
+
+To compile on SUSE Linux you'll have to use
+
+SUSE Linux でコンパイルするには次を利用する必要がある.
+
+    ---
+    make kernel KSRC=/usr/src/linux \
+         KBUILD_OUTPUT=/usr/src/linux-obj/<arch>/<config>
+    ---
+
+where <config> is the kernel configuration to use (eg. 'smp').
+
+ここの <config> は kernel 環境設定に利用する (例えば. 'smp').
+
+To install the kernel modules that were built run:
+
+インストールには kernel モジュールの 構築した 実行する:
+
+    ---
+    make install_kernel
+    ---
+
+This will copy: iscsi_tcp.ko, libiscsi_tcp.ko, libiscsi.ko and
+scsi_transport_iscsi to
+/lib/modules/`uname -r`/kernel/drivers/scsi/
+overwriting existing iscsi modules.
+
+これはコピーする:
+
+    iscsi_tcp.ko
+    libiscsi_tcp.ko
+    libiscsi.ko
+    scsi_transport_iscsi を
+
+    /lib/modules/`unname -r`/kernel/drivers/scsi/ に
+
+上書きする 既存の iscsi モジュールを.
+
++++
++ Debian でのインストール
++++
+
+For Debian, be sure to install the linux-headers package that
+corresponds to your kernel in order to compile the kernel modules
+('aptitude install linux-headers-`uname -r`').  You may also wish to
+run 'make -C kernel/ dpkg_divert' before installing kernel modules if
+you run a Debian-provided kernel.  This will use dpkg-divert(8) to
+move the packaged kernel modules out of the way, and ensure that
+future kernel upgrades will not overwrite them.
+
+Debian では, 必ずインストールする (be sure to install) linux-headers
+packeage を 対応する あなたの kernel に コンパイルするために kernel 
+モジュールを ('aptitude install linux-headers-`unmae -r`').
+
+また、あなたが実行したいなら 'make -C kernel/ dpkg_divert' を karnel 
+モジュールのインストール前に あなたが 実行していて Debian が提供する 
+kernel を.
+
+これは dpkg-divert(8) を利用する 移動して package 化した kernel モジュー
+ルを 邪魔にならない様に, それろ 保証する 将来の kernel upgrade で 上書
+きされない様に それらが.
+
+Also, please be aware that the compatibility patches that enable these
+iscsi modules to run on kernels older than 2.6.25 will not update the
+ib_iser module; you may get warnings related to mismatched symbols on
+this driver, in which case you'll be unable to load ib_iser and
+open-iscsi simultaneously.
+
+また、注意する 互換のパッチは 有効な これらの iscsi モジュールの 実行
+する kernel 上で 2.6.25 より古い update しない ib_iser モジュールを; 
+あなたは得ることが出来る 警告を 一致しないシンボルに関連する この driver
+上で, その場合は あなたは 出来ないだろう ib_iser と open-iscsi の読み
+込みを 同時に.
+
+#// ==============================================================
+#// 4. Open-iSCSI daemon
+#// ==============================================================
+
+Open-iSCSI の daemon
+
+The daemon implements control path of iSCSI protocol, plus some management
+facilities. For example, the daemon could be configured to automatically 
+re-start discovery at startup, based on the contents of persistent 
+iSCSI database (see next section).
+
+daemon は iSCSI の制御経路 (control path) といくつかの管理機能を実装す
+る. 例えば, daemon では再起動時の自動 discovery を設定出来る.
+
++++
++ iscsid (daemon) は iSCSI の制御経路と管理機能を実装する.
+
++ 再起動時の自動 discovery 等を設定可能.
+++
+
+For help, run:
+
+help は, 実行:
+
+    ---
+    ./iscsid --help
+    ---
+
+#// --------------------------------------------------------------
+#// Usage: iscsid [OPTION]
+#// --------------------------------------------------------------
+
++++
++ iscsid コマンドのオプション
++++
+
+使用方法: iscsid オプション
+
+  -c, --config=[path]     Execute in the config file (/etc/iscsi/iscsid.conf).
+
+                          設定ファイル (/etc/iscsi/iscsid.conf) で実行する.
+
+  -f, --foreground        run iscsid in the foreground
+
+                          フォアグラウンドで iscsid を実行する
+
+  -d, --debug debuglevel  print debugging information
+
+                          デバッグ情報の出力
+
+  -u, --uid=uid           run as uid, default is current user
+
+                          uid で実行, デフォルトは現在のユーザ
+
+  -g, --gid=gid           run as gid, default is current user group
+
+                          gid で実行, デフォルトは現在のユーザ
+
+  -h, --help              display this help and exit
+
+                          help を表示して終了
+
+  -v, --version           display version and exit
+
+                          バージョンを表示して終了
+
+#// ==============================================================
+#// 5. Open-iSCSI Configuration Utility
+#// ==============================================================
+
+Open-iSCSI の設定ユーティリティ
+
++++
++ データベースについて
++++
+
+Open-iSCSI persistent configuration is implemented as a DBM database
+available on all Linux installations.
+
+Open-iSCSI の 永続的な設定は 実装されている DBM データベースとして 利
+用可能な 全ての Linux インストールで.
+
+  * DMB データベース = DMB (Database Manager): データを key, value の
+    ハッシュとしてファイルで管理するシステム。高速だが通常トランザクショ
+    ン機能はない.
+
++++
++ 永続的な設定は DBM データベースで実装.
+
++ データベースは次の 2 つのテーブルを含む.
+
+    + /etc/iscsi/send_targets (discovery テーブル)
+
+    + /etc/iscsi/nodes        (nodes テーブル)
+
++ 通常 iSCSI のデータベースファイルは /etc/iscsi/node にある.
++++
+
+The database contains two tables:
+
+データベースは 2 つのテーブルを含む:
+
+    - Discovery table (/etc/iscsi/send_targets);
+
+      検出 (discovery) テーブル (/etc/iscsi/send_targets);
+
+    - Node table (/etc/iscsi/nodes).
+
+      ノード (node) テーブル (/etc/iscsi/nodes).
+
+The regular place for iSCSI database files: /etc/iscsi/nodes
+
+通常の場所は iSCSI データベースファイルの: /etc/iscsi/nodes
+
++++
++ iscsiadm について
++++
+
+The iscsiadm utility is a command-line tool to manage (update, delete,
+insert, query) the persistent database.
+
+iscsiadm ユーティリティは コマンドラインツール 管理のための (update, 
+delete, insert, query) 永続的なデータベースの.
+
+The utility presents set of operations that a user can perform 
+on iSCSI nodes, sessions, connections, and discovery records.
+
+ユーティリティは 提供する 操作のセットを ユーザは実行出来る iSCSI node, 
+session, connections, discovery record で.
+
++++
++ iscsiadm は永続的データベースの管理をするコマンドラインツール.
+
+    + update, delete, insert, query 操作が可能.
+
++ iSCSI の node, session, connection, discovery レコードで実行する.
++++
+
++++
++ 用語 node について
++++
++ iSCSI RFC と異なり Open-iSCSI では用語 node を "target 上で参照する
+  portal" のこととして利用する.
+
++ iscsiadm を node モードで利用する時には引数 --targetname と --portal
+  が必要.
++++
+
+Open-iscsi does not use the term node as defined by the iSCSI RFC,
+where a node is a single iSCSI initiator or target. Open-iscsi uses the
+term node to refer to a portal on a target, so tools like iscsiadm
+require that --targetname and --portal argument be used when in node mode.
+
+Open-iscsi は 使用しない 用語 node を 定義されたように iSCSI RFC で, 
+そこで node は 単一の iSCSI initiator や target のこと.
+
+Open-iscsi は 使用する 用語 node を target 上で 参照する portal に, 
+ツールは iscsiadm のような 必要とする --targetname と --portal 引数を 
+node mode 利用することを.
+
++++
++ session モードについて
++++
++ session モードでは session id (sid) を使う.
+
++ sid は iscsiadm -m session -P1 を実行して見つける.
+
++ ただし sid は現在のところ session 起動時に部分的に決定するだけで永続
+  的ではない.
+
++ 一部の iSCSI Node と iSCSI Discovery の操作は iscsid の読み込みが必
+  須ではない.
++++
+
+For session mode, a session id (sid) is used. The sid of a session can be
+found by running iscsiadm -m session -P 1. The session id is not currently
+persistent and is partially determined by when the session is setup.
+
+session mode では, session id (sid) を使用する. session の sid は 見つ
+けられる 実行することで iscsiadm -m session -P1 を.
+
+session id は 現在 永続的ではなく 部分的に決定される session 起動時に.
+
+Note that some of the iSCSI Node and iSCSI Discovery operations 
+do not require iSCSI daemon (iscsid) loaded.
+
+留意すべきは 一部の iSCSI Node と iSCSI Discovery 操作は 必要としない 
+iSCSI daemon (iscsid) の読み込みを.
+
+For help, run:
+
+help は, 実行する:
+
+    ---
+    ./iscsiadm --help
+    ---
+
+Usage: iscsiadm [OPTION]
+
+#// --------------------------------------------------------------
+#// 使用方法: iscsiadm オプション
+#// --------------------------------------------------------------
+
+  ---
+  -m, --mode <op>
+  ---
+
+        specify operational mode op = <discovery|discoverydb|fw|iface|host|node>
+
+        操作 mode op を = <discovery|dicoverydb|fw|iface|host|node> で指定.
+
+  ---
+  -m discoverydb --type=[type] --interface=[iface...] --portal=[ip:port] \
+                 --print=[N] \
+                 --op=[op]=[NEW | UPDATE | DELETE | NONPERSISTENT] \
+                 --discover
+  ---
+
+        # type=[type], portal=[ip:port]
+
+        This command will use the discovery record settings
+        matching the record with type=type and
+        portal=ip:port]. If a record does not exist, it will
+        create a record using the iscsid.conf discovery
+        settings.
+
+        このコマンドは type=type と portal=[ip:port] に一致する レコー
+        ド discovery レコードの設定に利用する.
+
+        もしレコードがない場合は iscsid.conf の dicsvery の設定を利用
+        してレコードは作成される。
+
+        By default, it will then remove records for
+        portals no longer returned. And,
+        if a portal is returned by the target, then the
+        discovery command will create a new record or modify
+        an existing one with values from iscsi.conf and the
+        command line.
+
+        デフォルトでは, portal の返されることのないレコードは削除する.
+
+        もし target から portal が返された場合, discovery コマンドは
+        iscsi.conf とコマンドラインの値で新しいレコードを作成するか既
+        存のものを変更する.
+
+        * s/iscsi.conf/iscsid.con/ (?)
+
+        # [op]
+
+        [op] can be passed in multiple times to this
+        command, and it will alter the node DB manipulation.
+
+        [op ] はこのコマンドに複数回渡せて, node DB の操作を変える.
+
+        # [op] new
+
+        If [op] is passed in and the value is
+        "new", iscsiadm will add records for portals that do
+        not yet have records in the db.
+
+        もし [op] の value が "new" で渡された場合, iscsiadm はまだ持っ
+        ていない db のレコードを portal に追加する.
+
+        # [op] update
+
+        If [op] is passed in and the value is
+        "update", iscsiadm will update node records using
+        info from iscsi.conf and the command line for portals
+        that are returned during discovery and have
+        a record in the db.
+
+        もし [op] の value が "update" で渡された場合, iscsiadm は 
+        iscsi.conf とコマンドラインの情報を利用して discovery 中に返さ
+        れたかつ db 内で持っているレコードの portal の node レコードを 
+        update する. 
+
+        # [op] delete
+
+        If [op] is passed in and the value is "delete",
+        iscsiadm will delete records for portals that
+        were not returned during discovery.
+
+        もし [op 」の value が "delete" で渡された場合, iscsiadm は
+        discovery の間に返されない portal のレコードを削除する.
+
+        If [op] is passed in and the value is
+        "nonpersistent" iscsiadm will not store
+        the portals found in the node DB. This
+        only useful with the --login command.
+
+        もし [op] の value が "nonpersistent" で渡された場合 iscsiadm
+        は見つけた node DB に portal を格納しない.
+
+        これは --login コマンドでのみ有用.
+
+        See the example section for more info.
+
+        詳しくは実例セクションを参照する.
+
+        # iscsi ifaces のセットアップ
+
+        See below for how to setup iscsi ifaces for
+        software iscsi or override the system defaults.
+
+        ソフトウェア iscsi またはデフォルトのシステムを上書きするため
+        に iscsi ifaces をどの様にセットアップするかは下記を参照する.
+
+        Multiple ifaces can be passed in during discovery.
+
+        Multiple (複数の) iface は 渡せる discovery の間に.
+
+        # print
+
+        For the above commands "print" is optional. If
+        used, N can be 0 or 1.
+
+        0 = The old flat style of output is used.
+        1 = The tree style with the inteface info is used.
+
+        上記コマンドの "print" はオプション. もし利用するなら, N は 0 
+        か 1 になる.
+
+        0 = 旧式のフラットスタイルの出力が使われる.
+        1 = インターフェイス情報とツリー形式が使われる.
+
+        If print is not used the old flay style is used.
+
+        もし print を使わないなら旧式のフラットスタイルが使われる.
+
+            * s/flay/flat/ (?)
+
+  ---
+  -m discoverydb --interface=[iface...] --type=[type] --portal=[ip:port] \
+                 --print=[N] \
+                 --op=[op]=[NEW | UPDATE | DELETE | NONPERSISTENT] \
+                 --discover --login
+  ---
+
+        # login
+
+        This works like the previous discoverydb command
+        with the --login argument passed in will also
+        log into the portals that are found.
+
+        これは前の dicoveryyb コマンドの様に動作して --login 引数が渡
+        されているので見つかった portal にログインする.
+
+  ---
+  -m discoverydb --portal=[ip:port] --type=[type] \
+                 --op=[op] [--name=[name] --value=[value]]
+  ---
+
+        # portal の DB 操作
+
+        Perform specific DB operation [op] for 
+        discovery portal. It could be one of:
+        [new], [delete], [update] or [show]. In case of
+        [update], you have to provide [name] and [value]
+        you wish to update
+
+        特定の DB 操作 [op] を発見した portal に実行する.
+        それは次のいずれかが出来る:
+
+        [new]
+        [delete]
+        [update]
+        [show]
+
+        # op = update
+
+        [update] の場合は, update したい [name] と [value] を提供しな
+        ければならない.
+
+        # op = new
+
+        op=NEW will create a new discovery record
+        using the iscsid.conf discovery settings. If it
+        already exists, it will be overwritten using
+        iscsid.conf discovery settings.
+
+        op=NEW は iscsid.conf の discovery 設定を利用して新しい discovery
+        レコードを作成する. もしすでにレコードが存在する場合は iscsid.conf
+        の discovery 設定を利用して上書きする.
+
+        # op = delete
+
+        op=DELETE will delete the discovery record
+        and records for the targets found through
+        that discovery source.
+
+        op=DELETE は discovery ソースを通して見つけた discovery レコー
+        ドと target のレコードを削除する.
+
+        # op = show
+
+        op=SHOW will display the discovery record
+        values. The --show arguemnt can be used to
+        force the CHAP passwords to be displayed.
+
+        op=SHOW は discovery レコードの値を表示する. この --show 引数
+        は CHAP パスワードを強制的に表示する. (!)
+
+  ---
+  -m discovery --type=[type] --interface=iscsi_ifacename \
+               --portal=[ip:port] --login --print=[N] \
+               --op=[op]=[NEW | UPDATE | DELETE | NONPERSISTENT]
+  ---
+
+        # type
+
+        perform [type] discovery for target portal with
+        ip-address [ip] and port [port].
+
+        ip-address [ip] と port [port] で target portal に
+        [type] discovery を実行する.
+
+        # コマンドの概要
+
+        This command will not use the discovery record
+        settings. It will use the iscsid.conf discovery
+        settings and it will overwrite the discovery
+        record with iscsid.conf discovery settings if it
+        exists. By default, it will then remove records for
+        portals no longer returned. And,
+        if a portal is returned by the target, then the
+        discovery command will create a new record or modify
+        an existing one with values from iscsi.conf and the
+        command line.
+
+        このコマンドは discovery レコードの設定を利用しない. それは 
+        iscsid.conf の discovery 設定を利用していて, もし discovery レ
+        コードが存在する場合は iscsid.conf の discovery 設定を利用して
+        上書きする.
+
+        デフォルトでは, もはや返されない portal のレコードは削除する.
+        それから, もし target から portal が返された場合, discovery コ
+        マンドは iscsi.conf とコマンドラインの value で新しいレコード
+        を作成するか既存のものを変更する.
+
+        # DB を操作する [op]
+
+        [op] can be passed in multiple times to this
+        command, and it will alter the DB manipulation.
+
+        [op] はこのコマンドに複数渡せて, それは DB の操作を変更する.
+
+        # op = new
+
+        If [op] is passed in and the value is
+        "new", iscsiadm will add records for portals that do
+        not yet have records in the db.
+
+        もし [op] の value が "new" で渡された場合, iscsiadm は db が
+        まだレコードを持っていない portal のレコードを追加する.
+
+        # op = update
+
+        If [op] is passed in and the value is
+        "update", iscsiadm will update node records using
+        info from iscsi.conf and the command line for portals
+        that are returned during discovery and have
+        a record in the db.
+
+        もし [op] の valeu が "update" で渡された場合, iscsiadm は 
+        iscsid.conf とコマンドラインの情報を利用して discovery 中に返
+        されたかつ db 内にレコード持っている portal の node レコードを
+        update する.
+
+        # op = delete
+
+        If [op] is passed in and the value is "delete",
+        iscsiadm will delete records for portals that
+        were not returned during discovery.
+
+        もし [op] が value "delete" で渡された場合, iscsiadm は discovery
+        中に返されない portal のレコードを削除する.
+
+        # nonpersistent
+
+        If [op] is passed in and the value is
+        "nonpersistent" iscsiadm will not store
+        the portals found in the node DB.
+
+        もし [op] の value が "nonpersistent" で渡された場合, iscsiadm
+        は見つけた portal を node DB に格納しない.
+
+        See the example section for more info.
+
+        詳しくは実施例セクションを参照する.
+
+        See below for how to setup iscsi ifaces for
+        software iscsi or override the system defaults.
+
+        ソフトウェア iscsi またはシステムのデフォルトを上書きするため
+        に iscsi ifaces をどの様に setup するかは下記を参照する.
+
+        Multiple ifaces can be passed in during discovery.
+
+        discovery 中に複数の ifaces を渡すことが出来る.
+
+  ---
+  -m discovery --print=[N] 
+  ---
+
+        # discovery レコードの表示
+
+        display all discovery records from internal
+        persistent discovery database.
+
+        内部の永続的な discovery データベースからすべての discovery レ
+        コードを表示する.
+
+  ---
+  -m node
+  ---
+
+        # node の表示
+
+        display all discovered nodes from internal
+        persistent discovery database
+
+        内部の永続的な discovery データベースからすべての発見された 
+        node を表示する.
+
+  ---
+  -m node --targetname=[name] --portal=[ip:port] \
+          --interface=iscsi_ifacename] \
+          [--login|--logout|--rescan|--stats]
+
+  -m node --targetname=[name] --portal=[ip:port]
+          --interface=[driver,HWaddress] \
+          --op=[op] [--name=[name] --value=[value]]
+
+  -m node --targetname=[name] --portal=[ip:port]
+          --interface=iscsi_ifacename] \
+          --print=[level]
+---
+
+        perform specific DB operation [op] for specific
+        interface on host that will connect to portal on
+        target. targetname, portal and interface are optional.
+        See below for how to setup iscsi ifaces for
+        software iscsi or override the system defaults.
+
+        host 上の特定のインターフェイスのために特定の DB 操作 [op] を
+        実行して target 上の portal に接続する.
+
+        targetname, portal, interface はオプション.
+
+        ソフトウェア iscsi またはシステムのデフォルトを上書きするため
+        の iscsi ifaces の setup は以下を参照する.
+
+        op could be one of:
+
+        [new], [delete], [update] or [show]. In case of
+        [update], you have to provide [name] and [value]
+        you wish to update.
+        [delete] - Note that if a session is using the
+        node record, the session will be logged out then
+        the record will be deleted.
+
+        op はいずれかひとつ:
+
+        [new]
+        [delete]
+        [update]
+        [show]
+
+        # update
+
+        [update] の場合, update したい [name] と [value] を提供する.
+
+        # delete
+
+        [delete] - session が node レコードを利用していた場合は, session
+        はログアウトしてその後レコードは削除されるので注意.
+
+        Print level can be 0 to 1.
+
+        print レベルは 0 から 1.
+
+        Rescan will perform a SCSI layer scan of the session
+        to find new LUNs.
+
+        # rescan
+
+        rescan は新しい LUN を見つけるために session の SCSI レイヤを
+        スキャンする.
+
+            * LUN = Logical Unit Number (論理ユニット番号) (?)
+
+        # stat
+
+        Stats prints the iSCSI stats for the session.
+
+        stats は iSCSI の session の統計を出力する.
+
+  ---
+  -m node --logoutall=[all|manual|automatic]
+  ---
+
+        # ログアウト all, manual, automatic
+
+        Logout "all" the running sessions or just the ones
+        with a node startup value manual or automatic.
+        Nodes marked as ONBOOT are skipped.
+
+        実行中の "all" session か node の startup value が "manual" や
+        "automatic" のものだけをログアウトする.
+
+        ONBOOT としてマークされた node はスキップする.
+
+  ---
+  -m node --loginall=[all|manual|automatic]
+  ---
+
+        # ログイン all, manual, automatic
+
+        Login "all" the running sessions or just the ones
+        with a node startup value manual or automatic.
+        Nodes marked as ONBOOT are skipped.
+
+        実行中の "all" session か node の startup value が "manual" や
+        "automatic" のものだけをログインする.
+
+        ONBOOT としてマークされた node はスキップする.
+
+  ---
+  -m session
+  ---
+
+        # アクティブな session と connection の表示
+
+        display all active sessions and connections
+
+        すべてのアクティブな session と connection を表示する.
+
+  ---
+  -m session --sid=[sid] [ --print=level | --rescan | --logout ]
+              --op=[op] [--name=[name] --value=[value]]
+  ---
+
+        # sid による session の操作
+
+        perform operation for specific session with
+        session id sid. If no sid is given the operation
+        will be performed on all running sessions if possible.
+        --logout and --op work like they do in node mode,
+        but in session mode targetname and portal info is
+        is not passed in.
+
+        session id sid で特定の session の操作を実行する.
+
+        もし sid が与えられない場合は, 可能であれば実行中のすべての 
+        session で操作を実行される.
+
+        --logout と --op は node mode で行う様な動作をするが, session
+        mode では targetname と portal の情報は渡されない.
+
+        # print = level
+
+        Print level can be 0 to 2.
+        1 = Print basic session info like node we are
+        connected to and whether we are connected.
+        2 = Print iscsi params used.
+        3 = Print SCSI info like LUNs, device state.
+
+        print レベルは 0 から 2.
+
+            * [0, 1, 2] ? or [1, 2, 3] ? (?)
+
+        1 = 接続している node や node と接続しているかどうかの様な基本
+            的な session 情報を出力する.
+
+              2 = 使用している iscsi のパラメータを出力する.
+
+        2 = 使用している iscsi のパラメータを出力する.
+
+        3 = LUN (Logical Unit Numbe), device の状態の様な情報を出力する.
+
+        If no sid and no operation is given print out the
+        running sessions.
+
+        もし siad も operasion (操作) も与えられない場合は実行中のセッ
+        ションを出力する.
+
+  ---
+  -m iface --interface=iscsi_ifacename --op=[op] [--name=[name] --value=[value]]
+           --print=level
+  ---
+
+        # iface 名を指定して実行
+
+        perform operation on fiven interface with name
+        iscsi_ifacename.
+
+        与えられた iscsi_ifacename の名前の interface 上で操作を実行する.
+
+              * s/fiven/given/ (?)
+
+        See below for examples.
+
+        以下の実施例を参照する.
+
+  ---
+  -m iface --interface=iscsi_ifacename -C ping --ip=[ipaddr] --packetsize=[size]
+           --count=[count] --interval=[interval]
+
+  -m host --host=hostno|MAC --print=level -C chap --op=[op] --value=[chap_tbl_idx]
+
+  ---
+
+        # host 情報を表示
+
+        Display information for a specific host. The host
+        can be passed in by host number or by MAC address.
+        If a host is not passed in then info
+        for all hosts is printed.
+
+        特定の host 情報を表示する. host には host 番号か MAC アドレス
+        を渡せる.
+
+        もし host が渡されない場合はすべての host の情報を出力する.
+
+        Print level can be 0 to 4.
+
+        1 = Print info for how like its state, MAC, and
+        netinfo if possible.
+        2 = Print basic session info for nodes the host
+        is connected to.
+        3 = Print iscsi params used.
+        4 = Print SCSI info like LUNs, device state.
+
+        print レベルは 0 から 4.
+
+        1 = 可能であれば状態, MAC, netinfo の様な情報を出力する.
+
+        2 = host が接続している node の基本的な session 情報を出力する.
+
+        3 = iscsi が利用しているパラメータを出力する.
+
+        4 = LUN, device の状態の様な SCSI の情報を出力する.
+
+  ---
+  -d, --debug debuglevel
+  ---
+
+        # デバッグ情報
+
+        print debugging information
+
+        デバッグした情報を出力.
+
+  ---
+  -V, --version
+  ---
+
+        # バージョン
+
+        display version and exit
+
+        バージョンを表示して終了.
+
+  ---
+  -h, --help
+  ---
+
+        # help
+
+        display this help and exit
+
+        このヘルプを表示して終了.
+
+
+#// ==============================================================
+#// 5.1 iSCSI iface setup
+#// ==============================================================
+
+iSCSI iface の setup
+
+The next sections describe how to setup iSCSI ifaces so you can bind
+a session to a NIC port when using software iscsi (section 5.1.1), and
+it describes how to setup ifaces for use with offload cards from Chelsio
+and Broadcm (section 5.1.2).
+
+次のセクションはソフトウェア iscsi を利用した時にどの様に iSCSI を setup 
+して session と NIC port を結合するかを説明する (section 5.1.1), それ
+から Chelsio と Broadcm の offload カードを利用するために iface をどの
+様に setup するかを説明する (section 5.1.2).
+
+#// ==============================================================
+#// 5.1.1 How to setup iSCSI interfaces (iface) for binding
+#// ==============================================================
+
+    # subsystem を許可するならこのセクションはスキップ
+
+    # 異なる subnet に portal と NIC を setup しているなら以下は不要.
+
+If you wish to allow the network susbsystem to figure out
+the best path/NIC to use then you can skip this section. For example
+if you have setup your portals and NICs on different subnets then
+this the following is not needed for software iscsi.
+
+もし最適な path/NIC を把握する (figure out) ためにネットワーク subsystem
+を許可するならこのセクションはスキップ出来る.
+
+例えば異なるサブネット上に setup した portal と NIC を持っている場合, 
+以下はソフトウェア iscsi に必要ではない.
+
+#// Warning!!!!!!
+
+    # 警告 !!!!!!
+
+    # この機能は実験的でインターフェイスは変更の可能性あり.
+
+This feature is experimental. The interface may change. When reporting
+bugs, if you cannot do a "ping -I ethX target_portal", then check your
+network settings first. Make sure the rp_filter setting is set to 0 or 2
+(see Prep section below for more info). If you cannot ping the portal,
+then you will not be able to bind a session to a NIC.
+
+この機能は実験的. インターフェイスは変更されるかもしれない. 
+
+    # ping -I ethX target_portal" を実行してネットワークをチェック.
+
+バグを報告する時に, もし "ping -I ethX target_portal" が出来ないなら,
+先にあなたのネットワークをチェックする. 
+
+    # rp_filter の設定をチェック
+
+rp_filter の設定に 0 か 2 がセットされているかを確認する (詳細は以下の
+Prep セクションを参照).
+
+もし portal を ping 出来ない場合は, NIC に session を結合できない.
+
+#// What is a scsi_host and iface for software, hardware and partial 
+    offload iscsi?
+
+ソフトウェアの scsi_host と iface, ハードウェアと部分的な offload iscsi 
+とは何か ?
+
+Software iscsi, like iscsi_tcp and iser, allocate a scsi_host per session
+and does a single connection per session. As a result
+/sys/class_scsi_host and /proc/scsi will report a scsi_host for
+each connection/session you have logged into. Offload iscsi, like
+Chelsio cxgb3i, allocates a scsi_host for each PCI device (each
+port on a HBA will show up as a different PCI device so you get
+a scsi_host per HBA port).
+
+    # ソフトウェア iscsi とは
+
+ソフトウェア iscsi は, iscsi_tcp と iser の様に, session 毎に scsi_host 
+を割り当てて session 毎に 単一の接続を行う.
+
+結果として /sys/class_scsi_host と /proc/scsi はログインした
+各 connection/session の scsi_host を報告する.
+
+    # offload iscsi とは
+
+Chelsio cxgb3i の様な offload iscsi は, 各 PCI デバイスに scsi_host を
+割り当てる (HBA 上の各 port は異なる PCI デバイスとして表示されるので 
+HBA 毎の scsi_host を得られる).
+
+To manage both types of initiator stacks, iscsiadm uses the interface (iface)
+structure. For each HBA port or for software iscsi for each network
+device (ethX) or NIC, that you wish to bind sessions to you must create
+a iface config /etc/iscsi/ifaces.
+
+    # initiator stack を管理する
+
+initiator stack の両方のタイプを管理するために, iscsiadm は interface 
+(iface) 構造を利用する.
+
+    # session の結合には /etc/iscsi/ifaces を作成する必要がある
+
+各 HBA port や 各ネットワーク device (ethX) または NIC のソフトウェア 
+iscsi のために, session を結合したいなら iface 設定の /etc/iscsi/ifaces 
+を作成しなければならない.
+
+#// Prep:
+
+    # ネットワークのチェック (?) (5.1.1 の warning !!!)
+
+    # iface の結合機能のためには /etc/sysctl.conf の編集が必要
+
+    # 有効にするには再起動が必要
+
+The iface binding feature requires the sysctl setting
+net.ipv4.conf.default.rp_filter to be set to 0 or 2. This can be set
+in /etc/sysctl.conf by having the line:
+
+iface の 結合機能は sysctl の net.ipv4.conf.default.rp_filter に 0 か 2 
+をセットする設定が必要. これは /etc/sysctl.conf が持っている行で設定セッ
+ト出来る:
+
+    ---
+    net.ipv4.conf.default.rp_filter = N
+    ---
+
+where N is 0 or 2. Note that when setting this you may have to reboot
+the box for the value to take effect.
+
+N は 0 か 2. これを設定した時は値を有効にするために box (機器 (?)) の 
+reboot が必要であることに注意.
+
+#// rp_filter information from Documentation/networking/ip-sysctl.txt:
+
+Documentation/networking/ip-sysctl.txt: からの rp_filter の情報:
+
+    # rp_filter の情報
+
+#// rp_filter - INTEGER (整数)
+
+        0 - No source validation.
+        1 - Strict mode as defined in RFC3704 Strict Reverse Path
+            Each incoming packet is tested against the FIB and if the interface
+            is not the best reverse path the packet check will fail.
+            By default failed packets are discarded.
+        2 - Loose mode as defined in RFC3704 Loose Reverse Path
+            Each incoming packet's source address is also tested against the FIB
+            and if the source address is not reachable via any interface
+            the packet check will fail.
+
+        0 - ソースを検証 (validation) しない.
+
+        1 - strict (厳格) mode は RFC3704 Strict Reverse Path (厳格な
+            戻り経路) として定義されていて 各着信パケットは FIB に対し
+            てテストされ, もし interface が最適な戻り経路でなければパ
+            ケットチェックは失敗する. デフォルトでは失敗したパケットは
+            破棄される.
+
+        2 - loose mode は RFC3704 Loose Reverse Path (緩い戻り経路) と
+            して定義されていて, 各着信パケットのソースアドレスもまた 
+            FIB に対してテストされ, もしソースアドレスが任意のインター
+            フェイスを介して到達出来ない場合パケットチェックは失敗する.
+
+#// Running: (実行)
+
+    # iface の設定をリポート
+
+    ---
+    # iscsiadm -m iface
+    iface0 qla4xxx,00:c0:dd:08:63:e8,20.15.0.7,default,iqn.2005-06.com.redhat:madmax
+    iface1 qla4xxx,00:c0:dd:08:63:ea,20.15.0.9,default,iqn.2005-06.com.redhat:madmax
+    ---
+
+Will report iface configurations that are setup in /etc/iscsi/ifaces.
+The format is:
+
+リポートする iface の設定を /etc/iscsi/iface で setup された.
+フォーマットは:
+
+/etc/iscsi/iface で setup された iface の設定をリポートする.
+フォーマットは:
+
+    ---
+    iface_name transport_name,hwaddress,ipaddress,net_ifacename,initiatorname
+    ---
+
+    # iface は iscsiadm の iface mode を使って設定する
+
+    # /etc/iscsi/ifaces の iface.example はテンプレートとして利用可能
+
+    # session を結合したい場合は iface 設定を個別に作成する必要がある
+
+    # iface 設定ファイルの名前は 64 文字以内
+
+For software iscsi, you can create the iface configs by hand, but it is
+reccomended that you use iscsiadm's iface mode. There is a iface.example in
+/etc/iscsi/ifaces which can be used as a template for the daring.
+
+ソフトウェア iscsi では iface の設定を手動で設定出来るが, しかし iscsiadm 
+の iface mode を使用することが推奨されている. /etc/iscsi/ifaces の iface.example 
+は大胆にテンプレートとして利用可能.
+
+For each network object you wish to bind a session to you must create
+a seperate iface config in /etc/iscsi/ifaces and each iface config file
+must have a unique name which is less than or equal to 64 characters.
+
+各ネットワークオブジェクトで session を結合したい場合は別々の iface 設
+定を /etc/iscsi/ifaces で作成しなければならず, かつ, 各 iface の設定ファ
+イルは 64 文字以内のユニークな名前を持つ必要がある.
+
+#// Example: (実施例)
+
+    # (手動) iface 設定ファイルの作成 +++
+
+If you have NIC1 with MAC address 00:0F:1F:92:6B:BF and NIC2 with
+MAC address 00:C0:DD:08:63:E7 and you wanted to do software iscsi over
+TCP/IP. Then in /etc/iscsi/ifaces/iface0 you would enter:
+
+MAC アドレス 00:0F:1F:92:6B:BF の NIC1 と MAC アドレス 00:C0:DD:08:63:E7 
+の NIC 2 を持っていて, ソフトウェア iscsi で over TCP/IP をしたい場合.
+
+/etc/iscsi/iface/iface0 に以下を入力する:
+
+    # NIC1 用
+
+    ---
+    iface.transport_name = tcp
+    iface.hwaddress = 00:0F:1F:92:6B:BF
+    ---
+
+and in /etc/iscsi/ifaces/iface1 you would enter:
+
+それから /etc/iscsi/ifaces/iface1 に以下を入力する:
+
+    # NIC2 用
+
+    ---
+    iface.transport_name = tcp
+    iface.hwaddress = 00:C0:DD:08:63:E7
+    ---
+
+---
+    # iface 設定ファイル名の注意
+
+Warning: Do not name a iface config file  "default" or "iser".
+They are special value/file that is used by the iscsi tools for
+backward compatibility. If you name a iface default or iser, then
+the behavior is not defined.
+
+警告: iface 設定ファイルの名前を "default" や "iser" にしてはいけない. 
+これらは後方互換のための iscsi ツールで特別な value/file として利用さ
+れるため. もし "default" か "iser" の名前を使った場合動作は保障されない.
+---
+
+    # (iscsadm) iface 設定ファイルの作成 +++
+
+    +++
+    (!) /etc/iscsi/ifaces/ ではなく /var/lib/iscsi/ifaces に iface0 が
+        作成された。
+    +++
+
+To use iscsiadm to create iface0 above for you run:
+
+iscsiadm を利用して上記の iface0 を作成するには以下を実行する:
+
+(This will create a new empty iface config. If there was already a iface
+with the name "iface0" this command will overwrite it.)
+
+(これは新しい空の ifaec.config を作成する. もし既に "iface0" の名前の
+ファイルがあればこのコマンドはそれを上書きする.)
+
+    ---
+    # iscsiadm -m iface -I iface0 --op=new
+    ---
+
+(This will set the hwaddress.)
+
+(これは セットする ハードウェアを.)
+
+    ---
+    # iscsiadm -m iface -I iface0 --op=update -n iface.hwaddress -v 00:0F:1F:92:6B:BF
+    ---
+
+    # iface の update, overwrite と node/portal の結合の関係
+
+    # session ログイン中は update, overwrite されない
+
+If you had sessions logged in iscsiadm will not update, overwrite
+a iface. You must log out first. If you have a iface bound to a node/portal
+but you have not logged in then, iscsiadm will update the config and
+all existing bindings.
+
+もし session にログインしている場合は, iscsiadm でiface のupdate, overwite 
+はされないので先にログアウトしなければならない.
+
+もし node/portal に結合した (bound) iface を持っていた場合で, その後ロ
+グインしていない場合は, iscsiadm は設定と既存のすべての結合 (binding) 
+を update する.
+
+You should now skip to 5.1.3 to see how to log in using the iface and for
+some helpful management commands.
+
+iface を利用してログインする方法やいくつか有用な管理コマンドは 5.1.3 
+にスキップして確認する.
+
+
+#// ==============================================================
+#// 5.1.2 Setting up a iface for a iSCSI offload card
+#// ==============================================================
+
+iSCSI offload card のための iface 設定
+
+    # offload card と iface
+
+This section describes how to setup ifaces for use with Chelsio, Broadcom and
+QLogic cards.
+
+このセクションは 説明する iface をどの様に設定するか Chelsio, Broadcom, QLogic カードを利用するために.
+
+このセクションは Chelsio, Brodcom, QLogic のカードを利用するための iface 
+の設定を説明する.
+
+By default, iscsiadm will create a iface for each Broadcom, QLogic and Chelsio
+port. The iface name will be of the form:
+
+デフォルトで iscsiadm は Broadcom, QLogic, Chelsio それぞれの port 
+のために iface を作成する. iface の名前の形式は次の様になる:
+
+    ---
+    $transport/driver_name.$MAC_ADDRESS
+    ---
+
+#// Running:
+
+実行
+
+    ---
+    # iscsiadm -m iface
+    default tcp,<empty>,<empty>,<empty>,<empty>
+    iser iser,<empty>,<empty>,<empty>,<empty>
+    cxgb3i.00:07:43:05:97:07 cxgb3i,00:07:43:05:97:07,<empty>,<empty>,<empty>
+    qla4xxx.00:0e:1e:04:8b:2e qla4xxx,00:0e:1e:04:8b:2e,<empty>,<empty>,<empty>
+    ---
+
+    # iface の setup (offload card)
+
+Will report iface configurations that are setup in /etc/iscsi/ifaces.
+The format is:
+
+iface の構成をリポートして /etc/iscsi/ifaces に setup する.形式は次の通り:
+
+    ---
+    iface_name transport_name,hwaddress,ipaddress,net_ifacename,initiatorname
+    ---
+    ---
+    iface_name:         name of iface
+    transport_name:     name of driver
+    hwaddress:          MAC address
+    ipaddress:          IP address to use for this port
+    net_iface_name:     Net_ifacename will be <empty> because change between reboots. It is used for software iSCSI's vlan or alias binding.
+    initiatorname:      Initiatorname to be used if you want to override the default one in /etc/iscsi/initiatorname.iscsi.
+    ---
+    iface_name:         iface の名前
+    transport_name:     driver の名前
+    hwaddress:          MAC アドレス
+    ipaddress:          この port のために利用する IP addr
+    net_iface_name:     net_ifacename が <空> になるのは reboot の間で
+                        変更になるため. それはソフトウェア iSCSI の 
+                        vlan か alias バインディングを利用する.
+    initiatorname:      もし /etc/iscsi/initiatorname.iscsi のデフォル
+                        トのひとつを上書きしたいなら initiatorname を
+                        利用する. (?)
+    ---
+
+To display these values in a more friendly way, run:
+
+これらの値をよりフレンドリーな方法で表示するには, 以下を実行する:
+
+    ---
+    iscsiadm -m iface -I cxgb3i.00:07:43:05:97:07
+    ---
+    # BEGIN RECORD 2.0-871
+    iface.iscsi_ifacename = cxgb3i.00:07:43:05:97:07
+    iface.net_ifacename = <empty>
+    iface.ipaddress = <empty>
+    iface.hwaddress = 00:07:43:05:97:07
+    iface.transport_name = cxgb3i
+    iface.initiatorname = <empty>
+    # END RECORD
+    ---
+
+    # setup した iface を利用する前に IP addr を port に設定 (offload card)
+
+Before you can use the iface, you must set the IP address for the port
+with the following command:
+
+iface を利用する前に次のコマンドで IP addr を port に設定しておかなけ
+ればならない:
+
+    ---
+    iscsiadm -m iface -I cxgb3i.00:07:43:05:97:07 -o update -n iface.ipaddress -v 20.15.0.66
+    ---
+
+    # いくつかの注意
+
+#// Note1.
+
+注意 1
+
+    # value の名前を update するには
+
+For the name of the value we want to update we use the name from
+the "iscsiadm -m iface -I cxgb3i.00:07:43:05:97:07" command which is
+"iface.ipaddress".
+
+value の名前を update するには 
+"iscsiadm -m iface -I cxgb3i.00:07:43:05:97:07" コマンドからの名前
+を "iface.ipaddress " で利用する. (?)
+
+#// Note2.
+
+注意 2
+
+    # QLogic で iface を update したあとに有効にする方法 (offload card)
+
+For QLogic ports after updating the iface record, for network settings to take
+effect, one must apply or applyall the settings.
+
+QLogic のポートで iface レコードを update した後に, ネットワーク設定を
+有効にする (take effect) には, apply か applyall どちらかを設定しなけ
+ればならない.
+
+    ---
+    iscsiadm -m iface -I qla4xxx.00:0e:1e:04:8b:2e -o apply or
+    iscsiadm -m iface -H 00:0e:1e:04:8b:2e -o applyall
+    ---
+
+    # apply と applyall について (offload card)
+
+With operation "apply" network setting for the specified iface will take effect.
+With operation "applyall" network settings for all ifaces on a specific host
+will take take effect. The host can be specified using the -H/--host argument
+by either the MAC address of the host or the host number.
+
+ネットワーク設定の "apply" 操作は指定された iface を有効にする.
+
+ネットワーク設定の "applyall" 操作は 特定の host のすべての iface を有
+効にする. host は -H/--host 引数で host の MAC addr か host 番号を指定
+出来る.
+
+    # 単一のインターフェイスに複数の IPv6 addr を設定 (offload card)
+
+Here is an example of setting multiple IPv6 address on single iSCSI interface
+port.
+
+ここは単一の iSCSI インターフェイス port 上で複数の IPv6 addr 設定する
+実施例.
+
+First interface (no need to set iface_num, it is 0 by default)
+
+first インターフェイス (iface_num のセットを必要せず, それはデフォルト
+で 0)
+
+    ---
+    iscsiadm -m iface -I qla4xxx.00:0e:1e:04:8b:2a -o update \
+             -n iface.ipaddress -v fec0:ce00:7014:0041:1111:2222:1e04:9392
+    ---
+
+Create the second interface if it does not exist
+
+インターフェイスが存在していなければ second インターフェイスを作成する.
+
+    ---
+    iscsiadm -m iface -I qla4xxx.00:0e:1e:04:8b:2a.1 -op=new
+    iscsiadm -m iface -I qla4xxx.00:0e:1e:04:8b:2a -o update \
+             -n iface.iface_num -v 1 (iface_num is mandatory for second iface)
+                                     (iface_num は second iface に必須)
+    iscsiadm -m iface -I qla4xxx.00:0e:1e:04:8b:2a -o update \
+             -n iface.ipaddress -v = fec0:ce00:7014:0041:1111:2222:1e04:9393
+    iscsiadm -m iface -H 00:0e:1e:04:8b:2a --op=applyall
+    ---
+
+    # 共通の設定がある状態で 0th から設定するなら iface は有効 ? (offload card)
+
+Note: If there are common settings for multiple interfaces then the
+settings from 0th iface would be considered valid.
+
+注意: もし複数のインターフェイスのための共通する設定があり, その後に 
+0th から設定するなら iface は有効とみなされる. 
+
+Now, we can use this iface to login into targets, which is described in the
+next section.
+
+次のセクションで iface を利用して target にログインする方法が説明されている.
+
+
+#// ==============================================================
+#// 5.1.3 Discoverying iSCSI targets/portals
+#// ==============================================================
+
+iSCSI の target/portals を発見する 
+
+  * s/Discoverying/Discovering/
+
+    # 注意 ! iscsiadm は discovery にデフォルトルートを使う
+
+    # つまり iface の設定を使わない
+
+Be aware that iscsiadm will use the default route to do discovery. It will
+not use the iface specified. So if you are using a offload card, you will
+need a seperate network connection to the target for discovery purposes.
+
+iscsiadm は discovery でデフォルトルートを利用することに注意. それは 
+iface の指定を利用しない.
+
+    # offload card を使っている場合の注意 (次期バージョンで修正予定)
+
+もし offload card を利用している場合は, 目標の discovery のために target
+に別のネットワークコネクションが必要.
+
+*This will be fixed in the next version of open-iscsi*
+
+*これは 修正される open-iscsi の次のバージョンで*
+
+    # iscsadm の discovery の互換性にまつわる動作
+
+    # インターフェイスをチェックする場所と portal との結合
+
+For compatibility reasons, when you run iscsiadm to do discovery, it
+will check for interfaces in /etc/iscsi/iscsi/ifaces that are using
+tcp for the iface.transport and it will bind the portals that are discovered
+so that they will be logged in through those ifaces. This behavior can also
+be overriden by passing in the interfaces you want to use. For the case
+of offload like with cxgb3i and bnx2i this is required because the transport
+will not be tcp.
+
+  * s/overriden/overridden/
+
+iscsiadm で discovery を実行する時, 互換性の理由から, /etc/iscsi/ifaces 
+でインターフェイスをチェックして iface.transport の tcp を利用し, iface 
+を介して発見した portal にログインする様に結合する.
+
+    # offload card のための上書き機能
+
+この動作はまた, 利用したいインターフェイスを渡せば override 出来る. 
+cxgb3i や bnx2i の様な offload のケースでこれは必要とされる, なぜなら 
+tcp が出来ないため.
+
+    # 2 つのインターフェイスの 1 つを利用する
+
+For example if you had defined two interface but only wanted to use one
+you can use the --interface/-I argument:
+
+例えば、既に定義された 2 つのインターフェイスのうち 1 つの利用を望む場
+合, --interface/-I 引数を利用出来る:
+
+    ---
+    iscsiadm -m discoverydb -t st -p ip:port -I iface1 --discover -P 1
+    ---
+
+    # 古い動作で iface と session を結合する (特別な iface "default")
+
+If you had defined interfaces but wanted the old behavior, where 
+we do not bind a session to a iface, then you can use the special iface
+"default":
+
+もし既に定義されたインターフェイスを持っているが, 古い動作で iface と 
+session を結合したいなら, 特別な iface "default" を利用する:
+
+    ---
+    iscsiadm -m discoverydb -t st -p ip:port -I default --discover -P 1
+    ---
+
+    # インターフェイスの定義がなく引数も渡さず iscsiadm を実行した場合
+
+And if you did not define any interfaces in /etc/iscsi/ifaces and do
+not pass anything into iscsiadm, running iscsiadm will do the default
+behavior, where we allow the network subsystem to decide which
+device to use.
+
+もし /etc/iscsi/ifaces でどのインターフェイスも定義しておらず, iscsiadm 
+に何も渡さずに iscsiadm を実行すると, デフォルトの動作をして, どのデバ
+イスを利用するかネットワークサブシステムが決定することを許可する.
+
+    # 後で target と iface の特定の結合を削除する
+
+If you later want to remove the bindings for a specific target and
+iface then  you can run:
+
+もし特定の target と iface の結合を削除したい場合は, 以下を実行する:
+
+    ---
+    iscsiadm -m node -T my_target -I iface0 --op=delete
+    ---
+
+    # target 上の特定の portal を削除する
+
+To do this for a specific portal on a target run:
+
+target 上の特定の portal のためにこれ (結合の削除) をするには次を実行
+する:
+
+    ---
+    iscsiadm -m node -T my_target -p ip:port -I iface0 --op=delete
+    ---
+
+    # iface0 のすべての結合を削除する
+
+If you wanted to delete all bindinds for iface0 then you can run
+
+iface0 のすべての結合を削除するには以下を実行する:
+
+  * s/bindinds/bindings/
+
+    ---
+    iscsiadm -m node -I iface0 --op=delete
+    ---
+
+And for equalogic targets it is sometimes useful to remove by just portal
+
+equalogic targets では portal だけの削除に便利な時がある方法.
+
+    * s/equalogic/equallogic/ (?) 
+      equallogic = Dell の仮想化対応 iSCSI SAN ストレージ
+
+    ---
+    iscsiadm -m node -p ip:port -I iface0 --op=delete
+    ---
+
+    # target にログインするにはセクション 7 を参照
+
+To now log into targets it is the same as with sofware iscsi. See section
+7 for how to get started.
+
+taget にログインするにはソフトウェア iscsi の場合と同じ. どの様にスター
+トするかはセクション 7 を参照する.
+
+
+#// ==============================================================
+#// 5.2 iscsiadm examples
+#// ==============================================================
+
+iscsiadm の例
+
+    # ひと文字のオプションの利用例
+
+    Usage examples using the one-letter options (see iscsiadm man page
+    for long options):
+
+    ひと文字 (one-letter) オプションを使った利用例 (long option は 
+    iscsiadm man を参照すること)
+
+# --------------------------------------------------------------
+#   Discovery mode: (発見モード)
+# --------------------------------------------------------------
+
+    # デフォルトドライバ, インターフェイス, discovery 設定を使う
+
+- SendTargets iSCSI Discovery using the default driver and interface and
+  using the discovery settings for the discovery record with the
+  ID [192.168.1.1:3260].
+
+- SendTarget の iSCSI Discovery でデフォルトのドライバ, インターフェイ
+  ス, discovery レコードの ID[192.168.1.1:3260] の discovery 設定を利
+  用する
+
+        ---
+        ./iscsiadm -m discoverydb -t st -p 192.168.1.1:3260 --discover
+        ---
+
+    # 上記コマンドが discovery を実行するまでの動作
+
+This will search /etc/iscsi/send_targets for a record with the
+ID [portal = 192.168.1.1:3260 and type = sendtargets. If found it
+will perform discovery using the settings stored in the record.
+If a record does not exist, it will be created using the iscsid.conf
+discovery settings.
+
+これは レコード ID [portal = 192.168.1.1:3260] と type = sendtarget で 
+/etc/iscsi/send_target を検索する. それを見つけたらレコードに格納され
+た設定を利用して discovery を実行する.
+
+The argument to -p may also be a hostname instead of an address.
+
+引数 -p には hostname の代わりに address でもよい.
+
+        ---
+        ./iscsiadm -m discoverydb -t st -p smoehost --discover
+        ---
+
+    # iface を使った際の discovery の動作
+
+For the ifaces, iscsiadm will first search /etc/iscsi/ifaces for
+interfaces using software iscsi. If any are found then nodes found
+during discovery will be setup so that they can logged in through
+those interfaces. To specify a specific iface, pass the
+-I argument for each iface.
+
+ifaces では, iscsiadm はインターフェイスのためにソフトウェア iscsi を
+利用して /etc/iscsi/ifaces を最初に検索する.
+
+もし discovery 中にいくつか node が見つかれば, これらのインターフェイ
+スを介してログイン出来る様に setup する.
+
+特定の iface を指定するには, 各 iface のために -I 引数を渡す.
+
+    # SendTargets で taret のレコードを update 
+
+- SendTargets iSCSI Discovery updating existing target records:
+
+- SendTargets の iSCSI Discovery で update する 既存の target レコード
+  を:
+        ---
+        ./iscsiadm -m discoverydb -t sendtargets -p 192.168.1.1:3260 \
+        -o update --discover
+        ---
+
+If there is a record for targetX and portalY exists in the DB, and
+is returned during discovery, it will be updated with the info
+from the iscsi.conf. No new portals will be added and stale
+portals will not be removed.
+
+もし DB 内に targetX と portalY のためのレコードが存在していて, discovery 
+中に返されるなら, それは iscsid.conf からの情報で update されるが, 新
+しい portal は追加されず, 古い portal は削除されない.
+
+    # SendTargets で既存の target レコードを削除する 
+
+- SendTargets iSCSI Discovery deleting existing target records:
+
+- SendTargets の iSCSI Discovery で既存の target record を削除する:
+
+        ---
+        ./iscsiadm -m discoverydb -t sendtargets -p 192.168.1.1:3260 \
+        -o delete --discover
+        ---
+
+If there a record for targetX and portalY exists in the DB, but
+is not returned during discovery it will be removed from the DB.
+No new portals will be added and existing portal records will not
+be changed.
+
+DB 内に targetX と portalY のレコードが存在しているが, discovery 中に
+返されない場合にそれを DB から削除する. 新しい portal は追加されず, 既
+存の portal は変更されない.
+
+    Note: If a session is logged into portal we are going to delete
+    a record for, it will be logged out then the record will be
+    deleted.
+
+    注意: session が portal にログインしている場合にレコードを削除しよ
+          うとしているなら, そのレコードは session のログアウト後に削
+          除される.
+
+    # SendTargets で新しいレコードを追加する
+
+- SendTargets iSCSI Discovery adding new records:
+
+- SendTargets の iSCSI Discovery で新しいレコードを追加する:
+
+        ---
+        ./iscsiadm -m discoverydb -t sendtargets -p 192.168.1.1:3260 \
+        -o new --discover
+        ---
+
+If there targetX and portalY is returned during discovery and does
+not have a record, it will be added. Existing records are not
+modified.
+
+discovery 中に targetX と portalY が返されて, かつ, レコードを持ってい
+ない場合に追加される. 既存のレコードは修正されない.
+
+    # SendTargets で複数の op を使う
+
+- SendTargets iSCSI Discovery using multiple ops:
+
+- SendTargets の iSCSI Discovery で 複数の op を利用する:
+
+        ---
+        ./iscsiadm -m discoverydb -t sendtargets -p 192.168.1.1:3260 \
+        -o new -o delete --discover
+        ---
+
+This command will add new portals and delete records for portals
+no longer returned. It will not change the record information for
+existing portals.
+
+上記コマンドは新しい portal を追加して, 返されることがない portal のレ
+コードを削除する. 既存の portal のレコード情報は変更しない.
+
+    # SendTargets で非永続型 mode の discovery をする (DB を操作しない)
+
+- SendTargets iSCSI Discovery in nonpersistent mode:
+
+- SendTarget で nonpersistent ( 非永続型 ) mode の iSCSI Discovery 
+  をする:
+
+        ---
+        ./iscsiadm -m discoverydb -t sendtargets -p 192.168.1.1:3260 \
+        -o nonpersistent --discover
+        ---
+
+This command will perform discovery, but not manipulate the node DB.
+
+このコマンドは discovery を実行するが, しかし node DB は操作しない.
+
+    # SendTargets の discovery で特定の subnet のみを利用する
+
+    # ただしソフトウェア iscsi では注意が必要
+
+- SendTargets iSCSI Discovery with a specific interface. If you
+  wish to only use a subset of the interfaces in /etc/iscsi/ifaces
+  then you can pass them in during discovery:
+
+- SendTarget で特定のインターフェイスの iSCSI Discovery をする. もし 
+  /etc/iscsi/ifaces 内の interface の subset のみを利用したい場合, 
+  discovery の間にそれらを渡すことが出来る:
+
+         ---
+         ./iscsiadm -m discoverydb -t sendtargets -p 192.168.1.1:3260 \
+          --interface=iface0 --interface=iface1 --discover
+         ---
+
+Note that for software iscsi, we let the network layer select
+which NIC to use for discovery, but for later logins iscsiadm
+will use the NIC defined in the iface config.
+
+ソフトウェア iscsi では discovery で利用する NIC のネットワークレ
+イヤを選択出来るが, 後でログインする iscsiadm では iface 設定で定
+義された NIC を利用するので注意が必要.
+
+qla4xxx support is very basic and experimental. It does not store
+the record info in the card's FLASH or the node DB, so you must
+rerun discovery every time the driver is reloaded.
+
+qla4xxx のサポートは とても基本的で実験的. それは FLASH カードや nodeDB 
+のレコード情報に格納されないので, driver が再読み込みされる度に discovery 
+をやりおなさなければならない.
+
+    # Sendtargets の DB を操作する
+
+- Manipulate SendTargets DB.
+
+- SendTarget の DB を操作する .
+
+Create new SendTargets discovery record or overwrite an existing
+discovery record with iscsid.conf discovery settings.
+
+新しい SendTargets の discovery レコードを作成または iscsi.conf の 
+discovery 設定の既存のレコードを上書きする.
+
+        ---
+        ./iscsiadm -m discoverydb -t sendtargets -p 192.168.1.1:3260 -o new
+        ---
+
+    # SendTargets で discovery 設定を参照する
+
+See discovery settings.
+
+discovery 設定を参照する .
+
+        ---
+        ./iscsiadm -m discoverydb -t sendtargets -p 192.168.1.1:3260 -o show
+        ---
+
+    # SendTargets で隠された discovery 設定を参照する
+
+See hidden discovery settings like CHAP passwords
+
+CHAP パスワードの様な隠ぺいされた discovery 設定を参照する.
+
+        ---
+        ./iscsiadm -m discoverydb -t sendtargets -p 192.168.1.1:3260 \
+        -o show --show
+        ---
+
+    # SendTarget で discovery 設定をセット
+
+Set discovery setting.
+
+discovery 設定をセットする.
+
+        ---
+        ./iscsiadm -m discoverydb -t sendtargets -p 192.168.1.1:3260 \
+            -o update -n name -v value
+        ---
+
+    # SendTarget で discovery レコードを削除
+
+Delete discovery record. This will also delete the records for
+the targets found through the discovery source.
+
+discovery レコードを削除する. これはまた discovery ソースを介して見つ
+けた target のレコードを削除する.
+
+        ---
+        ./iscsiadm -m discoverydb -t sendtargets -p 192.168.1.1:3260 -o delete
+        ---
+
+    # Node mode +++
+
+    # node mode はログインしたいレコードを指定可能.
+
+Node mode. In node mode you can specify which records you want to log
+into by specifying the targetname, ip address, port or interface
+(if specifying the interface it must already be setup in the node db).
+iscsiadm will search the node db, for records which match the values
+you pass in, so if you pass in the targetname and interface, iscsiadm
+will search for records with those values and operate on only them.
+Passing in none of them will result in all node records being operated on.
+
+node mode では指定した target 名, ip addr, port またはインターフェイス
+でログインしたいレコードを指定出来る. (インターフェイスが指定された場
+合は予め node db でセットアップしておく必要がある).
+
+    * DB は複数ある様子
+
+    # node mode　で特定の target とインターフェイス上でのみ動作させる
+
+iscsiadm は渡された valeu に一致するレコードで node db を検索するので, 
+もし target 名とインターフェイスを渡すと, iscsiadm はそれらの value を
+検索して, それらの上でのみ動作する.
+
+なにも渡さないなら, すべての node レコードで操作されることになる.
+
+    # node mode で node/starget 毎のすべての portal にログイン
+
+- iSCSI Login to all portals on every node/starget through each 
+  interface set in the db:
+
+- iSCSI で node/starget 毎のすべての portal に db でセットされた各イン
+  ターフェイスを介してログインする:
+
+        ---
+        ./iscsiadm -m node -l
+        ---
+
+    # node mode である node/target 上のすべての portal にログイン
+
+- iSCSI login to all portals on a node/target through each interface set
+  in the db:
+
+- iSCSI である node/target 上のすべての portal に db でセットされた各
+  インターフェイスを介してログインする:
+
+        ---
+        ./iscsiadm -m node -T iqn.2005-03.com.max -l
+        ---
+
+    # node mode で特定の poratal にログインする
+
+- iSCSI login to a specific portal through each interface set in the db:
+
+- iSCSI で特定の portal に db でセットされた各インターフェイスを介してログインする:
+
+        ---
+        ./iscsiadm -m node -T iqn.2005-03.com.max -p 192.168.0.4:3260 -l
+        ---
+
+To specify a IPv6 address the following can be used:
+
+IPv6 アドレスを指定するには次のものを利用する:
+
+        ---
+        ./iscsiadm -m node -T iqn.2005-03.com.max \
+                    -p 2001:c90::211:9ff:feb8:a9e9 -l
+        ---
+
+The above command would use the default port, 3260. To specify a
+port use the following:
+
+上記のコマンドは デフォルトポートに 3260 を利用する. ポートを指定する
+には次のものを利用する:
+
+        ---
+        ./iscsiadm -m node -T iqn.2005-03.com.max \
+                -p [2001:c90::211:9ff:feb8:a9e9]:3260 -l
+        ---
+
+    # node mode でホスト名を指定
+
+To specify a hostname the following can be used:
+
+ホスト名を指定するには次のものが利用出来る:
+
+        ---
+        ./iscsiadm -m node -T iqn.2005-03.com.max -p somehost -l
+        ---
+
+    # node mode で iface0 の NIC でログインする
+
+- iSCSI Login to a specific portal through the NIC setup as iface0:
+
+- iSCSI で特定の portal に iface0 として setup された NIC を介してログ
+  インする:
+
+        ---
+        ./iscsiadm -m node -T iqn.2005-03.com.max -p 192.168.0.4:3260 \
+                -I iface0  -l
+        ---
+
+    # node mode で node/starget 毎のすべての portal からログアウト
+
+- iSCSI Logout to all portals on every node/starget through each interface
+  set in the db:
+
+- iSCSI で node/starget 毎のすべての portal から db で設定された各イン
+  ターフェイスを介してログアウトする:
+
+        ---
+        ./iscsiadm -m node -u
+        ---
+
+    # 警告
+
+Warning: this does not check startup values like the logout/login all
+option. Do not use this if you are running iscsi on your root disk.    
+
+警告: これは login/logout のすべてのオプションの様に startup value を
+      チェックしないので, root ディスク上で iscsi を実行している場
+      合は利用しないこと.
+
+    # node mode である node/target の portal からログアウト
+
+- iSCSI logout to all portals on a node/target through each interface set
+  in the db:
+
+- iSCSI である node/target 上のすべての portal から db でセットされた
+  各インターフェイスを介してログアウトする.
+
+        ---
+        ./iscsiadm -m node -T iqn.2005-03.com.max -u
+        ---
+
+    # node mode で特定の portal からログアウト
+
+- iSCSI logout to a specific portal through each interface set in the db:
+
+- iSCSI で db でセットされた各インターフェイスを介して特定の portal か
+  らログアウトする:
+
+        ---
+        ./iscsiadm -m node -T iqn.2005-03.com.max -p 192.168.0.4:3260 -u
+        ---
+
+    # node mode で iface0 の NIC を介してログアウト
+
+- iSCSI Logout to a specific portal through the NIC setup as iface0:
+
+- iSCSI でログアウトする 特定の portal から NIC を通して iface0 として setup した:
+
+- iSCSI で iface0 として setup した NIC を介して特定の portal からログアウト
+
+        ---
+        ./iscsiadm -m node -T iqn.2005-03.com.max -p 192.168.0.4:3260 \
+                -I iface0
+        ---
+
+    # node mode で iSCSI のパラメータを変更する
+
+    * iscsiadm からパラメータの変更が可能な様子.
+
+- Changing iSCSI parameter:
+
+- iSCSI のパラメータを変更する:
+
+        ---
+        ./iscsiadm -m node -T iqn.2005-03.com.max -p 192.168.0.4:3260 \
+           -o update -n node.cnx[0].iscsi.MaxRecvDataSegmentLength -v 65536
+        ---
+
+You can also change paramaters for multiple records at once, by
+specifying different combinations of the target, portal and interface
+like above.
+
+上記の様に, target, portal, インターフェイスの異なる組汗を指定すること
+で, 複数のレコードを一度に変更出来る
+
+    # node mode でカスタム iSCSI portal を追加
+
+    # -I/--Interface はオプション
+
+    # -I を渡さない場合は "default" で tcp, iser では最適なレイヤが決
+      められる
+
+- Adding custom iSCSI portal:
+
+- カスタム iSCSI portal を追加する:
+
+        ---
+        ./iscsiadm -m node -o new -T iqn.2005-03.com.max \
+            -p 192.168.0.1:3260,2 -I iface4
+        ---
+
+The -I/--interface is optional. If not passed in, "default" is used.
+For tcp or iser, this would allow the network layer to decide what is
+best.
+
+-I/--Interface はオプション. もし渡さないなら "default" が利用される.
+tcp や iser では, 何が最適化をネットワークレイヤが決めることが出来る
+様になる.
+
+    # TPGT は必ず渡す必要があることに注意
+
+    # 古い動作との違いにも注意
+
+Note that for this command the target portal group tag (TPGT) should
+be passed in. If it is not passed in on the initial creation command
+then the user must run iscsiadm again to set the value. Also
+if the TPGT is not initially passed in, the old behavior of not
+tracking whether the record was statically or dynamically created
+is used.
+
+このコマンドでは target portal group tag (TPGT) を渡さなければならない
+ことに注意する.
+
+もし最初の作成コマンドで TPGT が渡さなれない場合, ユーザは再度 iscsiadm
+を実行して value を set しなければならない.
+
+また, もし TPGT が最初に渡されていない場合, 追跡を行わない古い動作では
+静的であろうと動的であろうとレコードは作成され利用される.
+
+    # カスタム NIC の設定を複数の target に追加
+
+- Adding custom NIC config to multiple targets:
+
+- カスタム NIC の設定を複数の target に追加する:
+
+        ---
+        ./iscsiadm -m node -o new -I iface4
+        ---
+
+This command will add a interface config using the iSCSI and SCSI
+settings from iscsid.conf to every target that is in the node db.
+
+このコマンドは node db 内のすべての target に iscsid.conf の iSCSI と 
+SCSI の設定を利用してインターフェイスの設定を追加する.
+
+    # node mode で portal を削除する
+
+- Removing iSCSI portal:
+
+- iSCSI portal を削除する:
+
+        ---
+        ./iscsiadm -m node -o delete -T iqn.2005-03.com.max -p 192.168.0.4:3260
+        ---
+
+You can also delete multiple records at once, by specifying different
+combinations of the target, portal and interface like above.
+
+上記の様に target, portal, インターフェイスの異なる組み合わせを指定す
+れば, 一度に複数のレコードを削除出来る.
+
+    # node mode で設定を表示
+
+- Display iSCSI portal onfiguration:
+
+- iSCSI の設定を表示する:
+
+    * s/onfiguration/configuration/
+
+        ---
+        ./iscsiadm -m node -T iqn.2005-03.com.max -p 192.168.0.4:3260
+        ---
+    or
+        ---
+        ./iscsiadm -m node -o show -T iqn.2005-03.com.max -p 192.168.0.4:3260
+        ---
+
+You can also display multiple records at once, by specifying different
+combinations of the target, portal and interface like above.
+
+上記の様に target, portal, インターフェイスの異なる組み合わせを指
+定すれば, 一度に複数のレコードを表示できる.
+
+Note: running "iscsiadm -m node" will only display the records. It
+will not display the configuration info. You must run,
+"iscsiadm -m node -o show".
+
+    # 設定情報の表示は -o show が必要
+
+注意: "iscsiadm -m node" を実行するレコードのみを表示して, 設定情
+報は表示しない. 設定情報の表示は "iscsiadm -m node -o show" の実行
+が必要.
+
+    # node レコードの表示
+
+- Show all node records:
+
+- すべての node レコードを示す:
+
+        ---
+        ./iscsiadm -m node
+        ---
+
+    # 情報の表示は -P 1
+
+This will print the nodes using the old flat format where the
+interface and driver are not displayed. To display that info
+use the -P argument with the arguent "1":
+
+これはインターフェイスとドライバを表示しない古いフラットの形式を利用し
+て node を出力する. 情報を表示するに 引数 1 で引数 -P を利用する:
+
+        ---
+        ./iscsiadm -m node -P 1
+        ---
+
+    # discovery のデータベースのすべてを表示
+
+- Show all records in discovery database:
+
+- すべての discovery データベースのレコードを示す:
+
+        ---
+        ./iscsiadm -m discovery
+        ---
+
+    # discovery のすべてのレコードと各 target を表示
+
+- Show all records in discovery database and show the targets that
+  were discovered from each record:
+
+- すべての discovery データベースのレコードと各レコードで発見された 
+  target を示す:
+
+        ---
+        ./iscsiadm -m discovery -P 1
+        ---
+
+    # 静的な session の表示
+
+- Display session statistics:
+
+- 静的な session を表示する:
+
+        ---
+        ./iscsiadm -m session -r 1 --stats
+        ---
+
+    # node mode でも動作する
+
+This function also works in node mode. Instead of the "-r $sid"
+argument, you would pass in the node info like targetname and/or portal,
+and/or interface.
+
+この機能は "-r $sid" の代わりに node の target 名 and/or portal and/or
+インターフェイスを渡すことで node mode でも動作する. 
+
+    # session 上で SCSI スキャン
+
+- Perform a SCSI scan on a session
+
+- session 上で SCSI スキャンを実行
+
+        ---
+        ./iscsiadm -m session -r 1 --rescan
+        ---
+
+    # node mode でも動作
+
+This function also works in node mode. Instead of the "-r $sid"
+argument, you would pass in the node info like targetname and/or portal,
+and/or interface.
+
+この機能は "-r $sid" の代わりに node の target 名 and/or portal and/or
+インターフェイスを渡すことで node mode でも動作する. 
+
+    # rescan は新しいものだけを pic up することに注意
+
+Note: Rescanning does not delete old LUNs. It will only pick up new
+      ones.
+
+注意: 再スキャンは古い LUN (Logical Unit Number) を削除しない. それは
+      新しいものだけを pick up する.
+
+    # 実行中 (動的な ?) の session を表示
+
+- Display running sessions:
+
+- 実行中の session を表示する:
+
+        ---
+        ./iscsiadm -m session -P 1
+        ---
+
+
+#// ==============================================================
+#// 6. Configuration
+#// ==============================================================
+
+設定
+
+    # open-iscsi の設定ファイルは /etc/iscsid.conf
+
+    # 設定ファイルがない場合はデフォルトの設定が適用される
+
+The default configuration file is /etc/iscsi/iscsid.conf. This file contains
+only configuration that could be overwritten by iSCSI Discovery,
+or manualy updated via iscsiadm utility. Its OK if this file does not
+exist in which case compiled-in default configuration will take place
+for newer discovered Target nodes.
+
+デフォルトの設定ファイルは /etc/iscsid.conf. このファイルは iSCSI 
+Discovery で上書き可能か, または iscsiadm ユーティリティから手動で 
+update 出来る設定のみを含む. このファイルが存在しなくても大丈夫で, そ
+の場合はコンパイル時にデフォルトの設定が新しく発見された Target node 
+に行われる.
+
+    # サブディレクトリ doc/ に man ページ
+
+See the man page and the example file for the current syntax.
+The manpages for iscsid, iscsiadm are in the doc subdirectory and can be
+installed in the appropriate man page directories and need to be manually
+copied into e.g. /usr/local/share/man8.
+
+現在 (最新?) の構文については man ページと実施例ファイルを参照する. 
+iscsid, iscsiadm の man ページは doc サブディレクトリ内にあり, 適切な
+ man ページディレクトリにインストール出来る. 手動で行う場合は例えば 
+/usr/local/share/man8 にコピーする.
+
+
+#// ==============================================================
+#// 7. Getting Started (入門)
+#// ==============================================================
+
+入門
+
+    # 基本的な 3 つのステップ
+
+      1. iSCSI startup
+      2. target の発見
+      3. target の自動ログインが
+
+There are three steps needed to set up a system to use iSCSI storage:
+
+iSCSI ストレージを利用するためのシステムのセットアップは 3 つステップ
+が必要:
+
+    7.1. iSCSI startup using the init script or manual startup.
+
+         init スクリプトか手動での iSCSI startup.
+
+    7.2. Discover targets.
+
+         target を発見 (discover) する.
+
+    7.3. Automate target logins for future system reboots.
+
+         今後のシステム再起動のために target ログインを自動化する.
+
+The init scripts will start the iSCSI daemon and log into any
+portals that are set up for automatic login (discussed in 7.2)
+or discovered through the discover daemon iscsid.conf params
+(discussed in 7.1.2).
+
+init スクリプトは iSCSI daemon をスタートして, 自動ログイン (7.2 で解
+説) が設定されているか iscsid.conf パラメータの discover daemon を介し
+て発見された (7.1.2 で解説) 任意の portal にログインする. (?)
+
+If your distro does not have a init script, then you will have to start the
+daemon and log into the targets manually.
+
+もし利用しているディストリビューションが init スクリプトを持っていない
+場合は daemon と target への手動ログインで start 出来る.
+
+
+#// --------------------------------------------------------------
+#// 7.1.1 iSCSI startup using the init script
+#// --------------------------------------------------------------
+
+init スクリプトを利用した iSCSI の startup
+
+#// -------------------------------
+#// Red Hat or Fedora:
+#// -------------------------------
+
+Red Hat または Fedora
+
+    # Red Hat と Fedora (CentOS も ?) での起動および自動起動
+
+    # 起動時のファイルシステムの自動マウント
+
+To start open-iscsi in Red Hat/Fedora you can do:
+
+Red Hat/Fedora で open-iscsi を起動するには次の様に出来る:
+
+    ---
+    service open-iscsi start
+    ---
+
+To get open-iscsi to automatically start at run time you may have to
+run:
+
+起動時に open-iscsi が自動的に起動する様にするには次を実行する必要がある:
+
+    ---
+    chkconfig --level <levels> open-iscsi on
+    ---
+
+Where <levels> are the run levels.
+
+<levels> はランレベル.
+
+And, to automatically mount a file system during startup
+you must have the partition entry in /etc/fstab marked with the "_netdev"
+option. For example this would mount a iscsi disk sdb:
+
+startup 時にファイルシステムを自動的にマウントするには /etc/fstab に 
+"_netdev" でマークされたパーティションエントリを持っている必要がある.
+
+例えば次は iscsi ディスクを sdb でマウントする:
+
+    ---
+    /dev/sdb /mnt/iscsi ext3 _netdev 0 0
+    ---
+
+#// -------------------------------
+#// SUSE or Debian:
+#// -------------------------------
+
+SUSE または Debian
+
+Otherwise, if there is a initd script for your distro in etc/initd that
+gets installed with "make install"
+
+あるいは, もしあなたのディストリビューションの /etc/initd の initd ス
+クリプトを "make install" のインストールで得ていた場合は
+
+    ---
+    /etc/init.d/open-iscsi start
+    ---
+
+will usually get you started.
+
+通常上記で start 出来る.
+
+#// --------------------------------------------------------------
+#// 7.1.2 Manual Startup:
+#// --------------------------------------------------------------
+
+手動 startup:
+
+#// -------------------------------
+#// 7.1.2.1 Starting up the iSCSI daemon (iscsid) and loading modules:
+#// -------------------------------
+
+iSCSI daemon (iscsid) の起動と モジュールの読み込み:
+
+    # 手動では iscsi_tcp を読み込んでから iscsid を起動する
+
+If there is no initd script, you must start the tools by hand. First
+load the iscsi modules with:
+
+もし initd スクリプトがない場合, あなたは 手動で ツールをスタートする. 最初に読み込む iscsi モジュールは:
+
+もし initd スクリプトがない場合は, 手動でツールをスタートする. 最初に
+読み込む iscsi モジュールは:
+
+    ---
+    modprobe -q iscsi_tcp
+    ---
+
+after that start iSCSI daemon process:
+
+その後に iSCSI デーモンプロセスを起動する:
+
+    ---
+    ./iscsid
+    ---
+
+or alternatively, start it with debug enabled and with output
+redirected to the current console:
+
+または代わりにデバッグを有効にして現在のコンソールにリダイレクトしてそ
+れをスタートする.
+
+    ---
+    ./iscsid -d 8 -f &
+    ---
+
+#// -------------------------------
+#// 7.1.2.2 Logging into Targets:
+#// -------------------------------
+
+Target へのログイン:
+
+    # discovery, node レコードの操作とアクティブ session のモニタは
+      iscsiadm を利用して行う
+
+Use the configuration utility, iscsiadm, to add/remove/update Discovery
+records, iSCSI Node records or monitor active iSCSI sessions (see above or the
+iscsiadm man files and see section 7.2 below for how to discover targets).
+
+Discovery レコード, node レコードの add/remove/update やアクティブな iSCSI session のモニタは設定ユーティリティ iscsiadm を利用し行う.
+
+(上記または iscsiadm man ファイルを参照, どの様に discovery target するかは以下のセクション 7.2 を参照). 
+
+    # node の出力とその形式
+
+    ---
+    ./iscsiadm  -m node
+    ---
+
+will print out the nodes that have been discovered as:
+
+発見された node は次の様に出力される:
+
+    ---
+    10.15.85.19:3260,3 iqn.1992-08.com.netapp:sn.33615311 
+    10.15.84.19:3260,2 iqn.1992-08.com.netapp:sn.33615311
+    ---
+
+The format is:
+
+形式は:
+
+    ---
+    ip:port,target_portal_group_tag targetname
+    ---
+
+If you are using the iface argument or want to see the driver
+info use the following:
+
+iface 引数を利用したいまたはドライバ情報を参照したい場合は次を実行:
+
+    ---
+    ./iscsiadm -m node -P 1
+    ---
+
+    ---
+    Target: iqn.1992-08.com.netapp:sn.33615311
+        Portal: 10.15.84.19:3260,2
+            Iface Name: iface2
+        Portal: 10.15.85.19:3260,3
+            Iface Name: iface2
+    ---
+
+The format is:
+
+形式は:
+
+    ---
+    Target: targetname
+        Portal ip_address:port,tpgt
+            Iface: iface
+    ---
+
+    # tagetname, ip_address:port, tpgt の説明
+
+where targetname is the name of the target and ip_address:port is the address
+and port of the portal. tpgt, is the portal group tag of
+the portal, and is not used in iscsiadm commands except for static
+record creation. And iface name is the name of the iscsi interface
+defined in /etc/iscsi/ifaces. If no interface was defined in
+/etc/iscsi/ifaces or passed in, the default behavior is used.
+Default here is iscsi_tcp/tcp to be used over which ever NIC the
+network layer decides is best.
+
+targetname は target の名前で ip_address:port はアドレスと portal の
+port. tpgt は portal の the portal group tag で, 静的レコードの生成を
+除いては iscsiadm コマンドでは利用しない.
+
+それから iface name は /etc/iscsi/ifaces で定義される iscsi interface 
+の名前. もしインターフェイスが /etc/iscsi/ifaces で定義されていないか
+渡されない場合は, デフォルトの動作が利用される.
+
+デフォルトの iscsi_tcp/tcp は常にネットワークレイヤが決定した最適な 
+NIC で利用される.
+
+To login, take the ip, port and targetname from above and run:
+
+ログインは, 上記の ip, port, targetname を取る. それと実行する:
+
+    ---
+    ./iscsiadm -m node -T targetname -p ip:port -l
+    ---
+
+In this example we would run
+
+この実施例では次の様に実行する
+
+    ---
+    ./iscsiadm -m node -T iqn.1992-08.com.netapp:sn.33615311 -p 10.15.84.19:3260 -l
+    ---
+
+    Note: drop the portal group tag from the "iscsiadm -m node" output.
+
+    注意: "iscsiadm -m node" の出力から the portal group tag を落としている.
+
+#// --------------------------------------------------------------
+#// 7.2. Discover Targets
+#// --------------------------------------------------------------
+
+Target を発見する
+
+Once the iSCSI service is running, you can perform discovery using
+SendTarget with:
+
+    # SendTarget を利用した discovery
+
+iSCSI サービスを実行しているなら, SendTarget を利用した discovery を実
+行出来る:
+
+    ---
+    iscsiadm -m discoverydb -t sendtargets -p ip:port --discover
+    ---
+
+where "ip" is the address of the portal and port is the port.
+
+"ip" は portal のアドレスで port は port のこと.
+
+    # iSNS を利用した discovery
+
+To use iSNS you can run the discovery command with the type as "isns"
+and pass in the ip:port:
+
+iSNS を使うには discovery コマンドを type "isns" と ip:port を渡して実
+行出来る.
+
+    ---
+    iscsiadm -m discoverydb -t isns -p ip:port --discover
+    ---
+
+Both commands will print out the list of all discovered targets and their
+portals:
+
+どちらのコマンド (sendtargets と isns ?) も発見された target とそれらの 
+portal をすべて出力する:
+
+    ---
+    # iscsiadm -m discoverydb -t st -p 10.15.85.19:3260 --discover
+    10.15.84.19:3260,2 iqn.1992-08.com.netapp:sn.33615311
+    10.15.85.19:3260,3 iqn.1992-08.com.netapp:sn.33615311
+    ---
+
+    * -t st の st は sendtarget (?)
+
+The format for the output is:
+
+出力の形式は:
+
+    ---
+    ip:port,tpgt targetname
+    ---
+
+In this example, for the first target the ip address is 10.15.85.19.
+The port is 3260. The target portal group is 3. The target name
+is iqn.1992-08.com.netapp:sn.33615311.
+
+この例では, 最初の target の ip アドレスは 10.15.85.19. で port は 3260.
+the target portal group は 3 つ (2 つでは (?). target 名は 
+iqn.1992-08.com.netapp:sn.33615311.
+
+    # session を利用してインターフェイスを確認する
+
+If you would also like to see the iscsi inteface which will be used
+for each session then use the --print[N] option.
+
+もし各 session を利用して iscsi インターフェイスを参照したいなら 
+--print[N] オプションを利用する.
+
+    ---
+    iscsiadm -m discoverydb -t sendtargets -p ip:port -P 1 --discover
+    --
+
+will print:
+
+出力:
+
+    ---
+    Target: iqn.1992-08.com.netapp:sn.33615311
+        Portal: 10.15.84.19:3260,2
+           Iface Name: iface2
+        Portal: 10.15.85.19:3260,3
+           Iface Name: iface2
+    ---
+
+In this example, The IP address of the first portal is 10.15.84.19.
+The port is 3260. The target portal group is 3. The target name
+is iqn.1992-08.com.netapp:sn.33615311. The iface being used is iface2.
+
+この例では, 最初の portal の IP アドレスが 10.15.84.19 で port は 3260.
+the target portal group は 3 つ. target 名は 
+iqn.1992-08.com.netapp:sn.33615311. 利用している iface は iface2.
+
+    # 発見された target の別名を nodes と呼ぶ
+
+    # 発見された nodes は node db にレコードとして格納
+
+While discovery targets are kept in the discovery db, they are
+useful only for re-discovery. The discovered targets (a.k.a. nodes)
+are stored as records in the node db.
+
+discovery をしている間は target は保持される discovery db で, それらは 
+re-discovery でのみ有用.
+
+発見された target (別名 nodes) はレコードとして node db に格納される.
+
+    # node (taget) へのログインは自動かすべき
+
+The discovered targets are not logged into yet. Rather than logging
+into the discovered nodes (making LUs from those nodes available as
+storage), it is better to automate the login to the nodes we need.
+
+発見した taget にはまだログインしない. むしろ発見した node にログイン
+するというよりも (ストストレージとして利用出来るならその node から LU 
+(Logical Unit) を作る), 必要とする node へのログインは自動化した方が良い.
+
+If you wish to log into a target manually now, see section
+"7.1.2.2 Logging in targets" above.
+
+もし今 target に手動でログインしたいなら, 上記セクション "7.1.2.2 target
+ にログイン" を参照する.
+
+
+#// --------------------------------------------------------------
+#// 7.3. Automate Target Logins for Future System Statups
+#// --------------------------------------------------------------
+
+今後のシステム起動のために Target ログインを自動化する
+
+Note: this may only work for distros with init scripts.
+
+注意: これは init script のディストリビューションのみでしか動作しない
+      かもしれない.
+
+    # node へのログイン自動化は対象の node のレコード ID を利用して設定
+
+    # -n node.startup -v automatic がポイント ?
+ 
+To automate login to a node, use the following with the record ID
+(record ID is the targetname and portal) of the node discovered in the
+discovery above:
+
+node へのログインの自動化は, 上記 discvoery で発見した node のレコード 
+ID (レコード ID は target 名と portal) を利用する.
+
+    ---
+    iscsiadm -m node -T targetname -p ip:port --op update -n node.startup -v automatic
+    ---
+
+    # すべての target 上の portal への自動化設定
+
+To set the automatic setting to all portals on a target through every
+interface setup for each protal, the following can be run:
+
+各 portal のすべてのインターフェイス setup を介したすべての target の 
+portal への自動的化設定は, 次を実行する.
+
+    ---
+    iscsiadm -m node -T targetname --op update -n node.startup -v automatic
+    ---
+
+    # node.startup をデフォルトで startup に設定する
+
+Or to set the "node.startup" attribute to "startup" as default for
+all sessions add the following to the /etc/iscsi/iscsid.conf:
+
+"node.startup" アトリビュートをデフォルトで "startup" として設定するに
+は, /etc/iscsi/iscsi.conf のすべての session に次を追加する.
+
+    ---
+    node.startup = automatic
+    ---
+
+Setting this in iscsid.conf, will not affect existing nodes. It will only
+affect nodes that are discovered after setting the value.
+
+iscsid.conf にこれを設定しても, 既存の node には影響せず, value を設定
+した後に発見された node にのみ影響する.
+
+To login to all the automated nodes, simply restart the iscsi service:
+e.g /etc/init.d/open-iscsi restart. On your next startup the nodes will
+be logged into autmotically.
+
+自動化したすべての node にログインするには, シンプルに iscsi サービス
+を例えば /etc/init.d/open-iscsi restart で再起動する. 次の startup で 
+node は自動的にログインする.
+
+#// --------------------------------------------------------------
+#// 7.4 Automatic Discovery and Login
+#// --------------------------------------------------------------
+
+自動的な Discovery とログイン
+
+    # discovery 実行時の秒数や portal へのログイン設定等は iscsid で
+      も設定出来る
+
+Instead of running the iscsiadm discovery command and editing the
+startup setting, iscsid can be configured so that every X seconds
+it performs discovery and logs in and out of the portals return or
+no longer returned. In this mode, when iscsid starts it will check the
+discovery db for iSNS records with:
+
+iscsiadm で discovery コマンド実行したり starup 設定を編集する代わり
+に, discovery 実行のすべての X 秒, 返されるまたは返されない portal へ
+のログインとログアウトを iscsid で設定出来る.
+
+    # iscsid 起動時の iSNS レコードのための discovery db をチェック
+
+この mode (以下の設定) では, iscsid が起動する際に iSNS レコードのため
+に discovery db をチェックする:
+
+    ---
+    discovery.isns.use_discoveryd = Yes
+    ---
+
+    # SendTarget のレコードをチェック
+
+and it will check for SendTargets discovery records that have the setting:
+
+この設定では SendTarget の discovery レコードをチェックする:
+
+    ---
+    discovery.sendtargets.use_discoveryd = Yes
+    ---
+
+    # 設定すると以下のパラメータの秒数おきに address への discovery を
+      実行し任意の portal にログインする.
+
+      discovery.isns.discoveryd_poll_inval
+      discovery.sendtargets.discoveryd_poll_inval
+
+If set, iscsid will perform discovery to the address every
+discovery.isns.discoveryd_poll_inval or
+discovery.sendtargets.discoveryd_poll_inval seconds,
+and it will log into any portals found from the discovery source using
+the ifaces in /etc/iscsi/ifaces.
+
+もしセットするなら, iscsid は address への discovery を 
+discovery.isns.discoveryd_poll_inval か discovery.sendtargets.discoveryd_poll_inval
+の秒おきに実行し, /etc/iscsi/ifaces の ifaces を利用して discovery ソー
+スから見つかった任意の portal にログインする.
+
+    # iSNS では poll_interval はセットする必要はないことに注意
+
+Note that for iSNS the poll_interval does not have to be set. If not set,
+iscsid will only perform rediscovery when it gets a SCN from the server.
+
+iSNS では poll_interval をセットする必要はない. もしセットしないなら,
+iscsid はサーバから SCN (状態変化通知: status change notification) を
+取得した時に rediscovery を実行するだけ.
+
+#   iSNS Note:
+#   For servers like Microsofts where they allow SCN registrations, but do not
+#   send SCN events, discovery.isns.poll_interval should be set to a non zero
+#   value to auto discover new targets. This is also useful for servers like
+#   linux-isns (SLES's iSNS server) where it sometimes does not send SCN
+#   events in the proper format, so they may not get handled.
+
+# iSNS の注意:
+# Microsoft の様なサーバでは SCN 登録を許可しているが SCN のイベント
+# は送信しないので, discovery.isns.poll_interval は新しい target の自
+# 動検出のために ゼロではない value をセットする必要がある.
+# これはまた適切な形式でも処理されず SCN イベントを送信しないことがある
+# linux-isns の様なサーバでも有用 (SLES の iSNS サーバ). 
+
+#// -------------------------------
+#// Example:
+#// -------------------------------
+
+実施例:
+
+#// -------------------------------
+#// SendTargets:
+#// -------------------------------
+
+SendTergets:
+
+    # SendTarget レコードの作成
+
+- Create a SendTargets record by passing iscsiadm the "-o new" argument in
+  discoverydb mode.
+
+- iscsiadm に discoverydb mode で "-o new" 引数を渡して SendTarget レ
+  コードを作成する.
+
+    ---
+    # iscsiadm -m discoverydb -t st -p 20.15.0.7:3260 -o new
+    ---
+
+New discovery record for [20.15.0.7,3260] added.
+
+[20.15.0.7,3260] で新しいレコードが追加される.
+
+    # use_discoveryd をセット
+
+- Set the use_discoveryd setting for the record.
+
+- レコードのために use_discoveryd 設定をセットする.
+
+    ---
+    # iscsiadm -m discoverydb -t st -p 20.15.0.7:3260  -o update -n discovery.sendtargets.use_discoveryd -v Yes
+    ---
+
+    # 要求間隔のセット
+
+- Set the polling interval.
+
+- 要求確認の間隔 (polling interval) をセットする.
+
+    ---
+    # iscsiadm -m discoverydb -t st -p 20.15.0.7:3260  -o update -n discovery.sendtargets.discoveryd_poll_inval -v 30
+    ---
+
+    # 設定の有効化は iscsi のサービスを再起動する
+
+To have the new settings take effect restart iscsid by restarting the
+iscsi service.
+
+新しい設定を有効にするには iscsi サービスをリスタートして iscsid をリ
+スタートする.
+
+    # iscsiadm を -o new 引数で実行した時は iscsid.conf の次の設定を
+      利用してレコードを初期設定する.
+
+      discovery.sendtargets.use_discoveryd
+      discovery.sendtargets.discoveryd_poll_inval
+
+    # 既に iscsid.conf に上記が設定されている場合 iscsiadm -o update
+      コマンドはスキップ出来る.
+
+Note:
+When iscsiadm is run with the -o new argument, it will use the
+discovery.sendtargets.use_discoveryd and
+discovery.sendtargets.discoveryd_poll_inval
+settings in iscsid.conf for the records initial settings. So if those
+are set in iscsid.conf, then you can skip the iscsiadm -o update
+commands.
+
+注意:
+iscsiadm を -o new 引数で実行した時, それはレコードの初期設定のために
+iscsid.cond の discovery.sendtargets.use_discoveryd と
+discovery.sendtargets.discoveryd_poll_inval の設定を利用する. もしそれ
+らが iscsid.conf で設定されている場合は, iscsiadm -o update コマンドは
+スキップ出来る.
+
+#// -------------------------------
+#// iSNS:
+#// -------------------------------
+
+iSNS:
+
+    # iSNS レコードの作成
+
+- Create a iSNS record by passing iscsiadm the "-o new" argument in
+  discoverydb mode.
+
+- 渡された iscsiadm の "-o new" 引数で discoverydb mode の iSNS レコー
+  ドを作成する.
+
+    ---
+    # iscsiadm -m discoverydb -t isns -p 20.15.0.7:3205 -o new
+    ---
+
+New discovery record for [20.15.0.7,3205] added.
+
+新しい discovery レコードが [20.15.0.7,3205] で追加される.
+
+    # use_discoveryd の設定をセットする.
+
+- Set the use_discoveryd setting for the record.
+
+- レコードのための use_dicoveryd の設定をセットする.
+
+    ---
+    # iscsiadm -m discoverydb -t isns -p 20.15.0.7:3205  -o update -n discovery.isns.use_discoveryd -v Yes
+    ---
+
+    # iSNS の要求間隔を設定
+
+- [OPTIONAL: see iSNS note above] Set the polling interval if needed.
+
+- [任意: 上記 iSNS の注意を参照] もし必要なら要求間隔 (polling interval) 
+  を設定する.
+
+    ---
+    # iscsiadm -m discoverydb -t st -p 20.15.0.7:3205  -o update -n discovery.isns.discoveryd_poll_inval -v 30
+    ---
+
+To have the new settings take effect restart iscsid by restarting the
+iscsi service.
+
+新しい設定を有効にするには iscsi サービスをリスタートして iscsid をリ
+スタートする .
+
+    # iscsiadm -o new の iSNS のレコードの初期設定は iscsid.conf の次
+      を利用する
+
+      discovery.isns.use_discoveryd
+      discovery.isns.discoveryd_poll_inval
+
+    # 既に設定済みの場合は iscsiadm -o update はスキップ可能
+
+Note:
+When iscsiadm is run with the -o new argument, it will use the
+discovery.isns.use_discoveryd and discovery.isns.discoveryd_poll_inval
+settings in iscsid.conf for the records initial settings. So if those
+are set in iscsid.conf, then you can skip the iscsiadm -o update
+commands.
+
+注意:
+iscsiadm を -o new 引数で実行した時, レコードの初期設定のために 
+iscsid.conf の discovery.isns.use_discoveryd と 
+discovery.isns.discoveryd_poll_inval 設定を利用する. もしそれらを 
+iscsid.conf でセットしている場合は, iscsiadm -o update をスキップ出来
+る.
+
+#// ==============================================================
+#// 8. Advanced Configuration
+#// ==============================================================
+
+高度な設定
+
+#// --------------------------------------------------------------
+#// 8.1 iSCSI settings for dm-multipath
+#// --------------------------------------------------------------
+
+dm-multipath で iSCSI を設定する.
+
+    # dm-multipath で iSCSI を設定
+
+    # dm-multipath レイヤではコマンドがすぐに失敗する様にタイマを設定
+      する
+
+    # dm-multipath レイヤでは path がない場合はキューの様 (?) に value
+      をセットする
+
+When using dm-multipath, the iSCSI timers should be set so that commands
+are quickly failed to the dm-multipath layer. For dm-multipath you should
+then set values like queue if no path, so that IO errors are retried and
+queued if all paths are failed in the multipath layer.
+
+dm-multipath を利用する時は、dm-mutipath レイヤでコマンドがすぐに失敗
+する様に iSCSI タイマをセットしなければならない. 
+
+dm-multipath で path がない場合は value をキューの様にセットしなければ
+ならない. multipath レイヤで, もしすべての path が失敗した場合, IO エラー
+はリトライとキューされるため.
+
+    * queue の様に value をセット (?)
+
+#// -------------------------------
+#// 8.1.1 iSCSI ping/Nop-Out settings
+#// -------------------------------
+
+(dm-multipath) ISCSI ping/Nop-Out の設定
+
+    # iSCSI ping の概要
+
+    # コマンド失敗時のキューとリトライ
+
+    # SCSI で multipath を利用している場合のコマンド失敗時の振る舞い
+
+To quickly detect problems in the network, the iSCSI layer will send iSCSI
+pings (iSCSI NOP-Out requests) to the target. If a NOP-Out times out the
+iSCSI layer will respond by failing running commands and asking the SCSI
+layer to requeue them if possible (SCSI disk commands get 5 retries if not
+using multipath). If dm-multipath is being used the SCSI layer will fail
+the command to the multipath layer instead of retrying. The multipath layer
+will then retry the command on another path.
+
+ネットワークですぐに問題を検出するには, iSCSI レイヤは iSCSI ping 
+(iSCSI NOP-Out 要求) を target に送信する.
+
+もし実行中のコマンドが失敗して NOP-Out のタイムアウトが iSCSI レイヤで
+返されるなら, SCSI レイヤはもし可能ならそれらを再度キューすることを依
+頼する (SCSI disk コマンドは multipath を利用していないばあい 5 回リト
+ライする).
+
+もし dm-multipath が SCSI レイヤを利用しているなら, リトライの代わりに 
+multipath レイヤでコマンドは失敗し, multipath レイヤはその後他の path 
+でコマンドをリトライする.
+
+    # NOP-Out の送信頻度
+
+To control how often a NOP-Out is sent the following value can be set:
+
+どの位の頻度で NOP-out を送信するかコントロールするには次の value をセッ
+トする:
+
+    ---
+    node.conn[0].timeo.noop_out_interval = X
+    ---
+
+    # NOP-Out のタイムアウト
+
+Where X is in seconds and the default is 10 seconds. To control the
+timeout for the NOP-Out the noop_out_timeout value can be used:
+
+X は秒でデフォルトは 10 秒. NOP-Out のタイムアウトをコントローするには
+noop_out_timeout の値を利用出来る:
+
+    ---
+    node.conn[0].timeo.noop_out_timeout = X
+    ---
+
+Again X is in seconds and the default is 15 seconds.
+
+この場合も X は秒でデフォルトは 15 秒.
+
+Normally for these values you can use:
+
+通常これらの value は次の様に利用出来る:
+
+    ---
+    node.conn[0].timeo.noop_out_interval = 5
+    node.conn[0].timeo.noop_out_timeout = 10
+    ---
+
+If there are a lot of IO error messages, then the above values may be too
+aggressive and you may need to increase the values for your network conditions
+and workload, or you may need to check your network for possible problems.
+
+もし IO エラーメッセージが多いなら, 上記 value がアグレッシブ過ぎる可
+能性があるので, ネットワーク環境と作業負荷のために value を増やす必要
+がある. または可能性のある問題についてネットワークをチェックする必要
+があるかもしれない.
+
+#// -------------------------------
+#// 8.1.2 replacement_timeout
+#// -------------------------------
+
+(dm-multipath) replacement_timeout
+
+    # session 再確立までの待機時間
+
+    # node.session.timeo.replacement_timeout は微調整が必要
+
+The next iSCSI timer that will need to be tweaked is:
+
+次の iSCSI タイマーは微調整する (tweaked) 必要がある:
+
+    ---
+    node.session.timeo.replacement_timeout = X
+    ---
+
+Here X is in seconds.
+
+ここの X は秒.
+
+replacement_timeout will control how long to wait for session re-establishment
+before failing pending SCSI commands and commands that are being operated on by
+the SCSI layer's error handler up to a higher level like multipath or to
+an application if multipath is not being used.
+
+replacement_timeout は保留中の SCSI コマンドが失敗する前または multipath 
+やアプリケーションの様なより高いレベルの SCSI レイヤのエラーハンドラが
+操作するコマンドが session の再確立のためにどれだけ待機するかをコント
+
+
+#// --------------------------------------------------------------
+#// 8.1.2.1 Running Commands, the SCSI Error Handler, and replacement_timeout
+#// --------------------------------------------------------------
+
+(dm-mutltipath) コマンドを実行する, SCSI エラーハンドラ, それと 
+replacement_timeout
+
+    # ネットワークに問題があるとコマンドはすぐに失敗する
+
+    # SCSI エラーハンドラの確認
+
+Remember, from the Nop-out discussion that if a network problem is detected,
+the running commands are failed immediately. There is one exception to this
+and that is when the SCSI layer's error handler is running. To check if
+the SCSI error handler is running iscsiadm can be run as:
+
+Nop-out の議論からネットワークに問題が検出された場合, 実行中のコマンド
+がすぐに失敗することを覚えておくこと. これの唯一の例外は SCSI レイヤの
+エラーハンドラが実行中の時. 
+
+SCSI エラーハンドラが実行中かどうかチェックするには iscsiadm で次を実行する:
+
+    ---
+    iscsiadm -m session -P 3
+    ---
+
+You will then see:
+
+それから表示する:
+
+    ---
+    Host Number: X State: Recovery
+    ---
+
+When the SCSI EH is running, commands will not be failed until
+node.session.timeo.replacement_timeout seconds.
+
+SCSI エラーハンドラが実行中なら, node.session.timeo.replacement_timeout 
+の秒までコマンドは失敗しない.
+
+    # SCSI エラーハンドラの start とタイマーの変更
+
+    # /sys/block/sdX/device/timeout か udev ルールで秒数を設定出来る
+
+To modify the timer that starts the SCSI EH, you can either write
+directly to the device's sysfs file:
+
+SCSI エラーハンドラを start してタイマーを変更するには, いずれかの方法
+で device の sysfs ファイルに書き込むことが出来る:
+
+    ---
+    echo X > /sys/block/sdX/device/timeout
+    ---
+
+where X is in seconds or on most distros you can modify the udev rule.
+
+X は秒で, 大抵のディストリビューションでは udev ルールで変更出来る.
+
+To modify the udev rule open /etc/udev/rules.d/50-udev.rules, and find the
+following lines:
+
+udev ルールで変更するには /etc/udec/rules.d/50-udev.rules を開いて次の
+行を見つける:
+
+    ---
+    ACTION=="add", SUBSYSTEM=="scsi" , SYSFS{type}=="0|7|14", \
+             RUN+="/bin/sh -c 'echo 60 > /sys$$DEVPATH/timeout'"
+    ---
+
+And change the echo 60 part of the line to the value that you want.
+
+それから行の echo 60 の部分を望む value に変更する.
+
+    # ファイルシステムのコマンドのタイムアウトは 30 秒がデフォルト.
+
+    # udev を利用する場合は 60 秒がデフォルト.
+
+The default timeout for normal File System commands is 30 seconds when udev
+is not being used. If udev is used the default is the above value which
+is normally 60 seconds.
+
+通常 udev を利用しない場合ファイルシステムのコマンドのデフォルトのタイ
+ムアウトは 30 秒. udev を利用する場合は通常上記 value の 60 秒になる.
+
+
+#// -------------------------------
+#// 8.1.2.2 Pending Commands and replacement_timeout
+#// -------------------------------
+
+(dm-multipath) コマンドの保留と replacement_timeout
+
+    # ネットワークで問題を検出した場合のコマンドの扱い
+
+Commonly, the SCSI/BLOCK layer will queue 256 commands, but the path can
+only take 32. When a network problem is detected, the 32 commands
+in flight will be sent back to the SCSI layer immediately and because
+multipath is being used this will cause the commands to be sent to the multipath
+layer for execution on another path. However the other 96 commands that were
+still in the SCSI/BLOCK queue, will remain here until the session is
+re-established or until node.session.timeo.replacement_timeout seconds has
+gone by. After replacement_timeout seconds, the pending commands will be
+failed to the multipath layer, and all new incoming commands will be
+immediately failed back to the multipath layer. If a session is later
+re-established, then new commands will be queued and executed. Normally,
+multipathd's path tester mechanism will detect that the session has been
+re-established and the path is accessible again, and it will inform
+dm-multipath.
+
+一般に, SCSI/BLOCK レイヤは 256 コマンドをキューするが, path は 32 の
+み取る.
+
+ネットワークに問題が検出された時に, 飛んでいる 32 のコマンド (?) はた
+だちに SCSI レイヤに戻される.
+
+multipath レイヤを利用しているなら他の path でコマンドを実行するため
+にコマンドは mutipath レイヤに送られる.
+
+しかし他の 96 コマンドはまだ SCSI/BLOCK でキューされていて session が
+再確立するか node.session.timeo.replacement_timeout の秒が過ぎるまで
+ここに残る.
+
+replacement_timeout 秒後, 保留中のコマンドは multipath レイヤで失敗し, 
+新しく入ってくるすべてのコマンドはすぐに multipath レイヤにフェイルバッ
+クする.
+
+もし session が遅れて再確立した場合は, 新しいコマンドはキューされて実
+行される.
+
+通常, mutipath の path のテスト機構は session が再確立したことと path 
+が再度アクセス可能かを検出し, それを dm-multipath に通知する.
+
+    * dm-multipath = multipath の daemon (?)
+
+#// -------------------------------
+#// 8.1.3 Optimal replacement_timeout Value
+#// -------------------------------
+
+(dm-multipath) 最適な replacement_timeout の value
+
+The default value for replacement_timeout is 120 seconds, but because
+multipath's queue_if_no_path and no_path_retry setting can prevent IO errors
+from being propagated to the application, replacement_timeout can be set to a
+shorter value like 5 to 15 seconds. By setting it lower pending IO is quickly
+sent to a new path and executed while the iSCSI layer attempts
+re-establishment of the session. If all paths end up being failed, then the
+multipath and device mapper layer will internally queue IO based on the
+multipath.conf settings, instead of the iSCSI layer.
+
+replacement_timeout のデフォルトの value は 120 秒だが, multipath の
+queue_if_nopath と no_path_retry の設定でアプリケーションから伝播する 
+IP エラーを防止出来るので, replacement_timeout には 5 から 15 秒の様
+な短い value をセット出来る.
+
+これを低く設定すると iSCSI レイヤが session の再確立を試みている間に
+保留中の IO は速やかに新しい path に送信されて実行される.
+
+もしすべての path が失敗して終わる場合, multipath と device マッパー
+のレイヤーは iSCSI の代わりに mutipath.conf の設定に基づいて内部的に 
+IO をキューする.
+
+#// -------------------------------
+#// 8.2 iSCSI settings for iSCSI root
+#// -------------------------------
+
+(dm-multipath) iSCSI root の iSCSI 設定
+
+    # iSCSI disk を化した root パーティションへのアクセス
+
+When accessing the root partition directly through a iSCSI disk, the
+iSCSI timers should be set so that iSCSI layer has several chances to try to
+re-establish a session and so that commands are not quickly requeued to
+the SCSI layer. Basically you want the opposite of when using dm-multipath.
+
+iSCSI disk を介して root パーティションに直接アクセスするときは, iSCSI 
+レイヤが session の再確立のチャンスをいくつか持てる様にと, コマンドが 
+iSCSI レイヤにすぐに再キューされない様に iSCSI タイマをセットすべき.
+
+基本的には dm-multipath を利用する時と別にしたい.
+
+For this setup, you can turn off iSCSI pings by setting:
+
+この設定では, iSCSI ping をオフに切替え出来る:
+
+    ---
+    node.conn[0].timeo.noop_out_interval = 0
+    node.conn[0].timeo.noop_out_timeout = 0
+    ---
+
+And you can turn the replacement_timer to a very long value:
+
+replacement_timer を非常に長い value に切替える:
+
+    ---
+    node.session.timeo.replacement_timeout = 86400
+    ---
+
+#// ==============================================================
+#// 9. iSCSI System Info
+#// ==============================================================
+
+iSCSI システムの情報
+
+    # 実行中の session に関する情報を得る -P 2
+
+To get information about the running sessions: including the session and
+device state, session ids (sid) for session mode, and some of the
+negotiated parameters, run:
+
+実行中の session に関する session と device の状態を含む情報を得るには,
+session mode で session id (sid) と,いくつかの交渉パラメータを実行する:
+
+    ---
+    iscsiadm -m session -P 2
+    ---
+
+    # 短い情報を得る -P 0
+
+If you are looking for something shorter like just the sid to node mapping
+run:
+
+node にマッピングされた sid の様な短い情報を探すなら次を実行する:
+
+    ---
+    iscsiadm -m session -P 0
+    ---
+    or
+    ---
+    iscsiadm -m session
+    ---
+
+This will print the list of running sessions with the format:
+
+これは実行中の session のリストを次の形式で出力する:
+
+    ---
+    driver [sid] ip:port,target_portal_group_tag targetname
+    ---
+    ---
+    # iscsiadm -m session
+    tcp [2] 10.15.84.19:3260,2 iqn.1992-08.com.netapp:sn.33615311
+    tcp [3] 10.15.85.19:3260,3 iqn.1992-08.com.netapp:sn.33615311
+    ---
+
+    # ハードウェアの情報を得る -P 1
+
+To print the hw address info use the -P option with "1":
+
+ハードウェアのアドレス情報を出力するには -P オプションを "1" で利用す
+る:
+
+    ---
+    iscsiadm -m session -P 1
+    ---
+
+This will print the sessions with the following format:
+
+これは session を次の形式で出力する:
+
+    ----
+    Target: targetname
+        Current Portal: portal currently logged into
+        Persistent Portal: portal we would fall back to if we had got redirected                during login
+                    Iface Transport: driver/transport_name
+                    Iface IPaddress: IP address of iface being used
+                    Iface HWaddress: HW address used to bind session
+                    Iface Netdev: netdev value used to bind session
+                    SID: iscsi sysfs session id
+                    iSCSI Connection State: iscsi state
+    ----
+
+Note: if a older kernel is being used or if the session is not bound
+then the keyword "default" is print to indicate that the default
+network behavior is being used.
+
+注意: 古い kernel を利用しているか session が結合されていない場合は,
+default ネットワークの動作を利用していることを示すためにキーワード
+"default" が出力される. 
+
+Example:
+
+-P 1 の実施例:
+
+    ----
+    #iscsiadm -m session -P 1
+    Target: iqn.1992-08.com.netapp:sn.33615311
+            Current Portal: 10.15.85.19:3260,3
+            Persistent Portal: 10.15.85.19:3260,3
+                    Iface Transport: tcp
+                    Iface IPaddress: 10.11.14.37
+                    Iface HWaddress: default
+                    Iface Netdev: default
+                    SID: 7
+                    iSCSI Connection State: LOGGED IN
+                    Internal iscsid Session State: NO CHANGE
+    ----
+
+The connection state is currently not available for qla4xxx.
+
+connection の状態は 現在利用出来ない qla4xxx では.
+
+connection state は現在 qla4xxx では利用出来ない.
+
+To get a HBA/Host view of the session there is the host mode.
+
+session の HBA/Host ビューを得るには host mode を使う.
+
+Example:
+
+-m host (host mode) の実施例:
+
+    ----
+    iscsiadm -m host
+    cxgb3i: [7] 10.10.15.51,[00:07:43:05:97:07],eth3 <empty>
+    ----
+
+This prints the list of iSCSI hosts in the system with the format:
+driver [hostno] ipaddress,[hwaddress],net_ifacename,initiatorname
+
+この出力は次の形式のシステムの iSCSI ホストのリスト:
+driver [hostno] ipaddress, [hwaddress], net_ifacename, initiatorname
+
+To print this info in a more user friendly way the -P argument can be used:
+
+これをよりユーザフレンドリな方法で出力するには -P 引数を利用出来る:
+
+    ----
+    iscsiadm -m host -P 1
+    Host Number: 7
+        State: running
+        Transport: cxgb3i
+        Initiatorname: <empty>
+        IPaddress: 10.10.15.51
+        HWaddress: 00:07:43:05:97:07
+        Netdev: eth3
+    ----
+
+Here, you can also see the sate of the host.
+
+ここでは, またホスト情報を参照できる.
+
+    * s/sate/state/ 
+
+You can also pass in any value from 1 - 4 to print more info like the
+sessions running through the host, what ifaces are being used and what
+devices are accessed through it.
+
+また host を介して実行中の session, 利用している ifaces, アクセス
+している device のより多くの情報を出力するために 1 - 4 の任意の 
+value を渡すことが出来る
+
+To print the info for a specific host then you can pass in the -H argument
+with the host number:
+
+特定の host の情報の出力には -H 引数で host 番号を渡すことが出来る:
+
+    ----
+    iscsiadm -m host -P 1 -H 7
+    ----
+
+(END)
+

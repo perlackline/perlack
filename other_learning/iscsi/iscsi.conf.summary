@@ -1,0 +1,485 @@
+
+/etc/iscsi/iscsid.conf 翻訳の summary。
+
+やや意味を掴みかねる部分はあるが概ね理解可能。
+
+項目見出しの (L.n) は /etc/iscsi/iscsid.conf の行番号。
+
+#// -------------------------------------------------------------- 
+#// iscid.conf の設置 (L.3)
+#// -------------------------------------------------------------- 
+
+iscsid.conf は以下に設置可能。
+
+---
+/etc/iscsi/iscsid.conf/
+---
+or
+---
+~/.iscsid.conf
+---
+
+
+#// -------------------------------------------------------------- 
+#// iscsiadm --mode node --op command (L.5)
+#// -------------------------------------------------------------- 
+
+特定の node/sessiono ために以下のコマンド実行して値を設定する.
+
+---
+iscsiadm --mode node --op command
+---
+
+詳細は README と iscsiadm の man ページの --op コマンドを参照する.
+
+
+#// -------------------------------------------------------------- 
+#// iscsid デーモンの設定 (L.11)
+#// -------------------------------------------------------------- 
+
+iscsid の最初の起動には通常以下のようにスクリプト実行をセットする.
+
+  + Fedora と RHEL のデフォルト (uncomment)
+
+---
+iscsid.startup = /etc/rc.d/init.d/iscsid force-start
+---
+
+open-iscsi スクリプトのデフォルト (comment out)
+
+---
+# iscsid.startup = /sbin/iscsid
+---
+
+
+#// -------------------------------------------------------------- 
+#// NIC/HBA と ドライバの設定 (L.27)
+#// -------------------------------------------------------------- 
+
+open-iscsi は NIC (Network Interface Card) /HBA (Host Bus Adapter) 
+へのセッションと紐付けを作成可能.
+
+設定方法は "iface" コンフィグファイルの "例" を参照.
+
+ref ?: https://access.redhat.com/documentation/ja-JP/Red_Hat_Enterprise_Linux/6/html/Storage_Administration_Guide/iface-config-software-iscsi.html
+
+
+#// -------------------------------------------------------------- 
+#// スタートアップの設定 (L.33)
+#// -------------------------------------------------------------- 
+
+iscsi に initd スクリプトでセッションをスタートアップする様に要求
+するには "automatic" に設定する.
+
+手動でスタートアップするには "manual" をセットする. 
+
+デフォルトは "automatic".
+
+---
+node.startup = automatic
+---
+
+automatic でスタートアップしたノードには以下を "Yes" に設定する.
+"Yes" は利用可能な各 iface 上でそれぞれにログインをトライしてから
+停止する.
+
+"No" は全ての利用可能な iface に同時にトライする.
+
+デフォルトは "No".
+
+---
+node.leading_login = No
+---
+
+
+#// -------------------------------------------------------------- 
+#// CHAP のセッティング (L.48)
+#// -------------------------------------------------------------- 
+
+CHAP 認証セットの node.session.auth.authmethod を CHAP に有効にす
+るには以下を CHAP で設定する.
+
+デフォルトは None (コメントアウト).
+
+---
+#node.session.auth.authmethod = CHAP
+---
+
+initiator authentication のための CHAP のユーザ名とパスワードを 
+targert (複数可) で設定するには以下をアンコメントする.
+
+---
+#node.session.auth.username = username
+#node.session.auth.password = password
+---
+
+target authentication のための CHAP のユーザ名とパスワードを 
+initiator で設定するには以下をアンコメントする. target は複数可.
+
+---
+#node.session.auth.username_in = username_in
+#node.session.auth.password_in = password_in
+---
+
+target の discovery session のための CHAP authentication を有効に
+するには, 以下を CHAP にセットする.
+
+---
+#discovery.sendtargets.auth.authmethod = CHAP
+---
+
+target からの initiator authentication のために discovery session 
+に CHAP ユーザ名とパスワードをセットするには次の行をアンコメントす
+る. target は複数可.
+
+---
+#discovery.sendtargets.auth.username = username
+#discovery.sendtargets.auth.password = password
+---
+
+initiator からの target authentication のために discovery session 
+に CHAP ユーザ名とパスワードをセットするには次の行をアンコメントす
+る. target は複数可.
+
+---
+#discovery.sendtargets.auth.username_in = username_in
+#discovery.sendtargets.auth.password_in = password_in
+---
+
+
+#// -------------------------------------------------------------- 
+#// タイムアウト (L.80)
+#// -------------------------------------------------------------- 
+
+multipath や root over iSCSI を利用する時のタイムアウトのセッティ
+ングの tips は, iSCSI REAME's (おそらく README's の typo) の 
+Advanced Configuration (進歩した設定) セクションを参照すること.
+
+SCSI コマンドが失敗して Linux SCSI レイヤのエラーハンドラが実行さ
+れアプリケーションに戻るまでの session 再確立のための待機時間の長
+さをセットするには以下の行を編集する.
+
+---
+node.session.timeo.replacement_timeout = 120
+---
+
+値は "秒" でデフォルトは 120.
+
+特別な値:
+- 値を 0 にすると IO はただちに失敗する.
+- 値を 0 以下にすると IO は session がログインするかユーザがログア
+  ウトコマンドを実行するまでキューされたままになる.
+
+ログイン完了のための待機時間を指定するには以下を編集する.
+
+デフォルトは 15 秒.
+
+---
+node.conn[0].timeo.login_timeout = 15
+---
+
+ログアウト完了のための待機時間を指定するには以下を編集する.
+
+デフォルトは 15 秒.
+
+---
+node.conn[0].timeo.logout_timeout = 15
+---
+
+ping を送信するまでに connection で待機する時間間隔は以下を編集す
+る.
+
+---
+node.conn[0].timeo.noop_out_interval = 5
+---
+
+connection が失敗するまでに Nop-out レスポンスの待機時間を指定する
+には以下を編集します.
+
+connection が失敗すると SCSI への IO が失敗する原因になります. も
+し dm-multipath を利用しているなら, これは multipath レイヤへの IO 
+の失敗の原因になります.
+
+---
+node.conn[0].timeo.noop_out_timeout = 5
+---
+
+操作に失敗してロジカルユニットのリセットをトライするまでの, 中断レ
+スポンスの待機時間を指定するには, 以下の行を編集します.
+
+デフォルトは 15 秒です.
+
+---
+node.session.err_timeo.abort_timeout = 15
+---
+
+操作に失敗して session の再確立にトライするまでの, ロジカルユニッ
+トのレスポンスの待機時間を指定するには, 以下の行を編集します.
+
+デフォルトは 30 秒です.
+
+---
+node.session.err_timeo.lu_reset_timeout = 30
+---
+
+操作に失敗して session の再確立にトライするまでの, target のレスポ
+ンスの待機時間を指定するには, 以下の行を編集します. 
+
+値は "秒" でデフォルトは 30 秒です.
+
+---
+node.session.err_timeo.tgt_reset_timeout = 30
+---
+
+
+#// -------------------------------------------------------------- 
+#// リトライ (L.132)
+#// -------------------------------------------------------------- 
+
+node.conn[0].timeo.login_timeout の期限切れが原因でログインが失敗
+した場合に, iscsid がログインをリトライする回数を指定するには以下
+を変更する.
+
+NOTE: もしログインが失敗した場合は, ネットワークレイヤや target は
+すぐにエラーを返すので (node.conn[0].timeo.login.timeout 発生まで
+に), iscsid は node.session.ititial_login_retry_max の回数より多く
+リトライする.
+
+このリトライは node.conn[0].timeo.login.timeout と一緒にカウントさ
+れ, iscsia が initial ログインをトライする最大の時間 (the maximum
+amount of time) を決定する.
+
+デフォルトで node.session.initial_login_retry_max は 8,
+node.conn[0].timeo.login_timeout は 15 なので :
+
+node.conn[0].timeo.login_timeout * node.session.initial_login_retry_max = 120 秒になる.
+
+有効な値は任意の整数値. これは initial login に作用する.
+
+高い値に設定すると, サービスの起動を遅く出来る.
+
+低い値に設定 (起動を速く) すると, スタート時の混乱やその時点でネッ
+トワークの準備が出来ていないことが原因でセッションがログイン出来な
+い場合がある. 
+
+---
+node.session.initial_login_retry_max = 8
+---
+
+#// -------------------------------------------------------------- 
+#// セッションとデバイス queue の深さ (L.162)
+#// -------------------------------------------------------------- 
+
+いくつかのコマンドでセッションをコントロールするには, node.session.cmds_max 
+に 2 - 2048 の間の 2 の累乗の整数値で queue をセットする.
+
+デフォルトは 128.
+
+---
+node.session.cmds_max = 128
+---
+
+デバイス queue の深さをコントロールするには, node.session.queue_depth 
+に 1 - 1024 をセットする.
+
+デフォルトは 32.
+
+#// -------------------------------------------------------------- 
+#// MISC システムのパフォーマンスセッティング (L.175)
+#// -------------------------------------------------------------- 
+
+各セッションは, ソフトウェア iscsi (iscsi_tcp) と iser (ib_iser) 
+のためにスレッドを利用してハードウェアに queue データを伝達する.
+
+cxgb3i のために, スレッドはホストごとに取得出来る.
+
+スレッドのプライオリティを低い値に設定すると, より高いスループット
+と低いレイテンシにつながる. 最小値は -20.
+
+プライオリティをより高い値に設定すると, IO パフォーマンスの低下に
+つながりますが, iscsi や scsi のスレッドが CPU の支配してもよいな
+らより高くセットできる.
+
+NOTE: cxgd3i のためには全てのセッションを同じ値にセットする必要が
+あり, そうしなければ動作が不確定になる.
+
+---
+node.session.xmit_thread_priority = -20
+---
+
+#// -------------------------------------------------------------- 
+#// iSCSI のセッティング (L.196)
+#// -------------------------------------------------------------- 
+
+R2T の flow コントロールを有効にするには (つまり, initiator は任意
+のデータを送信する前に R2T コマンドを待つことになる), 以下をアンコ
+メントする.
+
+---
+node.session.iscsi.InitialR2T = Yes
+---
+
+R2T の flow コントロールを無効にするには (つまり, inisiator は 
+"FirstBurstLength" がオフセット 0 の初期 R2T を暗黙的に持つ), 以下
+をアンコメント ((?) コメントアウト ?) する.
+
+  * はじめからアンコメントされている.
+
+デフォルトは No.
+
+---
+node.session.iscsi.InitialR2T = No
+---
+
+即時の (immediate) データを無効にするには (つまり, initiator は 
+iSCSI コマンドの PDU (に|で) 求められていないデータを送信しない), 
+以下をアンコメントする.
+
+---
+#node.session.iscsi.ImmediateData = No
+---
+
+即時の (immediate) データを有効にするには (つまり, initiator は 
+iSCSI コマンドのパケット (に|で) 求められていないデータを送信する), 
+以下をアンコメントする.
+
+  * はじめからアンコメントされている.
+
+---
+node.session.iscsi.ImmediateData = Yes
+---
+
+initiator が iSCSI PDU で target に送信可能な求められていないデー
+タのバイトの最大数を指定するには以下を編集する.
+
+値はバイト数. 範囲は 512 - (2^24-1) でデフォルトは 262144.
+
+  # 2^24-1 = 16777215 = 約 16MB ?
+
+  # 262144 = 256 KB ?
+
+---
+node.session.iscsi.FirstBurstLength = 262144
+---
+
+initiator が target と negotiate するための最大 SCSI ペイロードを
+指定するには, 以下を編集する.
+
+値はバイト数. 範囲は 521 - (2^24-1) でデフォルトは 16776192.
+
+  # 16776192 = 約 16MB ?
+
+---
+node.session.iscsi.MaxBurstLength = 16776192
+---
+
+initiator が iSCSI PDU で受信できる target からの最大データバイト
+を指定するには以下を編集する.
+
+値はバイト数. 範囲は 512 - (2^24-1) でデフォルトは 262144.
+
+  # 262144 = 256 KB
+
+---
+node.conn[0].iscsi.MaxRecvDataSegmentLength = 262144
+---
+
+initiator が target へ iSCSI PDU で送信出来る最大データバイトを指
+定するには以下を編集する.
+
+値はバイト数. 範囲は 512 - (2^24-1).
+
+ゼロは特殊なケース. もしゼロをセットした場合, initiator は 
+MaxXmitDataSegmentLength のために target の MaxRecvDataSegmentLength 
+を利用する.
+
+デフォルトは 0.
+
+---
+node.conn[0].iscsi.MaxXmitDataSegmentLength = 0
+---
+
+discovery (検出) セッションの間に initiator が iSCSI PDU で target 
+から受信出来る最大データバイトを指定するには以下を編集する.
+
+値はバイト数. 範囲は 512 - (2^24-1) でデフォルトは 32768.
+
+---
+discovery.sendtargets.iscsi.MaxRecvDataSegmentLength = 32768
+---
+
+優先を有効にチェックした initiator の要求で, digest checking のセッ
+ティングを target でコントロールすることを許可するには, 以下をアン
+コメントする (データ digest はサポートしていない.):
+
+---
+#node.conn[0].iscsi.HeaderDigest = CRC32C,None
+---
+
+優先を無効にチェックした initiator の要求で, deigest checking のセッ
+ティングを target でコントロールすることを許可するには, 以下をアン
+コメントする.
+
+---
+#node.conn[0].iscsi.HeaderDigest = None,CRC32C
+---
+
+iSCSI PDU のヘッダ and/or データパートの CRC32C digest checking を
+有効にするには, 以下をアンコメントする.
+
+---
+#node.conn[0].iscsi.HeaderDigest = CRC32C
+---
+
+iSCSI PDU のヘッダ and/or データパートの CRC32C digest checking を
+無効にするには, 以下をアンコメントする.
+
+---
+#node.conn[0].iscsi.HeaderDigest = None
+---
+
+デフォルトでは DataDigests または HeaderDifgests を利用しない.
+
+---
+node.conn[0].iscsi.HeaderDigest = None
+---
+
+multipath configuration のために, 各 iface レコードに 1 より多いセッ
+ションが作成されるように出来る.
+
+もし node.session.nr_sessions が 1 より大きい場合, その node のた
+めの 'login' の実行は作成されたセッション数で保証される.
+
+---
+node.session.nr_sessions = 1
+---
+
+
+#// -------------------------------------------------------------- 
+#// 回避方法 (L.291)
+#// -------------------------------------------------------------- 
+
+いくつかの IET の様な target は, initiator が ABORT TASK や LOGICAL UNIT RESET
+の様なタスクマネージメント function を送信した
+後を好み, R2T の様に PDU には応答しない.
+
+この振る舞いを有効にするには以下をアンコメントします.
+
+デフォルトの振る舞いは Yes.
+
+---
+node.session.iscsi.FastAbort = Yes
+---
+
+いくつかの Equalogic の様な target は, initiator が ABORT TASK や 
+LOGICAL UNIT RESET の様なタスクマネージメント function を送信した
+後を好み, R2T への応答を継続する.
+
+有効にするには以下をアンコメントする.
+
+---
+# node.session.iscsi.FastAbort = No
+---
+
+(END)
+

@@ -1,0 +1,1359 @@
+
+    ref: iSCSIイニシエータ再入門
+         https://www.nic.ad.jp/ja/materials/iw/2011/proceedings/d3/d3-06.pdf
+
+iSCSI (Internet Small Computer System Interface)
+
+#// --------------------------------------------------------------
+#// 概要
+#// --------------------------------------------------------------
+
+  + iSCSI を仮想化基盤として利用する場合の運用上の知識を扱う。
+
+  + IQN の命名規則 (RFC3721) には従ったほうがよい。
+
+  + open-iscsi の情報は README が最も豊富 (2011 年当時)。
+
+  + Multipath の Failoverと MultiBus の違い, 構成例。
+
+  + 障害発生時に備えた replacement_timeout の設定。
+
+  ! 利用するストレージ機器と Kernel の Version を確認してからの利
+    用を推奨。
+
+  etc.
+
+#// --------------------------------------------------------------
+#// iSCSIイニシエータ再入門
+#// --------------------------------------------------------------
+
+日本UNIXユーザ会
+山田幸志（だぁやま）
+yamada@sdlab.org
+
+InternetWeek2011 仮想化DAY
+
+iSCSI イニシエータ再入門 (2011)
+https://www.nic.ad.jp/ja/materials/iw/2011/proceedings/d3/d3-06.pdf
+
+#// --------------------------------------------------------------
+#// Index
+#// --------------------------------------------------------------
+
+    + SCSI の確認
+    + SCSI と iSCSI
+    + 用語の整理
+    + IQN (iSCSI Qualified Name)
+    + iSCSI の位置付け
+    + 仮想化基盤での使われ方
+    + 仮想化基盤での使われ方 (LVM と iSCSI)
+    + DEVICE-MAPPER
+    + udev
+    + ホットプラグ
+    + /dev/mapper の状態
+    + open-iscsi
+    + open-iscsi の仕組み
+    + open-iscsi の主要部
+    + open-iscsi コンフィグ例
+    + open-iscsi を利用する
+    + open-iscsi コマンド
+    + iscisadm
+    + iscsiadm -m session -P 3
+    + ログアウトの注意点
+    + iSCSI の冗長化 (Bonding と Multipath)
+    + Multipath とは
+    + Multipath の種類 (FialOver と MultiBus, その他)
+    + Multipath の Failover
+    + Multipath の MultiBus
+    + multipath-tools
+    + mutipath-tools の仕組み
+    + multipath-tools コンフィグ
+    + multipath-tools コマンド
+    + multipath-tools FailOver の確認
+    + multipath-tools MultiBus の確認
+    + multipathd -k 実行例 (Multipathd のコンソール)
+    + iSCSI + Multipath の注意点
+    + Multipath の FailOver 構成を改めて確認
+    + iscsid.conf の確認 (Default 値)
+    + 切替えに要する時間 (Default 値)
+    + 切替時間
+    + 対応方法
+    + 対応方法 (replacement_timeout)
+    + 構成例 (Multipath の MultiBus) を改めて確認
+    + 切替時間 (MultiBus)
+    + メンテナンス時の対応策
+    + まとめ
+    + Kernel リリースノート
+
+
+#// --------------------------------------------------------------
+#// はじめに
+#// --------------------------------------------------------------
+
+海外では NFS, 日本では iSCSI がはやっている.
+iSCSI の情報が少ない.
+
+前提: iSCSI を仮想化基盤として利用する場合に運用上必要なことを扱う.
+
+iSCSI のプロトコルや規格は扱わない.
+
+
+#// --------------------------------------------------------------
+#// SCSI の確認
+#// --------------------------------------------------------------
+
+---
++-----+          +-------------+
+|     |          |             |     +-----+
+| M/B +----------+ RAID カード +-----+ HDD +
+|     |<-+    +->|             |  |  +-----+
++-----+  |    |  +-------------+  |
+         |    +-----+             |
+         |          |             |
+ [PCI スロット]   [HBA]      [SCSI ケーブル]
+---
+
+
+#// --------------------------------------------------------------
+#// SCSI と iSCSI
+#// --------------------------------------------------------------
+
+---
+
+ [iSCSI + DviceMapper udev]
+         |
+         | [EtherCable]
+         |   |
+         |   | [NIC (TCP オフロードエンジン) ]
+         |   |  |
++------+ |   |  | +-----------------+
+|      | |   |  +----+              |     +-----+
+| (OS)<--+   |    |  |              |     |     |
+|      |     v    |  v              |     |     |
+| M/B  +----------+ (*) RAID カード +-----+ HDD +
+|      |<-+    +->|                 |  |  +-----+
++------+  |    |  +-----------------+  |
+          |    +-----+                 |
+          |          |                 |
+   [PCI スロット]   [HBA]        [SCSI ケーブル]
+--
+
+#// --------------------------------------------------------------
+#// 用語の整理
+#// --------------------------------------------------------------
+
+ +-----------------------------+
+ |                             |
+ | iSCSI イニシエータ (Server) |  イニシエータ
+ |                             |
+ +---------+-----+-------------+    + 利用する側 (クライアント)
+           |--+--|                  + NFS では mount コマンドを打つ側
+              |
+              |
+           |--+--|
+ +---------+-----+-------------+  ターゲット
+ | iSCSI ターゲット (Storage)  |
+ |         +-----+             |    + ディスクを持っている側 (サーバ)
+ |         | IQN |             |
+ |         +-----+             |  IQN (iSCSI Qualified Name)
+ |          -----              |
+ |         ( LUN )             |    + 一意の名前
+ |          -----              |    + 書式は違うが MAC アドレス的なもの
+ |    ----   ----   ----       |
+ |   (disk) (disk) (disk)      |  LUN (Logical Unit Number)
+ |    ----   ----   ----       |
+ +-----------------------------+
+
+
+#// --------------------------------------------------------------
+#// IQN (iSCSI Qualified Name)
+#// --------------------------------------------------------------
+
+  例: iSCSI Enterprise Target Deamon の /etc/ietd.conf
+
+---
+Target iqn.1983-06.jp.or.jus:strage.hdb (IQN 設定)
+IncomingUser
+OutgoingUser     (ユーザ認証なし)
+Alias iSCSI_Test (この DISK に名前をつける)  
+Lun 0 Path=/dev/hdb,Type=fileio
+---
+
+  + IQN の命名規則は存在するので従うこと (Closed 環境では適当でもよし)
+
+    ref: RFC3721
+
+
+#// --------------------------------------------------------------
+#// iSCSI の位置付け
+#// --------------------------------------------------------------
+
+ [ OS ] + ファイルシステム
+   |
+   |      ext3, ext4, vfat ...
+   |
+   |      [ NAS (NFS) ]
+   |    ---
+   |    + パーティション
+   |    ---
+   |    + LUN (Logical Unit Number)
+   |
+   |      OS から HDD として認識されるかたまり
+   |
+   |      [ iSCSI ] *
+   |      [ Local HDD ]
+   |      [ USB ]
+   |    ---
+   |
+ [ HW ] + RAID グループ
+
+          物理 HDD の集合体を論理的な HDD としたもの
+
+
+#// --------------------------------------------------------------
+#// 仮想化基盤での使われ方
+#// --------------------------------------------------------------
+
+例:
+
+  iSCSI       Strage
+  +----+      ----
+  | VM |-----( LV )
+  +----+      ----
+
+  NFS         Strage
+  +----+      -----
+  | VM |-----( VHD )
+  +----+      -----
+
+  その他      Strage
+  +----+      -----
+  | VM |-----( LUN )
+  +----+      -----
+
+
+#// --------------------------------------------------------------
+#// 仮想化基盤での使われ方 (LVM と iSCSI)
+#// --------------------------------------------------------------
+
+          -----------------------
+ [ OS ]  ( VM のファイルシステム )
+   |      -----------------------
+   |         ^
+   |         |
+   |      ----------
+   |     ( 仮想 HDD )
+   |      ----------
+   |           ^
+   |+----+     |          --+           ---
+   || LV |  ( LV1 ) ( LV2 ) |           /dev/VolGroup00/LogVol00
+   |+----+     ^       ^    |           /dev/VolGroup00/LogVol01
+   |           |       |    |  +-----+  ---
+   |           +-------+    +--| LVM |
+   |           |            |  +-----+
+   |+----+  +-----+-----+   |           ---
+   || VG |  | VG0 | VG1 |   |           /dev/VolGroup00
+   |+----+  +-----+-----+   |           /dev/VolGroup00
+   |                      --+           ---
+   |
+   |+----+  +-+ +-+ +-+  +-+ +-+ +-+    ---
+   || PV |  | | | | | |  | | | | | |    パーティション /dev/sda1
+   |+----+  +-+ +-+ +-+  +-+ +-+ +-+                   /dev/sda2
+   |           ____          ____       ---
+   |          (    )        (    )      LUN (Logical Unit Number)
+   |           ~~~~          ~~~~       OS から HDD として認識するかたまり /dev/ada
+   |                                                                       /dev/adb
+   |           _  _  _   _  _  _        ---
+   |          ( )( )( ) ( )( )( )       RAID グループ
+   |           ~  ~  ~   ~  ~  ~        物理 HDD の集合体を論理的な HDD としたもの
+ [ HW ]
+
+
+#// --------------------------------------------------------------
+#// DEVICE-MAPPER
+#// --------------------------------------------------------------
+    
+                             Device-Mapper
+
+                                +--------------+
+                                |  +-----------|-- Device-Mapper ---------------+
+                                |  |           v                                |
+                                |  |    +--------------+                        |
+  [アプリケーション]           +---->[Queue]           | MappingTarget          |
+         V                     ||  |    |  DM テーブル | とオフセット           |
+  [ファイルシステム]-----------+|  |    +-+------------+                        |
+         V                      |  |      |                                     |
+  [ブロックデバイス]            |  |   +--+---+                 (Mapping Target)|
+   (DeviceMapper)               |  |   |      |                        |        |
+  [ブロックデバイス ドライバ]<-+|  |   v      v                        v        |
+   (ハードウェア)              ||  |[liner] [striped] [snapshot|snapshot-origin]|
+         V                     ||  |   |      |                                 |
+  [ストレージ]                 ||  |   +------------+                           |
+                               ||  |          |     |                           |
+                               ||  |[mirror]  |     | [multipath] [crypt]       |
+                               ||  |          |     |       [zero] [error]      |
+                               ||  +--------------------------------------------+
+                               ||             |     |
+                               ||             v     v
+                               +|-----[/dev/sda/] [/dev/mapper/map1] [/dev/sdc]
+                                |                   |
+                                +-------------------+  
+
+
+#// --------------------------------------------------------------
+#// udev
+#// --------------------------------------------------------------
+
+  + USB-HDD や USB メモリの様なものの接続に便利。
+
+  + udev は動的にデバイスを管理する仕組み。
+
+  + udev では各種デバイスの取り扱いを /etc/udev/rules.d/ 配下のルー
+    ルファイルに記述する。
+
+例
+---
+00-backdev.rules     55-xs-mpath-scsidev.rules  60-raw.rules  xen-backend.rules
+05-udev-early.rules  56-emulex-bsg.rules        90-dm.rules   xen-frontend.rules
+40-multipath.rules   56-emulex-bsg.rules.bak    90-hal.rules  z10-xen-vcpu-hotplug.rules
+50-udev.rules        58-xapi.rules              95-pam-console.rules
+51-hotplug.rules     60-net.rules               blktap.rules
+---
+
+
+#// --------------------------------------------------------------
+#// ホットプラグ
+#// --------------------------------------------------------------
+
+  + ホットプラグデバイスの接続時等で利用。
+
+    + 以前は /sbin/hotplug
+
+    + 最近は udev
+
+  + フロー
+
+    + デバイス接続
+    |
+    v
+    + udevd に通知
+    |
+    v
+    + /etc/udevd のスクリプト実行
+    |
+    v
+    + hald に通知
+
+#// --------------------------------------------------------------
+#// /dev/mapper の状態
+#// --------------------------------------------------------------
+
+CentOS
+---
+[root@centos53x64 ~]# ls -al /dev/mapper/
+total 0
+drwxr-xr-x 2  root root 100    Nov 25 12:20 .
+drwxr-xr-x 11 root root 2900   Nov 25 12:42 ..
+crw------- 1  root root 10, 62 Nov 25 12:20 control
+brw-rw---- 1  root disk 253, 0 Nov 25 12:20 VolGroup00-LogVol00
+brw-rw---- 1  root disk 253, 1 Nov 25 12:20 VolGroup00-LogVol01
+---
+
+XenServer + Multipath
+---
+[root@test01 udev]# ls -al /dev/mapper
+total 0
+drwxr-xr-x 2  root root 120    Nov 25 12:06 .
+drwxr-xr-x 18 root root 17060  Nov 25 12:06 ..
+brw-rw---- 1  root disk 252, 0 Nov 25 12:06 3600000e00d0000000003053800000000
+crw------- 1  root root 10, 56 Nov 17 15:00 control
+brw-rw---- 1  root disk 252, 2 Nov 25 12:12 VG_XenStorage--5735ad14--3871--5243--5d98--f0394db7a007-VHD--487a7522--dd37--
+brw-rw---- 1  root disk 252, 1 Nov 25 12:12 VG_XenStorage--5735ad14--3871--5243--5d98--f0394db7a007-VHD--c36d4e03--25d5--
+---
+
+
+#// --------------------------------------------------------------
+#// OPEN-ISCSI
+#// --------------------------------------------------------------
+
+#// --------------------------------------------------------------
+#// open-iscsi
+#// --------------------------------------------------------------
+
+  + OpenSource の iSCSI イニシエータ
+
+  + 主な構成
+
+    + CLI ツール iscsiadm
+
+    + 管理 Deamon
+
+
+#// --------------------------------------------------------------
+#// open-iscsi の仕組み
+#// --------------------------------------------------------------
+
++-[ iscsiadm ]---------------------------+  +-[ iscsid ]----------------------------------------------------+
+| + Command line tool                    |  | + iSCSI daemon                                                |
+| + Manages DBM-based database of        |  | + Implements Session Mangement for Nomal sessions             |
+|   sessions and targets                 |  | + Implements (that is, builds, sends, parses, and tarminates):|
+| + Sends commands to iscsid via sockets |  |   Login, Logout, Text, Nop-In/Out, Async Msg                  |
+| + Implements iSCSI discovery, stores   |  | + Communicates with both iscsiadm and iscsi_if modules        |
+|   results in the database              |  +---------------------------------------------------------------+
++---------------------------------------+--------------------+          ^
+                                        | Targets & Sessions |         | | 
+                                         |  Configuration   |    +--------------+ 
+                                          |  database      |     |  CP <-> DP   |
+                                           +--------------+      | (iscsi_if.h) |
+[Contrl Plane]                                                   |interface over|                      [User]
+---------------------------------------------------------------- |  OS-specific |----------------------------
+[Data Plane]                                                     |      IPC     |                    [Kernel]
+                                                                 +--------------+
+                                                                        | |
+                                                                         v
+                 +-[ iscsi tranport class (scsi_transport_iscsi.[ch]) ]-------------------------------------+
+                 | + Generic transport "switch" (can work for multiple iSCSI implementations)               |
+                 | + Generic upcal/downcall demultiplexor                                                   |
+                 | + Performs parameter validation (in particular, session and connection handles) prior to |
+                 |   calling "up" or "down", depending on the direction                                     |
+                 | + Exports transport, session, connection via sysfs                                       |
+                 | + Manages mempool "zones" on a per-connection basis; the types of mempool-ed             |
+                 |   memory include: (1) received control PDU's (2) connection level errors, (3) responses  |
+                 |   to downcalls                                                                           |
+                 +------------------------------------------------------------------------------------------+
+                           ^                                   ^
+                          | |                                 | |
+                           v                                   v
++-[ future iscsi data path modules ]-+    +-[ iscsi_tcp ]--------------------------------------------------+
+|The possibilities include:          |    | + iSCSI over TCP over reqlar NIC                               |
+| + Silverback iSCSI HBA             |    | + Implements iSCSI data path                                   |
+| + Qlogic iSCSI HBA                 |    | + Manages per-session CmdSN and per-connection ExpStatSN       |
+| + Emulec iSCSI HBA                 |    | + Other than the previous item, transfers control PDUs without |
+| + Adaptec iSCSI HBA                |    |   "looking" in                                                 |
+| + etc.                             |    | + Manages a number of mempppls to eliminate runtime            |
++------------------------------------+    |   allocations                                                  |
+                                          +----------------------------------------------------------------+
+
+#// --------------------------------------------------------------
+#// open-iscsi の主要部
+#// --------------------------------------------------------------
+
+  + iscsiadm                  : コマンドラインツール
+
+  + iscsid (daemon)           : セッションの作成, 管理
+
+  + iscsi tranport class      : scsi_tranport_iscsi, libscsi
+
+  + iscsi_tcp (Kernel Module) : 通信 (Login/Logout/SCSIcmd(inquiry, R/W)
+
+#// --------------------------------------------------------------
+#// open-iscsi コンフィグ例
+#// --------------------------------------------------------------
+
+  + iscsid.conf
+
+---
+node.startup = manual
+node.session.timeo.replacement_timeo = 15
+node.conn[0].timeo.login_timeout = 15
+node.conn[0].timeo.logout_timeout = 15
+node.conn[0].timeo.noop_out_interval = 10
+node.conn[0].timeo.noop_out_timeout = 15
+node.session.initial_login_retry_max = 4
+node.session.cmds_max = 128
+mode.session.queue_depth = 32
+ :
+ .
+(以下略)
+---
+
+  + initiatorname.scsi
+
+---
+InitiatorName=iqn.1983-06.jp.or.jus:cafe1234
+InitiatorAlias=test01
+---
+
+#// --------------------------------------------------------------
+#// open-iscsi を利用する
+#// --------------------------------------------------------------
+
+  + open-iscsi の情報は README が最も豊富。
+
+  + Flow (概要)
+
+    + 接続先 (ターゲット) を見つける
+    |
+    v
+    + nodes に登録される
+    |
+    v
+    + 登録された node にログインする
+    |
+    v
+    + ブロックデバイスとして利用可能
+
+
+#// --------------------------------------------------------------
+#// open-iscsi コマンド
+#// --------------------------------------------------------------
+
+  + セッション検索
+
+---
+# iscsiadm -m discovery --type sendtargets --portal 192.168.13.1
+---
+
+  + ログイン
+
+---
+# iscsiadm -m node -T <IQN> -p 192.168.13.1 -l
+---
+
+  + ログアウト
+
+---
+# iscsiadm -m node -T <IQN> -p 192.168.13.1 --logout
+---
+
+  + セッション情報 
+
+    + 現在張られているセッションの詳細情報
+
+---
+# cat /etc/iscsi/nodes/iqn.2000-09.s50:storage-kudo:maz:tomop/192.168.13.1\,3260\,1/default
+---
+
+  + セッションと DISK の紐づきを確認する
+
+---
+# iscsiadm -m session -P 3
+---
+
+#// --------------------------------------------------------------
+#// iscisadm
+#// --------------------------------------------------------------
+
+  + 複数セッションの例
+
+---
+[root@test01 ~]# iscsiadm -m node
+192.168.1.1:3260,1 iqn.1983-06.jp.or.jus:storage-system:00030538cm00
+192.168.1.2:3260,3 iqn.1983-06.jp.or.jus:storage-system:00030538cm10
+192.168.2.1:3260,2 iqn.1983-06.jp.or.jus:storage-system:00030538cm01
+192.168.2.2:3260,4 iqn.1983-06.jp.or.jus:storage-system:00030538cm11
+---
+
+---
+[root@test01 ~]# iscsiadm -m node -T iqn.1983-06.jp.or.jus:storage-system:0003053
+-p 192.168.1.2 --login
+Logging in to [iface: default, target: iqn.1983-06.jp.or.jus:storage-system:00030538cm10
+, portal: 192.168.1.2,3260]
+Login to [iface: default, target: iqn.1983-06.jp.or.jus:storage-system:00030538cm10,
+portal: 192.168.1.2,3260]: successful
+---
+
+  + 確認
+
+---
+[root@test01 ~]# iscsiadm -m session
+tcp: [1] 192.168.1.1:3260,1 iqn.1983-06.jp.or.jus:storage-system:00030538cm00
+tcp: [2] 192.168.1.2:3260,3 iqn.1983-06.jp.or.jus:storage-system:00030538cm10
+tcp: [3] 192.168.2.1:3260,2 iqn.1983-06.jp.or.jus:storage-system:00030538cm01
+tcp: [4] 192.168.2.2:3260,4 iqn.1983-06.jp.or.jus:storage-system:00030538cm11
+---
+
+
+#// --------------------------------------------------------------
+#// iscsiadm -m session -P 3
+#// --------------------------------------------------------------
+
+---
+[root@test01 ~]# iscsiadm -m session -P 3
+iSCSI Transport Class version 2.0-870
+iscsiadm version 2.0-870
+Target: iqn.1983-06.jp.or.jus:storage-system:00030538cm00
+  Current Portal: 192.168.13.1:3260,1
+  Persistent Portal: 192.168.13.1:3260,1
+    **********
+    Interface:
+    **********
+    Iface Name: default
+  :
+  .
+    ************************
+    Attached SCSI devices:
+    ************************
+    Host Number: 5 State: running
+    scsi5 Channel 00 Id 0 Lun: 0
+    Attached scsi disk sdb State: running
+    scsi5 Channel 00 Id 0 Lun: 1
+    Attached scsi disk sdc State: running
+---
+
+
+#// --------------------------------------------------------------
+#// ログアウトの注意点
+#// --------------------------------------------------------------
+
+  ! iscsiadm でログアウトするとセッションが切れる。
+
+    + セッションが 0 本 = HDD がない。
+
+    + 仮想化基盤で使っていた場合は大変な事態。  
+
+    + 障害で切れた状態と同じ。
+
+#// --------------------------------------------------------------
+#// iSCSI の冗長化 (Bonding と Multipath)
+#// --------------------------------------------------------------
+
+  # Bonding
+
++-----------------------------+
+| iSCSI イニシエータ (Server) |
++-+---+-----------------+---+-+
+  +-+-+                 +-+-+
+    |                     |
+    +----------+----------+
+               |
+    +----------+----------+
+    |                     |
+  +-+-+       VIP       +-+-+
++-+---+-----------------+---+-+
+|   +--------------------+    |
+|   |    (   LUN  )      |    |
+|   |  ____  ____  ____  |    |
+|   | (Disk)(Disk)(Disk) |    |
+|   |  ~~~~  ~~~~  ~~~~  |    |
+|   +--------------------+    |
+| iSCSI ターゲット (Storage)  |
++-----------------------------+
+
+---
+
+  # Multipath
+
++-----------------------------+
+| iSCSI イニシエータ (Server) |
++-+---+-----------------+---+-+
+  +-+-+                 +-+-+
+    |                     |
+    |                     |
+    |                     |
+    |                     |
+    | IP                  | IP
+  +-+-+                 +-+-+
++-+---+-----------------+---+-+
+|   +--------------------+    |
+|   |    (   LUN  )      |    |
+|   |  ____  ____  ____  |    |
+|   | (Disk)(Disk)(Disk) |    |
+|   |  ~~~~  ~~~~  ~~~~  |    |
+|   +--------------------+    |
+| iSCSI ターゲット (Storage)  |
++-----------------------------+
+
+
+#// --------------------------------------------------------------
+#// Multipath とは
+#// --------------------------------------------------------------
+
++-----------------------------+  + マルチパス I/O。
+| iSCSI イニシエータ (Server) |
+|     __________________      |  + device-mapper の機能の 1 つ。
+|    (/dev/mapper/mpath0)     |
+|     ~~~~~~~~~~~~~~~~~~      |    - ディスク実体に対して複数のパス
+|             ^               |      を張れる場合, これらを 1 つの DM
+|             |               |      デバイスとして扱える機能。
+|    +--------+--------+      |
+|    |                 |      |    - FailOver や I/O の振り分けも可能。
+|   ________       ________   |
+|  (/dev/sdb)     (/dev/sdc)  |
+|   ~~~~~~~~       ~~~~~~~~   |
++----+---+----------+---+-----+
+     +-+-+          +-+-+
+       |              |
+       |              |
+       |              |
+       |              |
+       | IP           | IP
+     +-+-+          +-+-+
++----+---+----------+---+-----+
+|   +--------------------+    |
+|   |    (   LUN  )      |    |
+|   |  ____  ____  ____  |    |
+|   | (Disk)(Disk)(Disk) |    |
+|   |  ~~~~  ~~~~  ~~~~  |    |
+|   +--------------------+    |
+| iSCSI ターゲット (Storage)  |
++-----------------------------+
+
+ (?) DM = DeviceMapper ?
+
+
+#// --------------------------------------------------------------
+#// Multipath の種類 (FialOver と MultiBus, その他)
+#// --------------------------------------------------------------
+
+  + FialOver 構成
+
+    - Active/Standby の構成。
+
+    - 1 path が Active でその他が Standby。
+
+    - Active が切れた場合に切替えに時間がかかる (iSCSI イニシエータ
+      の問題)。
+
+  + MultiBus 構成
+
+    - 複数の Path を利用する構成。
+
+    - 全ての Path が Active。
+
+    - 複数 Path 中でいくつかの Path が切れても利用可能。
+
+      - 切れた Path の処理に時間がかかる (iscsi イニシエータの問題)。
+
+  + その他
+
+    - group_by_serial = 検出されたシリアル番号毎に 1 つの優先グループ。
+
+    - group_by_prio   = パス優先値毎に 1 つの優先グループ。
+
+    - group_by_node_name = ターゲットノード名毎に 1 つの優先グループ。
+
+#// --------------------------------------------------------------
+#// Multipath の Failover
+#// --------------------------------------------------------------
+
+  + 運用系で障害が発生すると待機系に切り替わる。
+
++-----------------------------+
+| iSCSI イニシエータ (Server) |
++-+------+----------+-------+-+
+  | eth0 |          | eth1 |
+  +--+---+          +--+---+
+     | |               |
+     |(運用系)         |(待機系)
+     | |               |
+     | |               |
+     | v               |
+  +--+----+         +--+----+
+  | Port0 |         | Port1 |
++-+-------+---------+-------+-+
+| iSCSI ターゲット (Storage)  |
++-----------------------------+
+
+#// 障害時
+
++-----------------------------+
+| iSCSI イニシエータ (Server) |
++-+------+----------+-------+-+
+  | eth0 |          | eth1 |
+  +--+---+          +--+---+
+     | |               | |
+     |(運用系)         |(待機系)
+     | |               | |
+     | X (障害)        | |
+     |                 | v
+  +--+----+         +--+----+
+  | Port0 |         | Port1 |
++-+-------+---------+-------+-+
+| iSCSI ターゲット (Storage)  |
++-----------------------------+
+
+
+#// --------------------------------------------------------------
+#// Multipath の MultiBus
+#// --------------------------------------------------------------
+
+  + 全ての Path を利用する "負荷分散型"。
+
++-----------------------------+
+| iSCSI イニシエータ (Server) |
++---+---+-+---+-+---+-+---+---+
+    +-+-+ +-+-+ +-+-+ +-+-+ 
+      |     |     |     |
+     A|    A|    A|    A|
+     c|    c|    c|    c|
+     t|    t|    t|    t|
+     i|    i|    i|    i|
+     v|    v|    v|    v|
+     e|    e|    e|    e|
+      v     v     v     v
+    +-+-+ +-+-+ +-+-+ +-+-+ 
++---+---+-+---+-+---+-+---+---+
+| iSCSI ターゲット (Storage)  |
++-----------------------------+
+
+#// 障害時
+
+  + 他の 3 本を利用して通信される。
+
++-----------------------------+
+| iSCSI イニシエータ (Server) |
++---+---+-+---+-+---+-+---+---+
+    +-+-+ +-+-+ +-+-+ +-+-+ 
+      |     |     |     |
+      |    A|    A|    A|
+   Failed  c|    c|    c|
+      |    t|    t|    t|
+      X    i|    i|    i|
+           v|    v|    v|
+           e|    e|    e|
+            v     v     v
+    +-+-+ +-+-+ +-+-+ +-+-+ 
++---+---+-+---+-+---+-+---+---+
+| iSCSI ターゲット (Storage)  |
++-----------------------------+
+
+
+#// --------------------------------------------------------------
+#// multipath-tools
+#// --------------------------------------------------------------
+
+  + http://christophe.varoqui.free.fr/
+
+  + GPL ライセンス
+
+  + DeviceMapper を利用して Multipath を使える様にするツール群。
+
+
+#// --------------------------------------------------------------
+#// mutipath-tools の仕組み
+#// --------------------------------------------------------------
+
+ref: http://christophe.varoqui.free.fr/
+
+---
++--------------------------------------+
+| low level device drivers             |
++---------+----------------------------+
+          |
+        call
+          |
++---------v----------------------------+
+| block                                |
++-----------------------------------^--+
+          |                         |
+        call                        |
+          |                         |
++---------v----------+ +--------+   |
+| sysfs              | |        |   |
++--+-----------------+ | devlce |   |
+  call                 | mapper |  i/o
+   |                   |        |   |
++--v------++---------+ |        |   | test
+| hotplug || NetLink | |        |   | paths
+|         || uevents | |        |   |
++--+------++-^-------+ +---^----+   |
+   |         |             |        |                 kernel space
+===|=========|=============|========|=============================
+ execs     listen          |        |                 user space
+   |         |             |        |
++--v---------+-+         ioctl      |
+| udev         |           |        |
++--+------^----+           |        |
+   |      |                |        |                (re) configure
+   |      +------------+   |        |                multipath
+ execs      +---*------|---+--------|-------*-----|| device
+   |        |   |      |   |        |       |        maps
++--v--------+--++ +-*listen|        |     +-+--------+
+| kpartx       || |    |   *-----+  |     | mutipath |
++--------------+| |    |   |     |  |     +------^---+
+                | |  +-+---+--------+---+        |
+       +----------+  | mutipathd |      |        |
+       |        |    +------------------+     manual exec
+       |        +-----+          |
+       =              |          +----+
+  Events:             =               |
+  - add path        configure         =
+  - removepath      partitions      Events:
+  - add devmap      devie maps      - wait devmap events
+  - remove devmap
+                                    Actions
+                                    -reinstate paths
+                                    -switch path group (failback)
+                                    -configure multipath maps
+
+
+#// --------------------------------------------------------------
+#// multipath-tools コンフィグ
+#// --------------------------------------------------------------
+
+ + /usr/share/doc/device-mapper-multipath-0.4.9
+
+   + multipath.conf (設定ファイル)
+
+   + multipath.conf.annotated (注釈付) = annotate (注釈をつける)
+
+  + 詳細な解説は以下。
+
+ref: http://docs.redhat.com/docs/ja-JP/Red_Hat_Enterprise_Linux/6/html/DM_Multipath/mpio_configfile.html
+-> https://access.redhat.com/documentation/ja-JP/Red_Hat_Enterprise_Linux/6/html/DM_Multipath/mpio_configfile.html
+
+  (?) Kernel バージョンで動作が違う ?
+
+  ! ストレージ機器のベンダーマニュアルにも記述あり。機器のマニュア
+    ルは必読。
+
+
+#// --------------------------------------------------------------
+#// multipath-tools コマンド
+#// --------------------------------------------------------------
+
+---
+multipath -l
+---
+---
+multipath -ll
+---
+  - Multipath のパス状態を一覧表示
+
+---
+multipath -f <デバイス>
+---
+  - 指定されたマルチパスデバイスを削除
+
+---
+multipath -F
+---
+  - すべてのマルチパスデバイスを削除
+
+---
+multipathd -k
+---      ~
+  - Multipathd のコンソール
+
+
+#// --------------------------------------------------------------
+#// multipath-tools FailOver の確認
+#// --------------------------------------------------------------
+
+XenServer5.6SP2 で取得した結果
+---
+[root@test01 ~]# multipath?‐ll
+3600000e00d0000000003053800000000 dm‐0 VENDER,PRODUCTS
+[size=2.7T][features=1 queue_if_no_path][hwhandler=0][rw]
+\_ round‐robin 0 [prio=1][active]              --+-- (PathGrounp)
+\_ 9:0:0:0 sdb 8:16 [active][ready] (<-- path)  --+
+\_ round‐robin 0 [prio=1][enabled]             --+-- (PathGroup)
+\_ 10:0:0:0 sdg 8:96 [active][ready] (<-- path) --+
+---                     ^       ^
+                        |       |
+                      DM 状態  Path 状態
+
+コンフィグ：
+---
+path_grouping_policy failover
+---
+failover = 優先グループ毎に 1 つのパス
+multibus = 1 つの優先グループ内の全パスが有効
+---
+
+
+#// --------------------------------------------------------------
+#// multipath-tools MultiBus の確認
+#// --------------------------------------------------------------
+
+XenServer5.6SP2で取得した結果
+---
+[root@test01 ~]# multipath?‐ll
+3600000e00d0000000003053800000000 dm‐0 VENDER,PRODUCTS
+[size=2.7T][features=1 queue_if_no_path][hwhandler=0][rw]
+\_ round‐robin 0 [prio=1][active]           ---+
+\_ 5:0:0:0 sdb 8:16 [active][ready] (<- path)   |
+\_ 6:0:0:0 sdc 8:32 [active][ready] (<- path)   +-- (PathGroup)
+\_ 7:0:0:0 sdd 8:48 [active][ready] (<- path)   |
+\_ 8:0:0:0 sde 8:64 [active][ready] (<- path)---+
+---                   ^       ^
+                      |       |
+                    DM 状態  Path 状態
+コンフィグ：
+---
+path_grouping_policy multibus
+---
+failover = 優先グループ毎に 1 つのパス
+multibus = 1 つの優先グループ内の全パスが有効
+---
+
+
+#// --------------------------------------------------------------
+#// multipathd -k 実行例 (Multipathd のコンソール)
+#// --------------------------------------------------------------
+
+---
+multipathd> show paths
+hcil dev dev_t pri dm_st chk_st next_check
+0:1:0:0 sda 8:0 1 [undef] [ready] [orphan]
+9:0:0:0 sdb 8:16 1 [active][ready] X......... 2/20
+10:0:0:0 sdg 8:96 1 [active][ready] XXXXXXX... 15/20
+11:0:0:0 sdf 8:80 1 [active][ready] XX........ 5/20
+12:0:0:0 sdh 8:112 1 [active][ready] XXXXXXXXX. 18/20
+---
+---
+multipathd> show paths
+hcil dev dev_t pri dm_st chk_st next_check
+0:1:0:0 sda 8:0 1 [undef] [ready] [orphan]
+9:0:0:0 sdb 8:16 1 [active][ready] XXXXXXXXXX 20/20
+10:0:0:0 sdg 8:96 1 [active][ready] XXXXXX.... 13/20
+11:0:0:0 sdf 8:80 1 [active][ready] X......... 3/20
+12:0:0:0 sdh 8:112 1 [active][ready] XXXXXXXX.. 16/20
+---
+
+  + コンソールからは Ctrl + D で抜けられる。
+
+
+#// --------------------------------------------------------------
+#// ISCSI + MUTLTIPATH の運用上の注意点
+#// --------------------------------------------------------------
+
+#// --------------------------------------------------------------
+#// iSCSI + Multipath の注意点
+#// --------------------------------------------------------------
+
+  + path が切れた時に FailOver や切離しをしてくれるが影響がないと
+    は言えない。
+
+#// --------------------------------------------------------------
+#// Multipath の FailOver 構成を改めて確認
+#// --------------------------------------------------------------
+
+  + 運用系で障害が発生すると待機系に切り替わる。
+
++-----------------------------+
+| iSCSI イニシエータ (Server) |
++-+------+----------+-------+-+
+  | eth0 |          | eth1 |
+  +--+---+          +--+---+
+     | |               |
+     |(運用系)         |(待機系)
+     | |               |
+     | |               |
+     | v               |
+  +--+----+         +--+----+
+  | Port0 |         | Port1 |
++-+-------+---------+-------+-+
+| iSCSI ターゲット (Storage)  |
++-----------------------------+
+
+#// 障害時
+
++-----------------------------+
+| iSCSI イニシエータ (Server) |
++-+------+----------+-------+-+
+  | eth0 |          | eth1 |
+  +--+---+          +--+---+
+     | |               | |
+     |(運用系)         |(待機系)
+     | |               | |
+     | X (障害)        | |
+     |                 | v
+  +--+----+         +--+----+
+  | Port0 |         | Port1 |
++-+-------+---------+-------+-+
+| iSCSI ターゲット (Storage)  |
++-----------------------------+
+
+#// --------------------------------------------------------------
+#// iscsid.conf の確認 (Default 値)
+#// --------------------------------------------------------------
+
+  + Ping による死活監視の間隔。
+
+---
+node.conn[0].timeo.noop_out_interval = 5
+---
+
+  + Ping によりエラーと判断されるまでの時間。
+
+---
+node.conn[0].timeo.noop_out_timeout = 5
+---
+
+  + エラーを判断された後に Multipath から切り離すまでの時間。
+
+---
+node.session.timeo.replacement_timeout = 120
+---
+
+
+#// --------------------------------------------------------------
+#// 切替えに要する時間 (Default 値)
+#// --------------------------------------------------------------
+
+---
+0'45    0'50    0'55    1'00    1'05    1'10         3'05
+ |       |       |       |       |       |            |
+(timeo.noop_out_intarval=5)      |       |            |
+ |       |       |       |       |       |            |
+ | 5s    | 5s    | 5s    | [検知]|       |            |
+ |       |       |       |  1'00 |       |            |
+ |       |       |       |  |    | [エラー認定]       |
+ |       |    +->| (断)  |<-+    |  1'05 |            |
+ |       |    |  |       |       |  |    |            |
+ |       | [発生]|       |<-5s ->|<-+    |            | [切断, 切替え]
+ |       |  0'56 |      (timeo.noop_out_timeout=5)    |  3'06
+ |       |       |       |       |       |            |   | * 誤差 1 秒程度
+ |       |       |<-5s ->|       |<--- 120s --------->| <-+
+ |       |       |       |      (timeo.replacement_timeout=120) 
+ |       |       |       |       |       |            |
+ |       |       |<---------- 最大約 130 秒間 ------->|
+ |       |       |       |       |       |            |
+---
+
+
+#// --------------------------------------------------------------
+#// 切替時間
+#// --------------------------------------------------------------
+
+  + 例えば, ケーブルが切れてから切替わるまでの時間。
+
+    -> 最大約 130 秒 (Default 値)
+
+  + アプリケーションには, 30 秒切断したらタイムアウト処理するもの
+    も多い。
+
+    # ちなみにこの間の iSCSI の処理は queue に溜められて failback
+      される。
+
+#// --------------------------------------------------------------
+#// 対応方法
+#// --------------------------------------------------------------
+
+  + 以下を短く設定する。
+
+  + node.session.timeo.replacement_timeout の変更がお勧め。
+
+  # 例えばアプリケーションのタイムアウトが 30 秒ならそれ以下になる
+    ように調整する。
+
+Ping による死活監視の間隔。
+---
+node.conn[0].timeo.noop_out_interval = 5
+---
+
+Ping によりエラーと判断されるまでの時間。
+---
+node.conn[0].timeo.noop_out_timeout = 5
+---
+
+エラーを判断された後に Multipath から切り離すまでの時間。
+---
+node.session.timeo.replacement_timeout = 120
+---
+
+
+#// --------------------------------------------------------------
+#// 対応方法 (replacement_timeout)
+#// --------------------------------------------------------------
+
+  + open-iscsi の README
+
+  * /etc/iscsi/iscsid.conf でも同じ記述がある。
+
+---
+- If the value is 0, IO will be failed immediately.
+
+(もし値が 0 なら, IO は直ちに失敗します.)
+
+- If the value is less than 0, IO will remain queued until the
+  session is logged back in, or untill the user runs the logout
+  command.
+
+(もし値が 0 より小さければ, IO は session が再ログインするかユーザがログアウトコマンドを実行するまでキューされたままになる.)
+---
+
+  + 上記により以下を結論。
+
+    + アプリケーションのタイムアウトに併せて適度に設定する。
+
+    + 少し前の Version では「 0 」設定時の動作が不安定だったため 0
+      以上の設定を推奨。
+
+
+#// --------------------------------------------------------------
+#// 構成例 (Multipath の MultiBus) を改めて確認
+#// --------------------------------------------------------------
+
+  # Multipath + MultiBus の構成例を改めて確認。
+
+  + 全ての Path を利用する "負荷分散型"。
+
++-----------------------------+
+| iSCSI イニシエータ (Server) |
++---+---+-+---+-+---+-+---+---+
+    +-+-+ +-+-+ +-+-+ +-+-+ 
+      |     |     |     |
+     A|    A|    A|    A|
+     c|    c|    c|    c|
+     t|    t|    t|    t|
+     i|    i|    i|    i|
+     v|    v|    v|    v|
+     e|    e|    e|    e|
+      v     v     v     v
+    +-+-+ +-+-+ +-+-+ +-+-+ 
++---+---+-+---+-+---+-+---+---+
+| iSCSI ターゲット (Storage)  |
++-----------------------------+
+
+#// 障害時
+
+  + 他の 3 本を利用して通信される。
+
++-----------------------------+
+| iSCSI イニシエータ (Server) |
++---+---+-+---+-+---+-+---+---+
+    +-+-+ +-+-+ +-+-+ +-+-+ 
+      |     |     |     |
+      |    A|    A|    A|
+   Failed  c|    c|    c|
+      |    t|    t|    t|
+      X    i|    i|    i|
+           v|    v|    v|
+           e|    e|    e|
+            v     v     v
+    +-+-+ +-+-+ +-+-+ +-+-+ 
++---+---+-+---+-+---+-+---+---+
+| iSCSI ターゲット (Storage)  |
++-----------------------------+
+
+#// --------------------------------------------------------------
+#// 切替時間 (MultiBus)
+#// --------------------------------------------------------------
+
+  + 切替え時間は Multipath + Failover と同じ。
+
+  + 4 つの Active のうち 1 つでも切断されると全体に影響が出た。
+
+#// 原因
+
+  + IO の処理が細切れにされるため。
+
+    * BIO (Block IO) ベースの問題。
+
+    * Kernel 2.6.31 以降で対応済みらしい (Request ベースに対応)。
+
+#// --------------------------------------------------------------
+#// メンテナンス時の対応策
+#// --------------------------------------------------------------
+
+  + iSCSI を収容している Switch のメンテナンスやケーブルのメンテナ
+    ンスをどうするか。
+
+    -> 明示的にログアウトする。
+
+      + iSCSI はセッションなので、ログアウトすれば DM がよしなに対
+        応する。
+
+
+#// --------------------------------------------------------------
+#// まとめ
+#// --------------------------------------------------------------
+
+  + iSCSI は実用レベルで利用可能。
+
+  + パフォーマンスおよび可用性の向上のため日々 Update されている。
+
+  ! 利用するストレージ機器と Kernel の Version を確認してからの利
+    用を推奨。
+
+
+#// --------------------------------------------------------------
+#// Kernel リリースノート
+#// --------------------------------------------------------------
+
+  + Kernel 2.6.31
+
+    - Request ベースのサポート。
+    - MappingTarget のバイナリサポートや Flush サポート。
+    - mpath: queue length と Service time ロードバランシング追加
+     (path_selector)。
+
+  + Kernel 2.6.33
+
+    - Request ベースのバイナリサポート。
+    - (Block 関連) CFQ (Completely Fair Queuing; 完全公平型キュー
+      イング) 強化。
+
+  + Kernel 2.6.35
+
+    - (MD 関連) RAID0 -> RAID10 takeover, (0,4,5,10)。
+    - (Block 関連) Block I/O controller (blkio) 強化。
+
+  + Kernel 2.6.36
+
+    - MappingTarget の discard サポート (delay,linear,mpath,stripe)
+
+  + Kernel 2.6.38
+
+    - Improve significantly write throughput when writing to the
+      origin with a snapshot on the same device.
+
+      (同じデバイス上のスナップショットのオリジナルに書き込む時の
+      書き込みスループットを大幅に向上.)
+
+    - Improve sequential write throughput.
+
+      (シーケンシャルな書き込みのスループットを向上.)
+
+    - dm-crypt: scale to multiple cpus.
+
+      (dm-crypt: 複数の CPU に拡張.)
+
+    - dm-crypt: add loop AES IV generator.
+
+      (dm-crypt: ループ AES IV ジェネレータを追加.)
+
+    - RAID 1: support discard.
+
+      (RAID 1: サポート破棄.)
+
+    - Skelton for the DM target that will be the bridge from DM to
+      MD (initially RAID456 and later RAID1). It provides a way to
+      use device-mapper interfaces to the MD RAID456 driver.
+
+      (DM ターゲットのスケルトンは DM から MD (始めに RAID456 と 後
+      で RAID1) のブリッジになる. それは MD RAID456 ドライバへ
+      device-mapper インターフェースを使用する方法を提供する.)
+
+  + Kernel 2.6.39
+
+    - Add flakey target that it returns I/O errors periodically
+      (commit).
+
+      (定期的に I/O エラーを返す flakey ターゲットを追加.)
+
+    - stripe: implement merge method, performance improvement has
+      been measured to be ~12-35% -- when a reasonable chunk_size is
+      used (e.g. 64k) in conjunction with a stripe count that is a
+      power of 2.
+
+      (マージメソッドを実装し, 12 - 35% のパフォーマンスの改善を測
+      定. chunk_size は 2 の累乗でストライプカウントと組み合わせて
+      利用するのが妥当 (?))
+
+  + Kernel 3.1
+
+    - New iSCSI implementation
+
+      + 今まで使用されてき iSCSI の実装方式 SCST は, Linux-iSCSI.org
+        SCSI ターゲットを含めることで廃止された。
+
+    - flakey target: add corrupt_bio_byte feature, add drop_writes.
+
+      (flakey ターゲット: corrupt_bio_byte 機能を追加, dro_writes
+      を追加.)
+
+    - Support the MD RAID1 personality through the dm-raid target.
+
+      (dm-raid ターゲットを通じた MD RAID1 パーソナリティをサポート.)
+
+    - raid: Support metadata device.
+
+      (raid: メタデータデバイスをサポート.)
+
+(END)
+
+

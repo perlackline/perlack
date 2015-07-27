@@ -9,6 +9,7 @@ http://perldoc.jp/docs/perl/5.10.0/perldebtut.pod
 &emsp;・ 読み込まれたメソッドを表示する
 &emsp;・ すべてのサブルーチンを表示する
 &emsp;・ パッケージ内の変数をデータプリティプリンタで表示する
+---
 &emsp;・ 現在の行周辺のコードを確認する。
 &emsp;・ 任意の行を確認する
 &emsp;・ 実行行に戻る
@@ -16,12 +17,14 @@ http://perldoc.jp/docs/perl/5.10.0/perldebtut.pod
 &emsp;・ 変数に格納された値を見る
 &emsp;・ 1 回限りのブレークポイントを指定してそこに移動する
 &emsp;・ ハッシュ変数の中身を見る
+---
 &emsp;・ 簡単なオブジェクトを作るためにデバッガを起動
 &emsp;・ コマンド「 x 」でオブジェクトの中身を確認
 &emsp;・ 配列にデータを格納
 &emsp;・ 正規表現などを利用して「 p 」で出力
 &emsp;・ コマンド履歴を「 H 」で確認する
 &emsp;・ 以前利用したコマンドを利用する
+---
 &emsp;・ 摂氏と華氏を変換するプログラム
 &emsp;・ プログラムの実行結果
 &emsp;・ ブレークポイントの挿入
@@ -59,7 +62,7 @@ programfiles syntax ok
 #!/usr/bin/perl
 use strict;
 
-my $key = 'wilcome';
+my $key = 'welcome';
 my %data = (
       'this' => qw(that),
       'tom'  => qw(and jerry),
