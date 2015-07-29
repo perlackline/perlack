@@ -40,6 +40,7 @@ http://perldoc.jp/docs/perl/5.10.0/perldebtut.pod
 &emsp;・ デバッグ中に値を変更して処理を進める
 &emsp;・ 「 r 」でサブルーチンから戻るまでを実行する
 &emsp;・ プログラムを最後まで進める
+---
 &emsp;・ 「 w 」で値をウォッチする
 &emsp;・ 「 a 」でアクションを設定する
 &emsp;・ 正規表現のチェック

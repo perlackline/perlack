@@ -6,7 +6,7 @@ my $arg = $ARGV[0] || '-c20';
 if ($arg =~ /^\-(c|f)((\-|\+)*\d+(\.\d+)*)$/) {
     my ($deg, $num) = ($1, $2);
     my ($in, $out) = ($num, $num);
-    # $DB::single=2; # insert at line 9! it's break point.
+      $DB::single=2; # insert at line 9! it's break point.
     if ($deg eq 'c') {
         $deg = 'f';
         $out = &c2f($num);
@@ -25,7 +25,7 @@ exit;
 sub f2c {
       my $f = shift;
       # my $c = 5 * $f - 32 / 9;
-      my $c = 5 * ($f - 32) / 9;
+      my $c = 5 * $f - 32 / 9;
       return $c;
 }
 
