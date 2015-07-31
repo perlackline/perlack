@@ -1,0 +1,97 @@
+20150729
+
+#// --------------------------------------------------------------
+#// install Ubuntu for VM (home)
+#// --------------------------------------------------------------
+
+#// home dir の日本語化
+
+---
+LANG=C xdg-user-dirs-gtk-update
+---
+
+#// su 設定
+
+Ubuntu では root パスワードが初期で設定されておらず su が使えないため次
+の手順で su を使えるようにする。
+
+---
+sela@ubuntu:~$ sudo su -
+[sudo] password for sela: 
+root@ubuntu:~# passwd
+新しい UNIX パスワードを入力してください: 
+新しい UNIX パスワードを再入力してください: 
+passwd: パスワードは正しく更新されました
+---
+
+#// --------------------------------------------------------------
+#// install vim from source
+#// --------------------------------------------------------------
+
+---
+cd /usr/local/src
+---
+git clone https://github.com/vim/vim.git
+---
+./configure --enable-multibyte --with-features=huge
+---
+
+ここで以下のエラー。
+---
+    no terminal library found
+checking for tgetent()... configure: error: NOT FOUND!
+      You need to install a terminal library; for example ncurses.
+      Or specify the name of the library with --with-tlib.
+---
+
+ncurses-dev の install で解決。
+---
+apt-get install ncurses-dev
+---
+./configure --enable-multibyte --with-features=huge
+---
+make install clean
+---
+done.
+
+#// --------------------------------------------------------------
+#// cahnge bash prompt
+#// --------------------------------------------------------------
+
+    bashのプロンプトを変更するには
+    http://www.atmarkit.co.jp/flinux/rensai/linuxtips/002cngprmpt.html
+
+    Ubuntu 端末のコマンドプロンプトを短くしたい
+    http://ubuntuapps.blog67.fc2.com/blog-entry-498.html 
+
+.bashrc
+---
+if [ "$color_prompt" = yes ]; then
+    #PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
+    PS1='${debian_chroot:+($debian_chroot)}\w\$ '
+else
+    #PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
+    PS1='${debian_chroot:+($debian_chroot)}\W\$ '
+fi
+---
+
+result (~/git-me/perlack)
+---
+perlack$
+---
+
+#// --------------------------------------------------------------
+#// install nkf 
+#// --------------------------------------------------------------
+
+---
+apt-get install nkf
+---
+
+#// --------------------------------------------------------------
+#// ...
+#// --------------------------------------------------------------
+
+...
+
+

@@ -1,0 +1,284 @@
+20150729
+
+#// --------------------------------------------------------------
+#// git install for Ubuntu 15
+#// --------------------------------------------------------------
+
+
+#// --------------------------------------------------------------
+#// git が依存するライブラリ
+#// --------------------------------------------------------------
+
+  https://git-scm.com/book/ja/v1/%E4%BD%BF%E3%81%84%E5%A7%8B%E3%82%81%E3%82%8B-Git%E3%81%AE%E3%82%A4%E3%83%B3%E3%82%B9%E3%83%88%E3%83%BC%E3%83%AB
+
+  + curl
+  + zlib
+  + openssl
+  + expat
+  + libiconv
+
+#// --------------------------------------------------------------
+#// git が依存するライブラリを apt-get で install
+#// --------------------------------------------------------------
+
+    https://git-scm.com/book/ja/v2/%E4%BD%BF%E3%81%84%E5%A7%8B%E3%82%81%E3%82%8B-Git%E3%81%AE%E3%82%A4%E3%83%B3%E3%82%B9%E3%83%88%E3%83%BC%E3%83%AB
+
+apt の場合 (Ubuntu など)
+---
+apt-get install libcurl4-gnutls-dev libexpat1-dev gettext libz-dev
+libssl-dev
+---
+
+yum の場合 (CentOS など)
+---
+yum install curl-devel expat-devel gettext-devel openssl-devel zlib-devel
+---
+
+ドキュメントを doc, html, info 形式等で出力する場合の依存ライブラリ。
+
+apt の場合
+---
+apt-get install asciidoc xmlto docbook2x
+---
+
+yum の場合
+---
+yum install asciidoc xmlto docbook2x
+---
+
+#// --------------------------------------------------------------
+#// ソースダウンロード
+#// --------------------------------------------------------------
+
+    https://www.kernel.org/pub/software/scm/git
+
+    GitHub 上のミラー
+    https://github.com/git/git/releases
+
+以下を DL
+---
+https://github.com/git/git/archive/v2.4.7.tar.gz
+---
+---
+cd /usr/loca/src/
+---
+wget https://github.com/git/git/archive/v2.4.7.tar.gz
+---
+mv v2.4.7.tar.gz git-v2.4.7.tar.gz 
+---
+tar -zxf git-v2.4.7.tar.gz
+---
+cd git-2.4.7/
+---
+
+次でエラー (Ubuntu 15 ...)
+---
+make configure
+---
+    GEN configure
+/bin/sh: 1: autoconf: not found
+Makefile:1822: recipe for target 'configure' failed
+make: *** [configure] Error 127
+---
+
+autoconf をインストール
+---
+apt-get install autoconf
+---
+
+継続
+---
+make configure
+---
+./configure --prefix=/usr
+---
+make all doc info
+---
+make install install-doc install-html install-info
+---
+
+一度この手順を済ませると、次からはGitを使ってGitそのものをアップデート
+できる。
+---
+git clone git://git.kernel.org/pub/scm/git/git.git
+---
+
+#// --------------------------------------------------------------
+#// 初期設定
+#// --------------------------------------------------------------
+
+    1.6 使い始める - 最初のGitの構成
+    https://git-scm.com/book/ja/v2/%E4%BD%BF%E3%81%84%E5%A7%8B%E3%82%81%E3%82%8B-%E6%9C%80%E5%88%9D%E3%81%AEGit%E3%81%AE%E6%A7%8B%E6%88%90
+
+
+#// git config
+
+Git の設定変数を取得し 3 つの場所に格納する。
+
+ 1. /etc/gitconfig
+
+    システム上のすべてのユーザとすべてのリポジトリに対する設定値を保持
+    する。
+
+    もし --system オプションを git config に指定すると明示的にこのファ
+    イルに読み書きを行う。
+
+ 2. ~/.gitconfig か ~/.config/git/config
+
+    特定のユーザに対する設定値を保持する。
+
+    --global オプションを指定すると Git は明確にこのファイルに読み書き
+    を行う。
+
+ 3. 現在利用中のリポジトリの Git ディレクトリにある config ファイル。
+
+    .git/config のこと。
+
+    特定の単一リポジトリに対する設定値を保持する。
+
+それぞれのレベルの値は以前のレベルの値を上書きするため設定値は次のよう
+に優先される (1 より 2, 2 より 3 が優先される)。
+
+    ---
+    .git/config の設定値は /etc/gitconfig の設定値より優先される。
+    ---
+
+#// 個人の識別情報
+
+Git のインストール完了後はまず "ユーザ名" と "E-mail アドレス" を設定す
+る。
+
+  + すべての Git コミットはこの情報を用いる。
+  + 非常に重要で作成するコミットに永続的に焼き付けられる。
+
+
+# --global オプションではすべての操作に登録した情報を使うためコマンドの
+# 実行は一度で良い。
+---
+git config --global user.name "John Doe"
+---
+git config --global user.email "johndoe@example.com
+---
+
+# プロジェクトの (Git ディレクトリ (リポジトリ ?)) ごとに情報を変更した
+# い場合は当該ディレクトリに移動してから --global なしでコマンドを実行
+# して情報を個別に上書きする。
+---
+git config --global user.name "John Doe"
+---
+git config --global user.email "johndoe@example.com
+---
+
+#// エディタ
+
+個人の識別情報の設定が完了後は Git のメッセージを編集するデフォルトのエ
+ディタを設定する。
+
+  + 設定しない場合はシステムのデフォルトエディタを使う。
+  + 大抵 vim。
+
+# emacs を設定したい場合。
+---
+git config --global core.editor emacs
+---
+
+#// 設定の確認
+
+その時点で Git が見つけることができる設定を一覧する。
+
+---
+git config --list
+---
+
+  + Git は /etc/gitconfig や ~/.gitconfig から同じキーを読み込むため
+    キーによっては同じものが複数出力される。
+  + 複数の同じキーがある場合は最後のキーの値を利用する (CSS と同じ)。
+
+特定のキーの値を確認する。
+
+---
+git config user.name
+---
+
+#// -------------------------------
+#// my verify
+#// -------------------------------
+
+# ここまでで例えば次を実行するとリポジトリ "perlack" を clone 可能。
+---
+git clone https://github.com/perlackline/perlack.git
+---
+  * 実行した dir に dir "perlack" が設置されるので git init は不要。
+
+だが git push を実行すると以下のメッセージ
+---
+sela@ubuntu:~/git-me/perlack$ git push origin
+warning: push.default is unset; its implicit value has changed in
+Git 2.0 from 'matching' to 'simple'. To squelch this message
+and maintain the traditional behavior, use:
+(警告: push.default がセットされていない; この暗黙の値は 変更されました
+ Git 2.0 で 'matiching' から 'simple' に. 黙らせる このメッセージを と
+ 維持するには 伝統的な動作を, 利用します:)
+ 
+  git config --global push.default matching
+
+To squelch this message and adopt the new behavior now, use:
+
+(黙らせる このメッセージを と 採用するには 新しい動作を 今, 利用しま
+ す。
+
+  git config --global push.default simple
+
+When push.default is set to 'matching', git will push local branches
+to the remote branches that already exist with the same name.
+
+(push.default が 'matching' にセットされているときは, git は push し
+ ます ローカルブランチを リモートブランチに 既に存在する 同じ名前で.)
+
+Since Git 2.0, Git defaults to the more conservative 'simple'
+behavior, which only pushes the current branch to the corresponding
+remote branch that 'git pull' uses to update the current branch.
+
+(Git 2.0 からの, Git のデフォルトは より保守的な 'simple' 動作で,
+ 現在のブランチだけを push します 対応するリモートブランチに git pull
+ は利用します 現在のブランチのアップデートに.)
+
+See 'git help config' and search for 'push.default' for further information.
+(the 'simple' mode was introduced in Git 1.7.11. Use the similar mode
+'current' instead of 'simple' if you sometimes use older versions of Git)
+
+(参照して 'git help config' を 検索してください 'push.default' を 機能
+ の情報のために. ('simple' モードは導入されました Git 1.7.11 で. 'carrent' と似たモードを利用する 'simple' の代わりに もしあなたが時々古いバージョンの
+Git を使うなら.)
+
+Username for 'https://github.com': perlackline
+Password for 'https://perlackline@github.com': 
+Everything up-to-date
+sela@ubuntu:~/git-me/perlack$ 
+---
+
+今回はモード「 matching 」を設定してみる。
+
+---
+git config --global push.default matching
+---
+
+push 成功
+---
+sela@ubuntu:~/git-me/perlack$ git push
+Username for 'https://github.com': perlackline
+Password for 'https://perlackline@github.com': 
+Everything up-to-date
+---
+
+#// --------------------------------------------------------------
+#// ヘルプを見る
+#// --------------------------------------------------------------
+
+    1.7 使い始める - ヘルプを見る
+    https://git-scm.com/book/ja/v2/%E4%BD%BF%E3%81%84%E5%A7%8B%E3%82%81%E3%82%8B-%E3%83%98%E3%83%AB%E3%83%97%E3%82%92%E8%A6%8B%E3%82%8B
+
+#// ヘルプを見る
+
+...
+
