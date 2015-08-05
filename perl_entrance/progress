@@ -1,0 +1,64 @@
+
+README
+https://github.com/perl-entrance-org/Perl-Entrance-Textbook/blob/master/README.md
+
+Perl入学式 #2
+https://github.com/perl-entrance-org/workshop-2014-02/blob/master/slide.md
+
+#// if/elsif/else
+
+  + C の switch の代わりに if/elsif/else を使う。
+
+#// scalar
+
+  + 演算子 scalar を使えば配列の要素数が簡単に取得可能。
+
+---
+print scalar @array;
+---
+* スカラコンテキストであれば要素数を取得可能。
+---
+my $element = @array;
+---
+
+#// 配列の最後の index
+
+  + 配列の最後の index を取得する。
+
+---
+my $last_indec = #@array;
+---
+
+#// 範囲演算子
+
+  + 範囲演算子の値を逆順に格納したい場合は reverse を使う。
+
+---
+my @reverse = reverse (1..5);
+---
+  * 範囲演算子は大きい方を先に (5..1) とは書けない。
+
+#// sort
+
+  + 数値としてソート
+
+---
+sort { $a <=> $b }
+---
+
+  + 文字列としてソート
+
+---
+sort { $a cmp $b }
+---
+
+  (!) スカラ変数 $a と $b は sort で予約された変数名。
+      他で利用はできない。
+
+#// for ループ
+
+  https://github.com/perl-entrance-org/workshop-2014-02/blob/master/slide.md#for-ループ
+
+  ...
+
+
