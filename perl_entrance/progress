@@ -59,6 +59,81 @@ sort { $a cmp $b }
 
   https://github.com/perl-entrance-org/workshop-2014-02/blob/master/slide.md#for-ループ
 
-  ...
+  + C 風 for ループを Perl で書く(結構便利)
 
+---
+for my $i (0 .. scalar @array -1) {
+  print "array[$i]\n";
+}
+---
+
+#// リファレンス
+
+https://github.com/perl-entrance-org/workshop-2014-03/blob/master/slide.md#%E3%83%AA%E3%83%95%E3%82%A1%E3%83%AC%E3%83%B3%E3%82%B9%E3%81%A8%E3%81%AF
+
+  + リファレンスは参照。
+
+  + リファレンスは複雑なデータ構造を表現可能。
+
+---
+my $osaka = [ 'nqounet', 'boolfool' ];
+my $tokyo = [ 'macopy', 'papix' ];
+my @perl_entrance = ( $osaka, $tokyo );
+print $perl_entrance[1][1];  # papix
+---
+
+#// リファレンスの使いどころ
+
+  + 関数の引数に複数の配列やハッシュを渡す場合。
+
+  + 直接配列やハッシュを引数で渡すとコピーされるので非効率になる場合になる。
+
+  + リファレンスは参照渡しなので効率が良い。
+
+#// リファレンスの例
+
+  + シジルの前にバックスラッシュ \ を置くとリファレンスになる。
+
+---
+my $scalar     = 'scalar';
+my $scalar_ref = \$scalar; # スカラのリファレンス
+
+my @array      = qw( this is array );
+my $array_ref  = \@array;  # 配列のリファレンス
+
+my %hash       = ( this_is => 'hash' );
+my $hash_ref   = \%hash;   # ハッシュのリファレンス
+---
+
+#// 簡単な書き方 (配列)
+
+  + 無名の配列リファレンス
+
+---
+my $array_ref = [ 'This', 'is', 'array-ref' ];
+---
+
+#// 簡単な書き方 (ハッシュ)
+
+  + 無名のハッシュリファレンス
+
+---
+my $hash_ref = { this => 'hash_ref' };
+---
+
+#// リファレンスをそのまま出力すると
+
+  + 参照先のメモリアドレスが出力される。
+
+  + このためリファレンスにはでリファレンスが必要。
+
+#// デリファレンス
+
+  + デリファレンスはリファレンスから実態を取り出す操作。
+
+#// デリファレンスの例
+
+https://github.com/perl-entrance-org/workshop-2014-03/blob/master/slide.md#%E3%83%87%E3%83%AA%E3%83%95%E3%82%A1%E3%83%AC%E3%83%B3%E3%82%B9%E3%81%AE%E4%BE%8B
+
+  ...
 
