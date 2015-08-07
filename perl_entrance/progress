@@ -133,7 +133,54 @@ my $hash_ref = { this => 'hash_ref' };
 
 #// デリファレンスの例
 
-https://github.com/perl-entrance-org/workshop-2014-03/blob/master/slide.md#%E3%83%87%E3%83%AA%E3%83%95%E3%82%A1%E3%83%AC%E3%83%B3%E3%82%B9%E3%81%AE%E4%BE%8B
+  + シジル + $ でデリファレンス可能。
 
-  ...
+scalar
+---
+$$scalar_ref;
+---
 
+array
+---
+@$array_ref;
+---
+
+array element
+---
+${$array_ref}[1];
+or
+$array_ref->[1];  # more better
+---
+
+hash
+---
+%$hash_ref;
+---
+
+hash valeu
+---
+${$hash_ref}{key};
+or
+$hash_ref->{key}; # more better
+---
+
+#// Data::Dumper でリファレンスの中身を確認する
+
+---
+use Data:Dumper;
+
+print Dumper($hash_ref);
+---
+
+result
+---
+$VAR1 = {
+          'name'       => 'Kurt',
+          'job'        => 'Guitarist',
+          'affiliation => 'NIRVANA'
+        };
+---
+
+... score.pl
+
+https://github.com/perl-entrance-org/workshop-2014-03/blob/master/slide.md#練習問題-3
