@@ -1,0 +1,29 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+use utf8;
+use Encode;
+
+my $string = "ハローワールド。ハローパール。";
+
+my $substr = substr($string, 0, 3);
+
+my $enc_substr = encode('utf-8', $substr);
+
+print "$enc_substr\n";
+
+#my $string = 'I know you can do it.';
+##my $substr = substr($string, index($string, 'can'), 3, "can't");
+#substr($string, index($string, 'can'), 3) = "can't";
+#
+##print "$substr\n";
+#print "$string\n";
+
+#my $string = "my note, my pen, my book and my desk.";
+#
+#substr($string, 17) =~ s/my/your/;
+#
+#print "$string\n";
+
