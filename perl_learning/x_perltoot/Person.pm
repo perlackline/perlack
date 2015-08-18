@@ -342,5 +342,73 @@ Person->debug(1);  # entire class
 $him->debug(1);    # just this object
 ---
 
-こうするためには、デバッグメソッドは、「二頂の」メソッドで なければなりません。 クラス ...
+  # こうするためには, "二項の" メソッドでなければならない。
+  # "二項の" メソッドとはクラス及びオブジェクトの両方で動くメソッド。
 
+  # "二項の" メソッドにするため debug() と DESTROY メソッドを
+  # 次のように調整する。
+
+---
+sub debug {
+    my $self = shift;
+    confess "usage: thing->debug(level)" unless @_ == 1;
+    my $level = shift;
+    if (ref($self)) {
+      $self->{"_DEBUG"} = $level; # just myself
+    } else {
+      $Debugging        = $level; # whole class
+    }
+}
+
+sub DESTROY {
+    my $self = shift;
+    if ($Debugging || $self->{"_DEBUG"}) {
+      carp "Destroying $self " . $self->name;
+    }
+    -- ${ $self->{"_CENSUS"} };
+}
+---
+
+  # Employee (従業員) と呼ばれる 派生クラスが Person 基
+  # 底クラスからメソッドを継承していると何がおきるか ?
+
+  # Employee->debug() はクラスメソッドとして呼ばれた場合,
+  # $Employee::Debugging ではなく
+  # $Person::Debugging を操作する。
+
+#// --------------------------------------------------------
+##// クラスのデストラクタ
+#// --------------------------------------------------------
+
+  # オブジェクトのデストラクタはオブジェクトの死を個別に扱う。
+
+  # しかしエントリークラスがシャットダウンしたときに少し掃除
+  # したいときがある。通常はプログラムが終了する時に掃除され
+  # る。
+
+  # クラス毎の掃除を行うためのクラスのデストラクタを作るため
+  # には, クラスパッケージの中に END という名前の関数を作る。
+
+  # END は伝統的なモジュールの END 関数と似ている。
+ 
+  # END はプログラムが実行されない, 捕らえられないシグナル
+  # で死ぬなど, プログラムが終了したときに呼ばれる。
+
+---
+sub END {
+    if ($Debugging) {
+        print "All persons are going away now.\n";
+    }
+}
+---
+
+  # プログラムが終了したとき
+  # 全てのクラスデストラクタ (END 関数) は,
+  # クラスがロードされたのと反対の順番 (LIFO の順番)
+  # で呼ばれる。
+
+#// --------------------------------------------------------
+##// インターフェースをドキュメントにする
+#// --------------------------------------------------------
+
+http://perldoc.jp/docs/perl/5.14.1/perltoot.pod#Documenting32the32Interface
