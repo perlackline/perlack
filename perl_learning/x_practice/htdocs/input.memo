@@ -1,0 +1,58 @@
+20150804
+
+ページ修正に伴う input_info.cgi のメモ
+
+#// ----------------------------------------------------------------
+#// L.11 - L.23 JavaScript
+#// ----------------------------------------------------------------
+
+L.76 - L.81 ファイル名の入力チェックに利用。
+ファイル名の入力がない状態で submit されると警告をだす。
+
+入力チェックは L.71 start_form() 内のパラメータ onSubmit で設定。
+
+#// ----------------------------------------------------------------
+#// L.51 print_form()
+#// ----------------------------------------------------------------
+
+HTML フォームを出力するサブルーチン。
+実際の処理は L.66 以下で記述。
+
+#// ----------------------------------------------------------------
+#// L.66 sub print_form()
+#// ----------------------------------------------------------------
+
+L.69 start_from()
+
+line  function     form_name       value
+----------------------------------------
+L.78  textfield()  save_filename    ファイル名
+L.87  textarea()   meta_description meta description
+L.93  textfield()  meta_keyword     meta keyword
+L.99  textfield()  page_title       ページタイトル
+L.107 textfield()  shop_name        店名
+L.113 textfield()  description_h    紹介文 見出し
+L.119 textarea()   description      紹介文
+L.128 filefield()  filename_1       写真ファイル01
+L.132 filefield()  filename_2       写真ファイル02
+L.136 filefield()  filename_3       写真ファイル03
+L.140 filefield()  filename_4       写真ファイル04
+L.147 textfield()  coupon_1         クーポン01
+L.152 textfield()  coupon_2         クーポン02
+L.163 textfield()  info_name        店名
+L.170 textfield()  info_zip         郵便番号
+L.177 textfield()  info_addr        住所
+L.185 textfield()  info_phone       電話番号
+L.191 textfield()  info_time        営業時間
+L.198 textfield()  info_dow         定休日
+L.206 checkbox_group() info_cards   クレジットカード
+L.212 textfield()  info_price_1     平均単価01
+L.217 textfield()  info_price_2     平均単価02
+L.255 textarea()   info_map         地図 URL (google map)
+L.234 submit()     submit           -
+L.240 reset()      reset            -
+
+
+
+
+

@@ -1,0 +1,58 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="ja">
+<head>
+<meta http-equiv="Content-Style-Type" content="text/css">
+<meta http-equiv="Content-Script-Type" content="text/javascript">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta name="Description" content="沖縄の楽しい夜を地魚・地料理でどうぞ 
+敷とカウンターが広がる店内は一体感があり落ち着いた雰囲気。
+至る所に貼られている魚拓を見るのも楽しく、沖縄の海に居る様な空間です。
+魚からチャンプルーまで沖縄のそのままの通の美味しさを食べに来て下さい。">
+<meta name="Keywords" content="国際通り,居酒屋,沖縄料理">
+<title>地魚・地料理　南来実　なんくるみ〜</title>
+<link rel="stylesheet" href="style.css" type="text/css">
+</head>
+<body>
+<div id="wrapper">
+<div id="header"></div>
+<div id="container; _display: inline;">
+<div id="contents; _display: inline;">
+<!-- コンテンツ ここから -->
+<p class="title">地魚・地料理　南来実　なんくるみ〜</p>
+<h2>沖縄の楽しい夜を地魚・地料理でどうぞ</h2>
+<p class="comment">座敷とカウンターが広がる店内は一体感があり落ち着いた雰囲気。</p>
+<p class="comment">至る所に貼られている魚拓を見るのも楽しく、沖縄の海に居る様な空間です。</p>
+<p class="comment">魚からチャンプルーまで沖縄のそのままの通の美味しさを食べに来て下さい。</p>
+<br>
+<h2>店舗写真</h2>
+<p class="photo"><img src="./image/gurukun.JPG" alt="" title="" ></p>
+<p class="photo"><img src="./image/mozuku.jpg" alt="" title="" ></p>
+<p class="photo"><img src="./image/DSC_0009.jpg" alt="" title="" ></p>
+<h2>クーポン</h2>
+<p class="coupon">1.　手作りジーマミ豆腐をサービスします！</p>
+<p class="coupon">2.　海ぶどうサービス！</p>
+<p class="coupon2">※ご利用の際にマップまたは、このページをご提示ください</p>
+<h2>店舗概要</h2>
+<ul>
+<li>店舗名</li>
+地魚・地料理　南来実　なんくるみ〜
+<li>住所</li>〒900-0013　沖縄県那覇市牧志３-11-19
+<li>電話番号</li>098-861-8340　<a href="tel:098-861-8340">電話する</a>
+<li>営業時間</li>17:00〜25:00
+<li>定休日</li>水曜日
+<li>クレジットカード</li>
+JCB　Master Card　DC　VISA　AMEX　
+<li>平均予算</li>
+2,000円〜3,000円
+<li><a name="map">地図</a></li>
+<iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1789.6877926927539!2d127.69024227301635!3d26.216983178893912!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x34e5697ae3e48aed%3A0x68a53cbefc68ffab!2z44CSOTAwLTAwMTMg5rKW57iE55yM6YKj6KaH5biC54mn5b-X77yT5LiB55uu77yR77yR4oiS77yR77yZ!5e0!3m2!1sja!2sjp!4v1434019791759" width="600" height="450" frameborder="0" style="border:0"></iframe>
+<!-- コンテンツ ここまで -->
+</div><!-- / contents end -->
+</div><!-- / container end -->
+<div id="footer">
+<!-- コピーライト -->
+<p>Copyright &copy; てぃーだスクエア. All Rights Reserved.</p>
+</div><!-- / footer end -->
+</div><!-- / wrapper end -->
+</body>
+</html>

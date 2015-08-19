@@ -1,0 +1,120 @@
+20150804
+
+ページ修正に伴う get_info.cg のメモ
+
+#// ----------------------------------------------------------------
+#// L.17 style sheat
+#// ----------------------------------------------------------------
+
+L.17 ./style.css
+
+#// ----------------------------------------------------------------
+#// L.13 - L.44 get values
+#// ----------------------------------------------------------------
+
+param() で各フォーム名から値をセット。
+
+#// ----------------------------------------------------------------
+#// L.59 - L.76 HTML header
+#// ----------------------------------------------------------------
+
+HTML header では以下を設定。
+
+  + title           => $page_title
+  + style - src     => $style_form
+
+  + meta  - content => $meta_keywords
+  + meta  - content => $meta_description
+
+#// ----------------------------------------------------------------
+#// L.82 - L.90 ページコンテナ ? 設定 start (div)
+#// ----------------------------------------------------------------
+
+L.82 div id wrapper   start
+
+L.84 div id header    start
+L.85 div id header    end
+
+L.87 div id container start  _display: inline
+L.88 div id contens   start  _display: inline
+
+#// ----------------------------------------------------------------
+#// L.98 コンテンツ start
+#// ----------------------------------------------------------------
+
+L.97  p class title   $shop_name 
+L.106 p class comment $description
+
+L.114 prompt_uplod()  $filename_1
+      prompt_uplod()  $filename_2
+      prompt_uplod()  $filename_3
+      prompt_uplod()  $filename_4
+        -> L.314 - L.373
+
+L.127 p class coupon  $coupon_1
+L.128 p class coupon  $coupon_2
+
+L.149 ul
+L.150   li $info_name
+L.151   li $info_zip
+L.152   li $info_phone
+L.153   li $info_time
+L.154   li $info_dow
+L.155   li @info_cards
+L.156   li $info_price
+L.157   li $infomap
+
+#// ----------------------------------------------------------------
+#// L.167 - L.174 ページコンテナ ? 設定 end (div)
+#// ----------------------------------------------------------------
+
+L.167 div contents  end
+L.168 div container end
+L.170    div id footer start
+L.172    div id footer end
+L.174 div wrapper   end
+
+#// ----------------------------------------------------------------
+#// L.177 外部ファイルへ出力準備
+#// ----------------------------------------------------------------
+
+L.187 set_hidden();
+       -> L.197 - L.308
+
+L.190 end_html
+
+#// ----------------------------------------------------------------
+#// L.197 - L.308 sub set_hidden 
+#// ----------------------------------------------------------------
+
+L.197 sub set_hidden() start
+
+L.199 start_form ( action => print_file.cgi )
+L.201 start_dic ( class => check_value )
+
+L.203 p ファイル名 $save_filename
+
+L.207 set value start
+L.253 set value end
+
+L.255 set hidden start
+L.297 set hidden end
+
+L.299 p Are you ok?
+
+L.300 p submit
+
+L.308 set_hidden() end
+
+#// ----------------------------------------------------------------
+#// L.314 - L.373 sub prompt_upload
+#// ----------------------------------------------------------------
+
+L.314 prompt_upload() start
+
+  ...
+
+L.373 prompt_upload() end
+
+
+

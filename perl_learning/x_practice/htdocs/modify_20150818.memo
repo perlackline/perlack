@@ -1,0 +1,101 @@
+
+hs33.drive.ne.jp
+/home/cs13045/teteru-okinawa.net/htdocs/yuirail-map
+
+#// --------------------------------------------------------
+#// 修正箇所
+#// --------------------------------------------------------
+
+  x_generator/input_info.cgi
+              get_info.cgi
+              print_file.cgi
+              style.css
+
+#// --------------------------------------------------------
+#// style.css
+#// --------------------------------------------------------
+
+#// old style
+
+  airport/style.css
+  x_generator/style.css
+  generator_test/style.css
+
+  -> new ./styel.css に差し替え
+
+#// --------------------------------------------------------
+#// 1.html (テンプレート)
+#// --------------------------------------------------------
+
+#// html header 
+
+(+) <title> 直下, <link> 直前 adding.
+---
+<meta name="viewport" content="width=device-width,user-scalable=yes,maximum-scale=1" />
+---
+
+  	[get_info.cgi]
+		+ L.59 start_html() に追加。
+
+#// html body
+
+(+) <div id="header"></div> を modify.
+---
+<div id="header">
+<h1><a href="http://www.teteru-okinawa.net/yuirail-map/asato-makishi/top.html">安里駅・牧志駅</a></h1>
+<h9>ゆいレール安里駅・牧志駅周辺の情報をお届けします。<br>
+気になっていたあのお店や、知らなかったあのお店まで、<br>
+クーポンを使ってこの機会に利用してみていかがでしょう。</h9>
+</div>
+---
+
+	[get_info.cgi]
+		+ L.84,L.85 adding
+			- <h1> <a> <h9>
+	[input_info.cgi]
+		+ L.104 #shop name 直前に
+			- <a> の URL (textbox)   = $station_url_top
+			- <h1> の 駅名 (textbox) = $station_name
+            - <h9> 文言 (textarea)   = $station_description
+
+(+) div id="contents; _display: inline;"> の直下
+    <!-- コンテンツ ここから -->
+(+) <p class="title">地魚・地料理　南来実　なんくるみ〜</p> の直前に adding.
+---
+<p class="navi"><a href="http://www.teteru-okinawa.net/yuirail-map/index.html">駅一覧</a> > <a href="http://www.teteru-okinawa.net/yuirail-map/asato-makishi/top.html">店舗一覧</a> > </p>
+---
+
+	[get_info.cgi]
+		+ L.92,L.93 adding.
+		  	- p class=navi, a URL(リテラル)  駅一覧, >, a $URL 店舗一覧, >, /p
+
+	[input_info.cgi]
+		+ L.104 #shop name 直前, add h1, a, h9 直下に
+			x <a> の URL (textbox) - 駅名一覧 <- これは get_info.cgi でリテラルにする 
+			- <a> の URL (textbox) - 店舗一覧 = $shop_list
+
+(+) </iframe></ul> 直下に adding.
+---
+<h2>ダウンロード</h2>
+<p class="pdf"><img src="image/asatomakishi-map.jpg" align="center" width="700" ><br />
+<a href="image/asatomakishi-map.pdf">こちらからダウンロードできます</a></p>
+<br /><br />
+<p class="pdf"><img src="image/asatomakishi.jpg" align="center" width="700" ><br />
+<a href="image/asatomakishi.pdf">こちらからダウンロードできます</a></p>
+---
+
+	[get_info.cgi]
+		+ L160 adding # DL map image
+			- h2 ダウンロード
+			- p class=pdf, img src=$URL1 aling=center width=700, br, a $URL1 こちらからダウンロードできます, \p
+			- p class=pdf, img src=$URL2 aling=center width=700, br, a $URL2 こちらからダウンロードできます, \p
+			
+	[input_info.cgi]
+		+ L.231 adding # DL map image
+			- URL1_jpg (表) (textbox) = $dl_map1_jpg
+			- URL1_pdf (表) (textbox) = $dl_map1_pdf
+			- URL2_jpg (裏) (textbox) = $dl_map2_jpg
+			- URL2_pdf (裏) (textbox) = $dl_map2_pdf
+
+
+
