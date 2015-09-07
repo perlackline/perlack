@@ -16,10 +16,10 @@ use warnings;
       : "an unnamed $either"; # クラスの場合はそのまま名前を返す。
   }
   # speak も $either を使うようにする。
+  # $class の名前を $either に変更するだけ。
   sub speak {
-    my $class = shift;
-    print $class->name, '  goes ', $class->sound, "!\n";
-    # print $class, '  goes ', $class->sound, "!\n";
+    my $either = shift;
+    print $either->name, '  goes ', $either->sound, "!\n";
   }
   # 新しい馬のコンストラクタを Animal に統合
   sub named {
@@ -35,6 +35,10 @@ use warnings;
   sub sound { 'neigh' }
 }
 
-my $tv_horse = Horse->named('Mr. Ed');
-$tv_horse->speak;
+# an unnamed Horse
+print Horse->name, "\n";
+
+my $named_horse = Horse->named('Edward');
+# Edwoard
+print $named_horse->name, "\n";
 
