@@ -11,6 +11,8 @@ print "@num\n";
 
 my @str = scalar reverse sort qw/あい お うえ/;
 
+
+
 # print "@str\n";
 
 push my @en_str, map { encode('utf-8', $_) } @str;
