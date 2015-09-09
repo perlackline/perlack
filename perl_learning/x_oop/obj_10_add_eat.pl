@@ -43,3 +43,4 @@ use warnings;
 my $tv_horse = Horse->named('Edword');
 # Animal::eat($tv_horse, 'hay') と同じ
 $tv_horse->eat('hay');
+
