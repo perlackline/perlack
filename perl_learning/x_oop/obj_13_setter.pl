@@ -3,7 +3,14 @@
 use strict;
 use warnings;
 
-# P160 セッターから何を返すか P161...
+# P160 セッターから何を返すか
+
+# セッターは値を設定するメソッド。
+# セッターが返すべきもの
+#   + 更新後の値 (渡されたものと同じ
+#   + 元の値 (umask や 1 引数形式の select に似た形)
+#   + オブジェクト自体
+#   + 成否を知らせるコード
 
 # named(), name(), speak(), eat(), default_color(),
 # color(), set_color(),
@@ -17,7 +24,10 @@ use warnings;
   # add (セッター ?)
   sub set_color {
     my $self = shift;
+    # change
+	my $old  = $self->{Color};
     $self->{Color} = shift;
+	$old;
   }
 
   # named と name をスカラリファレンスの期待から
@@ -48,7 +58,6 @@ use warnings;
   }
 }
 #// -------------------------------------------------------
-#// -------------------------------------------------------
 
 { package Horse;
   our @ISA = qw( Animal );
@@ -61,16 +70,25 @@ use warnings;
   sub default_color { 'white' }
 }
 #// -------------------------------------------------------
-#// -------------------------------------------------------
 
-my $tv_horse = Horse->named('Mr, Ed');
-# セッターで color をセット
-$tv_horse->set_color('black-and-white');
-print $tv_horse->name, ' is colored ', $tv_horse->color, "\n";
+my $tv_horse = Horse->named('Mr. Ed');
+# Mr. Ed
+print $tv_horse->name, "\n";
 
-#my $tv_horse = 'Horse';
-# an unnamed Horse
-#print $tv_horse->name, "\n";
-# neigh
-#print $tv_horse->sound, "\n";
+# orange
+$tv_horse->set_color('orange');
+print $tv_horse->color, "\n";
+# blue
+$tv_horse->set_color('blue');
+print $tv_horse->color, "\n";
+# bule ? not orange ?
+#$tv_horse->set_color($tv_horse->set_color));
+$tv_horse->set_color($tv_horse->set_color));
+print $tv_horse->color, "\n";
+
+my $tv_sheep = Sheep->named('Mr. Dd');
+print $tv_sheep->name, "\n";
+# blue
+$tv_sheep->set_color(($tv_horse->set_color));
+print $tv_sheep->color, "\n";
 
