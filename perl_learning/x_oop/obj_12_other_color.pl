@@ -1,16 +1,24 @@
 #!/usr/bin/perl
 
-#use strict;
+use strict;
 use warnings;
 
-# P158 もっとおもしろいインスタンス
+# P160 別の色の馬 
 
-# オブジェクトとは ブレスされたリファレンス !
-
-# ブレスされたハッシュリファレンスを作る。
-
-# named(), name(), speak(), eat()
+# named(), name(), speak(), eat(), default_color(),
+# color(), set_color(),
 { package Animal;
+
+  # add
+  sub color {
+    my $self = shift;
+    $self->{Color};
+  }
+  # add (セッター ?)
+  sub set_color {
+    my $self = shift;
+    $self->{Color} = shift;
+  }
 
   # named と name をスカラリファレンスの期待から
   # ハッシュリファレンスの期待に変更する
@@ -32,7 +40,6 @@ use warnings;
     my $either = shift;
     print $either->name, ' goes ', $either->sound, "!\n";
   }
-  # add2
   sub default_color { 'brown' }
   sub eat {
     my $either = shift;
@@ -40,10 +47,9 @@ use warnings;
     print $either->name, " eats $food.\n";
   }
 }
+#// -------------------------------------------------------
+#// -------------------------------------------------------
 
-# named(), name(), speak(), eat() は
-# Animal を継承して利用可能。
-# sound() のみは各自自前。
 { package Horse;
   our @ISA = qw( Animal );
   sub sound { 'neigh' }
@@ -54,19 +60,17 @@ use warnings;
   # add
   sub default_color { 'white' }
 }
+#// -------------------------------------------------------
+#// -------------------------------------------------------
 
-# 名前と色を持つ羊
-#my $lost = 'Sheep';
-#print $lost->name,"\n";
+my $tv_horse = Horse->named('Mr, Ed');
+# セッターで color をセット
+$tv_horse->set_color('black-and-white');
+print $tv_horse->name, ' is colored ', $tv_horse->color, "\n";
 
-my $lost = bless { Name => 'Bo', Color=> 'white' } , Sheep;
-
-# Bo
-print $lost->name, "\n";
-# Why printed 1... ??
-print $lost->speak, "\n";
-
-my $tv_horse = Horse->named('Mr. Ed');
-$tv_horse->eat('hey');
-Sheep->eat('grass');
+#my $tv_horse = 'Horse';
+# an unnamed Horse
+#print $tv_horse->name, "\n";
+# neigh
+#print $tv_horse->sound, "\n";
 
