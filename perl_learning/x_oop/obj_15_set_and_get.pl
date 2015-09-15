@@ -3,41 +3,30 @@
 use strict;
 use warnings;
 
-# P160 セッターから何を返すか
+# P163
+# セッターとしても使えるゲッター
 
-# セッターは値を設定するメソッド。
-# セッターが返すべきもの
-#   + 更新後の値 (渡されたものと同じ
-#   + 元の値 (umask や 1 引数形式の select に似た形)
-#   + オブジェクト自体
-#   + 成否を知らせるコード
+# 第 2 引数以降 (パッケージ名とメソッド名以降) の
+# 引数があるかどうかをチェックして振る舞いを変える。
+# 第 3 以上の引数があればセッター。
+# なければゲッターとして color() を利用する。
+# これに伴い set_color() を破棄。
 
 # named(), name(), speak(), eat(), default_color(),
-# color(), set_color(),
+# color()
 { package Animal;
 
-  # add
+  # setter and getter
   sub color {
     my $self = shift;
-    $self->{Color};
-  }
-  # add (セッター ?)
-  # 一つ前の値 (色) を返す。
-  sub set_color {
-    my $self = shift;
-    # change
-	#my $old  = $self->{Color};
-    #$self->{Color} = shift;
-	#$old;
-	if (defined wantarray) {
-	  # この呼び出しは void コンテキストではないので
-	  # 値を返すことに意味がある
-	  my $old = $self->{Color};
-	  $self->{Color} = shift;
-      $old;
-    }else{
-      # このメソッド呼び出しは void コンテキスト
+    # 他に引数があれば
+    if (@_) {
+      # ゲッター
       $self->{Color} = shift;
+    # なければ
+    } else {
+      # セッター
+      $self->{Color};
     }
   }
 
@@ -73,6 +62,8 @@ use warnings;
 { package Horse;
   our @ISA = qw( Animal );
   sub sound { 'neigh' }
+  # add
+  sub default_color { 'white' }
 }
 { package Sheep;
   our @ISA = qw( Animal );
@@ -82,22 +73,9 @@ use warnings;
 }
 #// -------------------------------------------------------
 
-my $tv_horse = Horse->named('Mr. Ed');
-my $tv_sheep = Sheep->named('Mr. Dd');
+my $tv_horse = Horse->named('Mr. pow');
 
-# Mr. Ed
-print $tv_horse->name, "\n";
-# Mr. Dd
-print $tv_sheep->name, "\n";
+#$tv_horse->color('pow-color');
 
-my $brown = $tv_horse->set_color('orange');
-print $brown, "\n";
-my $orange = $tv_horse->set_color($brown);
-print $orange, "\n";
-# brown
-my $which = $tv_horse->set_color;
-print $which, "\n";
-# undef ??
-my $which2 = $tv_horse->set_color;
-print $which2, "\n";
+print $tv_horse->color, "\n";
 

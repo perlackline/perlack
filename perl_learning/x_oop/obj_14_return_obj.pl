@@ -3,14 +3,9 @@
 use strict;
 use warnings;
 
-# P160 セッターから何を返すか
-
-# セッターは値を設定するメソッド。
-# セッターが返すべきもの
-#   + 更新後の値 (渡されたものと同じ
-#   + 元の値 (umask や 1 引数形式の select に似た形)
-#   + オブジェクト自体
-#   + 成否を知らせるコード
+# P162
+# オブジェクトを返すことによる
+# 再帰的な設定処理
 
 # named(), name(), speak(), eat(), default_color(),
 # color(), set_color(),
@@ -21,24 +16,12 @@ use warnings;
     my $self = shift;
     $self->{Color};
   }
-  # add (セッター ?)
-  # 一つ前の値 (色) を返す。
+
+  # オブジェクトを返す
   sub set_color {
     my $self = shift;
-    # change
-	#my $old  = $self->{Color};
-    #$self->{Color} = shift;
-	#$old;
-	if (defined wantarray) {
-	  # この呼び出しは void コンテキストではないので
-	  # 値を返すことに意味がある
-	  my $old = $self->{Color};
-	  $self->{Color} = shift;
-      $old;
-    }else{
-      # このメソッド呼び出しは void コンテキスト
-      $self->{Color} = shift;
-    }
+    $self->{Color} = shift;
+    $self;
   }
 
   # named と name をスカラリファレンスの期待から
@@ -82,22 +65,13 @@ use warnings;
 }
 #// -------------------------------------------------------
 
-my $tv_horse = Horse->named('Mr. Ed');
-my $tv_sheep = Sheep->named('Mr. Dd');
+# オブジェクトを返すことによる
+# 再帰的な設定処理
+my $tv_horse =
+    Horse->named('Mr. Ed')
+         ->set_color('grey');
 
 # Mr. Ed
 print $tv_horse->name, "\n";
-# Mr. Dd
-print $tv_sheep->name, "\n";
-
-my $brown = $tv_horse->set_color('orange');
-print $brown, "\n";
-my $orange = $tv_horse->set_color($brown);
-print $orange, "\n";
-# brown
-my $which = $tv_horse->set_color;
-print $which, "\n";
-# undef ??
-my $which2 = $tv_horse->set_color;
-print $which2, "\n";
-
+# grey
+print $tv_horse->color, "\n";
