@@ -1,0 +1,122 @@
+
+#// 右辺が undef, Object
+<table>
+<tr>
+  <th class="t_top">式</th><th class="t_top">意味</th><th class="t_top">疑似コード</th>
+</tr>
+<tr>
+  <td class="t_line01">Any ~~ undef</td><td class="t_line01">Any が未定義か調べる</td><td class="t_line01">!defined Any</td>
+</tr>
+<tr>
+  <td class="t_line01">Any ~~ Object</td><td class="t_line01">Object の ~~ オーバーロードを起動する または die</td><td class="t_line01"> ... </td>
+</tr>
+</table>
+
+#// 右辺が 配列
+<table>
+<tr>
+  <th class="t_top">式</th><th class="t_top">意味</th><th class="t_top">疑似コード</th>
+</tr>
+<tr>
+  <td class="t_line01">ARRAY1 ~~ ARRAY2</td><td class="t_line01">ARRAY1 と ARRAY2 の要素のペアを再帰的に同じか調べる [*2]</td><td class="t_line01">(ARRAY1[0] ~~ ARRAY2[0]) && (ARRAY1[1] ~~ ARRAY2[1]) && ...</td>
+</tr>
+<tr>
+  <td class="t_line01">HASH ~~ ARRAY</td><td class="t_line01">HASH key の中に ARRAY のいずれかの要素が含まれるか調べる</td><td class="t_line01">grep { exists HASH->{$_} } ARRAY</td>
+</tr>
+<tr>
+  <td class="t_line01">Regexp ~~ ARRAY</td><td class="t_line01">ARRAY のいずれかの要素が Regexp でマッチングするか調べる</td><td class="t_line01">*</td>
+</tr>
+<tr>
+  <td class="t_line01">undef ~~ ARRAY</td><td class="t_line01">ARRAY の中に undef が含まれるか調べる</td><td class="t_line01">grep { /Regexp/ } ARRAY</td>
+</tr>
+<tr>
+  <td class="t_line01">Any ~~ ARRAY</td><td class="t_line01">ARRAY の中に Any が含まれるか調べる [*3]</td><td class="t_line01">grep { Any ~~ $_ } ARRAY</td>
+</tr>
+</table>
+
+#// 右辺がハッシュ
+<table>
+<tr>
+  <th class="t_top">式</th><th class="t_top">意味</th><th class="t_top">疑似コード</th>
+</tr>
+<tr>
+  <td class="t_line01">HASH1 ~~ HASH2</td><td class="t_line01">HASH1 と HASH2 の key がすべて同じか調べる</td><td class="t_line01">keys HASH2 == grep { exists HASH2->{$_} } keys HASH1</td>
+</tr>
+<tr>
+  <td class="t_line01">ARRAY ~~ HASH</td><td class="t_line01">HASH key に ARRAY のいずれかの要素が存在するか調べる</td><td class="t_line01">grep { exists HASH->{$_} } ARRAY</td>
+</tr>
+<tr>
+  <td class="t_line01">Regexp ~~ HASH</td><td class="t_line01">HASH の key が Regexp にマッチングするか調べる</td><td class="t_line01">*</td>
+</tr>
+<tr>
+  <td class="t_line01">undef ~~ HASH</td><td class="t_line01">常に 偽 ( undef は key になれないため )</td><td class="t_line01">0 == 1</td>
+</tr>
+<tr>
+  <td class="t_line01">Any ~~ HASH</td><td class="t_line01">HASH key に Any が存在するか調べる</td><td class="t_line01">exists HASH->{ANy}</td>
+</tr>
+</table>
+
+#// 右辺がコード
+<table>
+<tr>
+  <th class="t_top">式</th><th class="t_top">意味</th><th class="t_top">疑似コード</th>
+</tr>
+<tr>
+  <td class="t_line01">ARRAY ~~ CODE</td><td class="t_line01">ARRAY のすべての要素に対してサブルーチンが 真 を返す [*1]</td><td class="t_line01">!grep { !CODE->($_) } ARRAY</td>
+</tr>
+<tr>
+  <td class="t_line01">HASH ~~ CODE</td><td class="t_line01">HASH key のすべてにサブルーチンが 真 を返す [*1]</td><td class="t_line01">!grep { !CODE->($_) } keys HASH</td>
+</tr>
+<tr>
+  <td class="t_line01">Any ~~ CODE</td><td class="t_line01">サブルーチンに Any を渡して 真 を返す</td><td class="t_line01">CODE->(Any)</td>
+</tr>
+</table>
+
+#// 右辺が正規表現
+<table>
+<tr>
+  <th class="t_top">式</th><th class="t_top">意味</th><th class="t_top">疑似コード</th>
+</tr>
+<tr>
+  <td class="t_line01">ARRAY ~~ Regexp</td><td class="t_line01">ARRAY の要素いずれかに Regexp がマッチングするか調べる</td><td class="t_line01">grep { /Regexp / } ARRAY</td>
+</tr>
+<tr>
+  <td class="t_line01">HASH ~~ Regexp</td><td class="t_line01">HASH の key のいずれかに Regexp がマッチングするか調べる</td><td class="t_line01">grep { /Regexp/ } keys HASH</td>
+</tr>
+<tr>
+  <td class="t_line01">Any ~~ Regexp</td><td class="t_line01">通常のパターンマッチング</td><td class="t_line01">Any =~ /Regexp/</td>
+</tr>
+</table>
+
+#// その他
+<table>
+<tr>
+  <th class="t_top">式</th><th class="t_top">意味</th><th class="t_top">疑似コード</th>
+</tr>
+<tr>
+  <td class="t_line01">Object ~~ Any</td><td class="t_line01">Object に対して ~~ のオーバロードを起動, またはフォールバック ...</td><td class="t_line01"> --- </td>
+</tr>
+<tr>
+  <td class="t_line01">Any ~~ Num</td><td class="t_line01">Any と Num が等価か調べる</td><td class="t_line01">Any == Num</td>
+</tr>
+<tr>
+  <td class="t_line01">Num ~~ nummy [*4]</td><td class="t_line01">Any と nummy が等価か調べる</td><td class="t_line01">Num == nummy</td>
+</tr>
+<tr>
+  <td class="t_line01">undef ~~ Any</td><td class="t_line01">Any が未定義か調べる</td><td class="t_line01">!dfined(Any)</td>
+</tr>
+<tr>
+  <td class="t_line01">Any ~~ Any</td><td class="t_line01">Any と Any が等価か調べる</td><td class="t_line01">ANy eq Any</td>
+</tr>
+</table>
+
+#// 注意
+
+[1] 空のハッシュや配列はマッチする.
+
+[2] 配列同士のスマートマッチは同じインデックスの要素をマッチングする.
+
+[3] 循環参照が見つかると, 参照の透過性にフォールバックする.
+
+[4] 実際の数値または数値に見える文字列
+
