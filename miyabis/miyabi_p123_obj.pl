@@ -1,9 +1,17 @@
 #!/usr/bin/perl
 
+# before 'minil install'
+use FindBin;
+use lib "$FindBin::Bin/Avalon-Emperor/lib";
+use Avalon::Emperor;
+
 use strict;
 use warnings;
 use feature 'say';
 
+my $emperor = Avalon::Emperor->new;
+
+# ==========================================
 # Perl のオブジェクト指向
 
 # クラスという概念がない。
@@ -23,6 +31,7 @@ use feature 'say';
 # ---
 # minil new Avalon::Emperor
 # ---
+#
 
 
 
