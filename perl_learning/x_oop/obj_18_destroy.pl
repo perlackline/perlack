@@ -26,15 +26,6 @@ use warnings;
     }
   }
 
-  # Adding
-  sub feed_a_cow_named {
-    my $name = shift;
-    my $cow  = Cow->named($name);
-    $cow->eat('grass');
-    # $cow はここで破棄される
-    print "Returning from the subroutine.\n";
-  }
-
   sub named {
     my $class = shift;
     my $name  = shift;
@@ -80,8 +71,19 @@ use warnings;
 { package Cow;
   our @ISA = qw( Animal );
 }
+
+# Adding
+sub feed_a_cow_named {
+  my $name = shift;
+  my $cow  = Cow->named($name);
+  $cow->eat('grass');
+  # $cow はここで破棄される
+  print "Returning from the subroutine.\n";
+}
+
 print "Start of program.\n";
 my $outer_cow = Cow->named('Bessie');
 print "Now have a cow named ", $outer_cow->name, ".\n";
+feed_a_cow_named('Gwen');
 print "Returned from subroutine.\n";
 
