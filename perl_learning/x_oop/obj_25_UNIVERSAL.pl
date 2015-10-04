@@ -3,40 +3,39 @@
 use strict;
 use warnings;
 
-# P176
-# サブクラスでのインスタンス変数の追加
-# Adding RaceHose()
+# P185
+# UNIVERSAL メソッド
 
-# データ構造にハッシュを使うメリットの 1 つ。
-#  派生クラスでインスタンス変数を追加しても
-#  スーパークラス (親クラス) では何も汁必要がない。
+# @ISA 木構造をたどった後に
+# 最後に検索される特殊クラス UNIVERSAL
 
 # color, named, name, speak, default_color, eat
 # DESTROY in Animal
 { package Animal;
 
-  use File::Temp qw(tempfile);
+  #use Scalar::Util qw(weaken);
 
+  # 多くのインスタンスの情報を格納するメタ変数
+  # weaken()
+  #our %REGISTRY;
   sub named {
     my $class = shift;
     my $name  = shift;
     my $self = { Name => $name, Color => $class->default_color };
-    # adding start 'make temp file'
-    my ($fh, $filename) = tempfile();
-    $self->{temp_fh} = $fh;
-    $self->{temp_filename} = $filename;
-    # adding end
     bless $self, $class;
+    # $self を key に使うと 文字列 として扱う
+    #$REGISTRY{$self} = $self;
+    #weaken($REGISTRY{$self});
+    #$self;
   }
 
-  # DESTROY で一時ファイルを確実に削除する
+  # アクセッサ ?
+  #sub registered {
+  #  return map { 'a '.ref($_)." named ".$_->name } values %REGISTRY;
+  #}
+
   sub DESTROY {
     my $self = shift;
-    # Change with temp file
-    # ファイルハンドルを close してファイルを削除する
-    my $fh = $self->{temp_fh};
-    close $fh;
-    unlink $self->{temp_filename};
     print '[', $self->name, " has died.]\n";
   }
 
@@ -117,16 +116,35 @@ use warnings;
   }
 }
 
-use Data::Dumper;
+# Adding fandango
+sub UNIVERSAL::fandango {
+  warn 'object ', shift, " can do the fandango!\n";
+  "Thank you\n";
+}
 
-my $racer = RaceHorse->named('Billy Boy');
+# =====================================--
+# Animal, named(), DESTROY(), color(),name(), speak(), default_color(), eat()
+# Horse @ISA(Animal), sound(), default_color(), eat()
+# Sheep @ISA(Animal), sound(), default_color()
+# Cow   @ISA(Animal),
+# RaceHorse @ISA(Horse), named(), won(), placed(), showed(), lost(), standings()
 
-print Dumper($racer);
+#use Data::Dumper;
 
-$racer->won;
-$racer->won;
-$racer->won;
-$racer->showed;
-$racer->lost;
-print $racer->name, ' has standings of: ', $racer->standings, ".\n";
+my @horses = map Horse->named($_), ('Trigger', 'Mr. Ed');
+# alive before block:
+# Trigger
+# Mr. Ed
+print "alive before block:\n", map {$_->name, "\n"} @horses;
+# object Horse can do the fandango!
+Horse->fandango;
+# object Horse can do the fandango!
+# fandanfo: Thank you
+print "fandango: ", Horse->fandango;
+
+#print "@cows\n", Dumper(@cows);
+#print "@horses\n", Dumper(@horses);
+#print "@racehorses\n", Dumper(@racehorses);
+
+print "End of program.\n";
 

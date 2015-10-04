@@ -3,40 +3,39 @@
 use strict;
 use warnings;
 
-# P176
-# サブクラスでのインスタンス変数の追加
-# Adding RaceHose()
-
-# データ構造にハッシュを使うメリットの 1 つ。
-#  派生クラスでインスタンス変数を追加しても
-#  スーパークラス (親クラス) では何も汁必要がない。
+# P187
+# メソッド can で任意のメソッドを利用可能かテストする。
 
 # color, named, name, speak, default_color, eat
 # DESTROY in Animal
 { package Animal;
 
-  use File::Temp qw(tempfile);
+  #use Scalar::Util qw(weaken);
 
+  # Adding return package name
+  sub pack_name { __PACKAGE__ }
+
+  # 多くのインスタンスの情報を格納するメタ変数
+  # weaken()
+  #our %REGISTRY;
   sub named {
     my $class = shift;
     my $name  = shift;
     my $self = { Name => $name, Color => $class->default_color };
-    # adding start 'make temp file'
-    my ($fh, $filename) = tempfile();
-    $self->{temp_fh} = $fh;
-    $self->{temp_filename} = $filename;
-    # adding end
     bless $self, $class;
+    # $self を key に使うと 文字列 として扱う
+    #$REGISTRY{$self} = $self;
+    #weaken($REGISTRY{$self});
+    #$self;
   }
 
-  # DESTROY で一時ファイルを確実に削除する
+  # アクセッサ ?
+  #sub registered {
+  #  return map { 'a '.ref($_)." named ".$_->name } values %REGISTRY;
+  #}
+
   sub DESTROY {
     my $self = shift;
-    # Change with temp file
-    # ファイルハンドルを close してファイルを削除する
-    my $fh = $self->{temp_fh};
-    close $fh;
-    unlink $self->{temp_filename};
     print '[', $self->name, " has died.]\n";
   }
 
@@ -66,17 +65,22 @@ use warnings;
 
   sub default_color { 'brown' }
 
-  sub eat {
-    my $either = shift;
-    my $food   = shift;
-    print $either->name, " eats $food.\n";
-  }
+#  sub eat {
+#    my $either = shift;
+#    my $food   = shift;
+#    print $either->name, " eats $food.\n";
+#  }
 }
 
 { package Horse;
   our @ISA = qw( Animal );
   sub sound { 'neigh' }
   sub default_color { 'white' }
+  sub eat {
+    my $either = shift;
+    my $food   = shift;
+    print $either->name, " eats $food.\n";
+  }
   sub DESTROY {
     my $self = shift;
     $self->SUPER::DESTROY;
@@ -117,16 +121,40 @@ use warnings;
   }
 }
 
+# Adding fandango
+sub UNIVERSAL::fandango {
+  warn 'object ', shift, " can do the fandango!\n";
+  "Thank you\n";
+}
+
+# =====================================--
+# Animal, named(), DESTROY(), color(),name(),
+#         speak(), default_color(), eat()
+# Horse @ISA(Animal), sound(), default_color(), eat()
+# Sheep @ISA(Animal), sound(), default_color()
+# Cow   @ISA(Animal),
+# RaceHorse @ISA(Horse), named(), won(), placed(),
+#                        showed(), lost(), standings()
+
 use Data::Dumper;
 
-my $racer = RaceHorse->named('Billy Boy');
+my @all_animals = map Horse->named($_), ('Trigger', 'Mr. Ed');
+push @all_animals, map Cow->named($_), qw(Bessie Gwen);
 
-print Dumper($racer);
+print $_->name, "\n" for @all_animals;
 
-$racer->won;
-$racer->won;
-$racer->won;
-$racer->showed;
-$racer->lost;
-print $racer->name, ' has standings of: ', $racer->standings, ".\n";
+# sub pack_name { __PACKAGE__ }
+
+print "\n---\n";
+foreach my $unknown_things (@all_animals) {
+  if (eval{$unknown_things->can('fandango')}) {
+      # Get Package name
+      my $name = $unknown_things->pack_name;
+      # Animal->fandango
+      $name->fandango;
+  }
+}
+print "---\n\n";
+
+print "End of program.\n";
 
