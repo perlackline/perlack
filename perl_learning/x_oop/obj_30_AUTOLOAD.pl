@@ -29,8 +29,10 @@ use warnings;
         }
       };
       die $@ if $@;
+      # ! ここから eval 内の sub eat にジャンプする
       goto &eat;
     } else {
+      # croak を利用するには use Carp が必要
       croak "$_[0] does not know how to $method\n";
     }
   }
