@@ -4,15 +4,27 @@ use strict;
 use warnings;
 
 # indirect object ???
+
 #my $echo = '/bin/echo';
-#exec { '/bin/echo' } 'Hello';
+#exec { $echo } 'Hello', 'hello';
 #exec { '/bin/sleep' } 'sleeping', 1000;
+
+#my @args = ( "echo", "surprise");
+#exec { $args[0] } @args;
+
+
+
 #exec 'sleep 100'; # bash
-exec 'sleep', '100'; # bash? 
+#exec 'sleep', '100'; # bash? 
 
 #system 'echo system';
 #exec 'echo', 'Hello';
 #print "retuen?\n";
+
+
+#system 'echo Hello; sleep 100';
+#system 'sleep', '100';
+#system 'sleep 100';
 
 #my $lang = $ENV{"LANG"};
 
@@ -24,16 +36,25 @@ exec 'sleep', '100'; # bash?
 #system 'echo $SHELL';
 
 #system 'find / -iname \'*CGI.pm\' 2> /dev/null &';
-#system 'find / -iname \'*CGI.pm\' 2> /dev/null';
+#system 'find /bin -iname \'cat\' &';
 
-
-#foreach (1..9){
-#  print "$_\n" if $_ < 10;
+#foreach (1..30){
+#  print "$_\n" if $_ < 30;
 #}
+
+#my @arry = qw( . | grep pl);
+#my @arry = qw( system1.pl env.list );
+my @arry = <STDIN>;
+chomp @arry;
+#my @arry = qw( | grep *pl );
+#system "ls -l @arry";
+#system 'cat', @arry;
+system ("cat @arry") == 0 or die "faild: $?";
 
 #system 'for i in skl.pl; do echo == $i ==; cat $i; done';
 
 
+## ============================
 #sub high_water_mark {
 #  my $ref_length = shift;
 #  my $max_length = length $ref_length;
@@ -54,3 +75,4 @@ exec 'sleep', '100'; # bash?
 #  printf $format, $_, $ENV{$_};
 #}
 ## ============================
+
