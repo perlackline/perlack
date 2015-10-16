@@ -44,12 +44,19 @@ use warnings;
 
 #my @arry = qw( . | grep pl);
 #my @arry = qw( system1.pl env.list );
-my @arry = <STDIN>;
-chomp @arry;
 #my @arry = qw( | grep *pl );
 #system "ls -l @arry";
 #system 'cat', @arry;
-system ("cat @arry") == 0 or die "faild: $?";
+
+my @arry;
+while (<STDIN>){
+  last if /\A\n\z/;
+  chomp;
+  push @arry, $_;
+}
+#system ("cat @arry") == 0 or die "faild: $?";
+system ('cat', @arry) == 0 or die "testing";
+#print "@arry\n";
 
 #system 'for i in skl.pl; do echo == $i ==; cat $i; done';
 
