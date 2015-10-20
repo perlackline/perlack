@@ -3,20 +3,20 @@
 use strict;
 use warnings;
 
-open my $echo_fh, '|echo morning!' or die "$!";
+open my $cmd_fh, "|cat" or die "$!";
 
 #chomp(my $result = <$echo_fh>);
 #print "$result\n";
 
-print "into the sleep ....\n";
+print $cmd_fh "It's cat\n";
+#close $cmd_fh;
 
-foreach ( 0..2 ){
+foreach ( 0..1 ){
   print "$_!\n";
   sleep 1;
 }
 
 print "done\n";
-
 
 # open my $status, "netstat -an 2>&1 |" or die "can't fork: $!";
 # 
