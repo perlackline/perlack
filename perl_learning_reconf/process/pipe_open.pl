@@ -3,13 +3,12 @@
 use strict;
 use warnings;
 
-open my $cmd_fh, "|cat" or die "$!";
+#open my $cmd_fh, "|cat" or die "$!";
+open my $cmd_fh, '-|' "cat", "file1" or die "$!";
+#open my $cmd_fh, '|-', "tr '[a-z]' '[A-Z]'"or die "$!";
 
-#chomp(my $result = <$echo_fh>);
-#print "$result\n";
+print $cmd_fh "this is the output of tr!\n";
 
-print $cmd_fh "It's cat\n";
-#close $cmd_fh;
 
 foreach ( 0..1 ){
   print "$_!\n";
@@ -17,6 +16,11 @@ foreach ( 0..1 ){
 }
 
 print "done\n";
+close $cmd_fh;
+
+
+#chomp(my $result = <$echo_fh>);
+#print "$result\n";
 
 # open my $status, "netstat -an 2>&1 |" or die "can't fork: $!";
 # 
