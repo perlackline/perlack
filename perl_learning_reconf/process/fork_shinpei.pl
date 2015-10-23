@@ -34,7 +34,11 @@ if ($pid == 0) {
   # exec で perl の process を
   # ruby の process に書き換える。
 
-  exec "ruby -e 'loop do; sleep; end'";  
+  exec q/ ruby -e 'puts "I am ruby"' /; 
+  #exec "ruby -e 'loop do; sleep; end'";  
+
+  #print "I'm child process...\n";
+  #die $!;
 
 } else {
 
@@ -44,5 +48,7 @@ if ($pid == 0) {
 
   # 子プロセスの終了を待つ
   waitpid($pid, 0);
+
+  print "all done from parent.\n";
 }
 
