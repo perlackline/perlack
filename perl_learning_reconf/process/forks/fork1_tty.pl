@@ -11,20 +11,17 @@ sub DB::get_fork_TTY {
 
 defined( my $pid = fork ) or die "Cannot fork: $!";
 
-unless ($pid) {
+if ($pid == 0) {
 
   # child process here
   my $string = 'this is child process!';
   print "$string\n";
-  system 'echo', "Hello, I'm child :-) A bit sleepy ...";
-  system 'sleep', '5';
   print "child process done.\n";
 
-}else{
+} else {
 
   # parent process here
   waitpid($pid, 0);
-
   print "parent process done.\n";
 } 
 
