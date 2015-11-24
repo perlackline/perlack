@@ -1,0 +1,6 @@
+Hello world.
+goodbye world.
+
+Hello file.
+goodbye file.
+
