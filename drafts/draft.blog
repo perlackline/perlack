@@ -25,15 +25,12 @@ Perl で、..
 
 23744 #// 17.5 便利なリストユーティリティ (P.362)
 ---
+<h3 class="my_heads01">*** </h3>
 
 
 
 
 ===================================================================
-
-
-
-
 
 ==========================================
 <pre class="brush: bash; gutter: false;">
@@ -45,5 +42,4 @@ Perl で、..
 
 <pre class="brush: bash;">
 </pre>
-<blockquote>
-</blockquote>
+<blockquote> </blockquote>
