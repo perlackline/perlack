@@ -1,0 +1,116 @@
+Perl 入学式 memo 20160212
+
+#// --------------------------------------------------------------
+#// Perl 入学式の教科書
+#// --------------------------------------------------------------
+
+https://github.com/perl-entrance-org/Perl-Entrance-Textbook/blob/master/README.md
+
+#// --------------------------------------------------------------
+#// 環境構築
+#// --------------------------------------------------------------
+
+OSについて
+https://github.com/perl-entrance-org/workshop-2014-01/blob/master/slide1.md
+
+Ubuntu
+Mac OSX (Installing Xcode (統合開発環境) and Command Line Tools for Xcode)
+Ubuntu on Winfows (with VMWare player)
+Bootable USB Ubuntu for Windows
+
+# All of the following Ubuntu.
+
+#// --------------------------------------------------------------
+#// 開発環境のツールキットの導入
+#// --------------------------------------------------------------
+
+Ubuntu
+---
+apt-get install build-essential
+---
+
+CentOS
+---
+yum groupinstall "Development Tools"
+yum install kernel-devel kernel-headrs
+---
+
+#// --------------------------------------------------------------
+#// plenv の導入
+#// --------------------------------------------------------------
+
+https://github.com/perl-entrance-org/workshop-2014-01/blob/master/slide2.md#plenv%E3%81%A7%E3%81%AEperl%E3%81%AE%E5%B0%8E%E5%85%A5
+
+#// plenvの導入
+
+手動
+http://qiita.com/uchiko/items/127b91001b45ad0312f0
+---
+$ git clone git://github.com/tokuhirom/plenv.git ~/.plenv
+$ git clone git://github.com/tokuhirom/Perl-Build.git ~/.plenv/plugins/perl-build/
+$ echo 'export PATH="$HOME/.plenv/bin:$PATH"' >> ~/.bash_profile
+$ echo 'eval "$(plenv init -)"' >> ~/.bash_profile
+$ exec $SHELL -l
+---
+
+自動
+https://github.com/ytnobody/plenvsetup/blob/master/plenvsetup
+---
+$ curl -L http://is.gd/plenvsetup | bash
+---
+
+設定の再読み込み
+---
+$ source ~/.bashrc
+---
+
+#// --------------------------------------------------------------
+#// 
+#// --------------------------------------------------------------
+
+現在の状況を確認
+---
+$ plenv versions
+* system (set by /home/sela/.plenv/version)
+---
+
+plenv に Perl 5.22.1 (201602 current) をインストール
+---
+$ plenv install 5.22.1
+---
+
+v5.22.1 に切り替え
+---
+$ plenv global 5.22.1
+$ plenv versions
+  system
+* 5.22.1 (set by /home/sela/.plenv/version)
+$ perl -v
+
+This is perl 5, version 22, subversion 1 (v5.22.1) built for x86_64-linux
+(with 1 registered patch, see perl -V for more detail)
+  :
+  .
+---
+
+plenv の環境に cpanm をインストール
+---
+$ plenv install-cpanm
+---
+
+...
+
+#// --------------------------------------------------------------
+#// 
+#// --------------------------------------------------------------
+
+workshop-2014-01
+https://github.com/perl-entrance-org/workshop-2014-01/blob/master/slide2.md
+
+#// --------------------------------------------------------------
+#// 
+#// --------------------------------------------------------------
+
+
+
+
