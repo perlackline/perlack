@@ -3,9 +3,9 @@
 use strict;
 use warnings;
 
-# /home/ohira/git_me/perlack/perl_learning_reconf/use_lib/lib/
+# /home/your/dir/lib/subs/
 
-use lib '/home/ohira/git_me/perlack/perl_learning_reconf/use_lib/lib/';
+use lib '/home/your/dir/lib/subs/';
 #use print2;
 print "Printed this with read.pl\n";
 #
