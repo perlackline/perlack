@@ -3,20 +3,13 @@
 use strict;
 use warnings;
 
-my @ary = (1, 2, 3);
-print "@ary\n";
-my $ref = \@ary;
-print "$ref\n";
+my $foo = 'foo';
 
-change_ary($ref);
+my $take_val = $foo;
+my $take_ref = \$foo;
 
-sub change_ary {
-  my $ref_sub = shift @_;
-  print "$ref_sub\n";
-  push @{$ref_sub}, 'a';
-}
+print "$take_val\n";
+print "$take_ref\n";
 
-print "@ary\n";
-$ref = 'a';
-print "$ref\n";
-
+print "${$take_ref}\n";
+print "$$take_ref\n";
