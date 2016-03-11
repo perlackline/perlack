@@ -1,0 +1,20 @@
+-- 3 days ago
+destination00 100
+destination01 10
+destination01 190
+destination02 80
+-- 2 days ago
+destination00 20
+destination01 20
+destination00 80
+destination02 60
+destination01 70
+destination02 60
+-- 1 days ago
+destination02 80
+destination00 90
+destination01 30
+destination02 120
+-- today
+destination01 80
+destination00 110

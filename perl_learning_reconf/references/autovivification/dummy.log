@@ -1,0 +1,20 @@
+-- 3 days ago
+source00 destination00 100
+source01 destination01 10
+source01 destination01 190
+source02 destination03 80
+-- 2 days ago
+source00 destination00 20
+source01 destination02 20
+source00 destination00 80
+source02 destination03 60
+source01 destination02 70
+source02 destination03 60
+-- 1 days ago
+source02 destination00 80
+source00 destination01 90
+source01 destination02 30
+source02 destination00 120
+-- today
+source01 destination02 80
+source00 destination01 110
