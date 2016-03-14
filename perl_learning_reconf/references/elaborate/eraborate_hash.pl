@@ -33,23 +33,56 @@ my %TV = (
   },
 );
 
-for my $family ( keys %TV){
-  print "series: $TV{$family}{series}\n";
+use Data::Dumper;
+open my $fh, '>', 'data00' or die "$!";
+print $fh Dumper \%TV;
+close $fh;
 
-  for my $nights ( @{$TV{$family}{nights}} ){
-    print "  nights: $nights";
-  }
-  print "\n";
-  
-  for my $i ( 0..$#{$TV{$family}{members}} ){
-    for my $key (keys %{$TV{$family}{members}[$i]}){
-      print "  $key => $TV{$family}{members}[$i]{$key}";
-    }
-    print "\n";
-  }
-  print "--- --- ---\n";
-}
+#use DDP;
+#p %TV;
 
+# nama, role, age (array of hash)
+#foreach my $family (keys %TV){
+#  foreach my $h_ref (@{ $TV{$family}{members} }){
+#    map { print "$_: $h_ref->{$_}, " } keys %{ $h_ref };
+#    print "\n";
+#    #map { print "$_: $TV{$family}{members}{$hash}{$_}" } keys %{ $TV{$family}{members}{$hash} };
+#  }
+#  print "--- ---\n";
+#}
 
+# day of the week (array)
+#foreach my $family (keys %TV){
+##  print "$TV{$family}{series}\n";
+#  print "nights: ";
+#  map { print "$_ " } @{ $TV{$family}{nights} };
+#  print "\n";
+##  print "\n--- ---\n";
+#}
 
-  
+# family name (scalar)
+#foreach my $family (keys %TV){
+#  print "series: $TV{$family}{series}\n";
+#}
+
+#for my $family ( keys %TV){
+#  print "series: $TV{$family}{series}\n";
+#
+#  for my $nights ( @{$TV{$family}{nights}} ){
+#    print "  nights: $nights";
+#  }
+#  print "\n";
+#
+#  for my $h_ref ( @{ $TV{$family}{members} } ){
+#    map { print "  $_ => $h_ref->{$_}," } keys %{ $h_ref };
+#    print "\n";
+#  }  
+##  for my $i ( 0..$#{$TV{$family}{members}} ){
+##    for my $key (keys %{$TV{$family}{members}[$i]}){
+##      print "  $key => $TV{$family}{members}[$i]{$key}";
+##    }
+##    print "\n";
+##  }
+#  print "--- --- ---\n";
+#}
+#
