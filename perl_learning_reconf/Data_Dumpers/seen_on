@@ -1,0 +1,7 @@
+foo is coderef retuning ARRAY(0x138ca88)
+$VAR1 = {
+          'arefpromise' => sub {
+                               return [];
+                           }
+        };
+$VAR1 = $VAR1;
