@@ -27,27 +27,17 @@ sub Thaw {
 package main;
 use Data::Dumper;
 $a = Foo->new;
-print $a->{state}, "\n";
 
-print "--- Dumper b\n";
+# パッケージ Foo のオブジェクト $a のデータを
+# 名前 c で Data::Dumper オブジェクトとして
+# $b に格納.
 $b = Data::Dumper->new([$a],['c']);
-print Dumper $b;
 
-print "--- Dumper dmp_f\n";
-$dmp_f = $b->Freezer('Freeze');
+$b->Freezer('Freeze');
 #$b->Toaster('Thaw');
-print Dumper $dmp_f;
-
-print "--- print \$c\n";
 $c = $b->Dump;
 print $c;
-
-print "--- eval \$c\n";
-$d = eval $c;
-print $c->{state}, "\n";
-#$c->Freeze, "\n";
-#$c->Thaw, "\n";
-print $c->{state}, "\n";
+#$d = eval $c;
 #print Data::Dumper->Dump([$d],['d']);
 
 
