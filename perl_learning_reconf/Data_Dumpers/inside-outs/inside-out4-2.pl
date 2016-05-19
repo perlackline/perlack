@@ -24,6 +24,7 @@ print $default, "\n"; # 空行
 print $def, "\n";     # 空行
 print $huga, "\n";    # chikkun
 
+
 __END__
 1
 100

@@ -36,10 +36,9 @@ $instance->printDefault(); # 100
 
 # それどころか、次のように任意の key/value を
 # クラス (package) の外部で設定出来てしまう
-# このままでは key "dedefault" の値は
-# どこからも呼び出すことは出来ないが
 # 何の警告も発生せずにデータはメモリ上に確保される
 $instance->{dedefault} = 1000;
+print $instance->{dedefault}, "\n"; # 1000
 
 # こうした事態を避ける代表的な方法として
 # ***InsideOut オブジェクト***がある
@@ -48,4 +47,4 @@ __END__
 # output
 1
 100
-
+1000
