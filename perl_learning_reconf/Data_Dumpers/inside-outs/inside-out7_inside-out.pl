@@ -17,20 +17,9 @@
 
 # Perl で同様の公開/隠蔽を操作する方法が InsideOut オブジェクト
 
-# InsideOut オブジェクトの理解のためにクロージャ closure を
-# 確認する
+# InsideOut Object
 
-# クロージャ Closure
+# closure の特性を利用してこれまでの Perl オブジェクト指向の
+# 標準規則をことごとく "ひっくりかえした" (inside-out) オブジェクト
 
-# Perl の closure は
-# (サブルーチンそれ自身の) 外部で宣言されたレキシカル変数を表すに過ぎない
-# つまり
-my $name = "chikkun";
-
-# この printName() は closure
-sub printName {
-  print $name, "\n";
-}
-
-&printName;
 

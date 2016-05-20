@@ -24,13 +24,27 @@
 
 # Perl の closure は
 # (サブルーチンそれ自身の) 外部で宣言されたレキシカル変数を表すに過ぎない
-# つまり
-my $name = "chikkun";
 
-# この printName() は closure
-sub printName {
-  print $name, "\n";
+# 通常は次のような意味で closure を使う
+
+{
+  my $name = "chikkun";
+  sub printName {
+    print $name, "///\n";
+  }
 }
 
+print $name, "//\n";
+
 &printName;
+
+$name = "sakai---\n";
+
+&printName;
+
+__END__
+# output
+//
+chikkun///
+chikkun///
 
