@@ -14,31 +14,16 @@
 # closure の特性を利用してこれまでの Perl オブジェクト指向の
 # 標準規則をことごとく "ひっくりかえした" (inside-out) オブジェクト
 
+# InsideOut Object を Class::Std で簡単に
+
 package Address;
 use strict;
 use warnings;
 use Carp;
-use Class::Std::Utils;
+use Class::Std;
 {
-  my %address;
-
-  sub new {
-    my ($class,$add) = @_;
-
-    # \do { my $anon_scalar } は
-    # 無名のスカラリファレンスを返すテクニック
-    my $new_object = bless \do { my $anon_scalar },$class;
-    if ($add->{address}){
-      $address{ ident $new_object } = $add->{address};
-    }
-
-    return $new_object;
-  }
-
-  sub get_address {
-    my ($self) = @_;
-    return $address{ ident $self };
-  }
+  # :
+  my %address :ATTR(:name<address> :init_arg<address>);
 
   sub set_name {
     my ($self,$name) = @_;
@@ -48,17 +33,6 @@ use Class::Std::Utils;
   sub set_add {
     my ($self, $add) = @_;
     $address{ ident $self }->{add} = $add;
-  }
-
-  # inside-out オブジェクトでは変数への参照が残ってしまうため
-  # 自前でデストラクタを定義する必要がある
-  # ここではメソッド set_name から %address への参照が残るため
-  # 確実に delete する
-  sub DESTROY {
-    my ($self) = @_;
-    delete $address{ ident $self };
-
-  return;
   }
 }
 
