@@ -27,7 +27,9 @@ use Class::Std;
   #   送ってくれる
   # + :name<address> で変数のセッター, ゲッターを自動生成する
   #   get<address>, set<address> で個別に指定も可能
-  # + :init_arg<address> はメソッド new で行う初期化をする
+  # + :init_arg<address> は new 呼び出し時に利用する
+  #   引数の key を定義
+  #   http://d.hatena.ne.jp/cooldaemon/20060317/1142562536
   my %address :ATTR(:name<address> :init_arg<address>);
 
   sub set_name {
