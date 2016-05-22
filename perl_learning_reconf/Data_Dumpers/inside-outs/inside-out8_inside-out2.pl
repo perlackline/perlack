@@ -22,7 +22,12 @@ use warnings;
 use Carp;
 use Class::Std;
 {
-  # :
+  # + :ATTR は属性 (attribute) 
+  #   属性 :ATTR によって指定した変数をガベージコレクションに
+  #   送ってくれる
+  # + :name<address> で変数のセッター, ゲッターを自動生成する
+  #   get<address>, set<address> で個別に指定も可能
+  # + :init_arg<address> はメソッド new で行う初期化をする
   my %address :ATTR(:name<address> :init_arg<address>);
 
   sub set_name {
