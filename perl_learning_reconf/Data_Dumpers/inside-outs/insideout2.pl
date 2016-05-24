@@ -15,8 +15,15 @@ my $o = InsideOut->new();
 $o->name("dankogai");
 $o->uri("http://blog.livedoor.jp/dankogai/");
 
+my $data = Data::Dumper->new([$o],['object']);
+$data->Freezer('name');
+my $c = $data->Dump;
+
+
 print $o->name, ",", $o->uri, "\n";
 print Dumper $o;
+
+print $c;
 
 __END__
 # output
