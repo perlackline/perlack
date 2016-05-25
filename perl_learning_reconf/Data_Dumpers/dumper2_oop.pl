@@ -16,8 +16,8 @@ $e = { 'd' => $d };
 $f = { 'e' => $e };
 
 #$d = Data::Dumper->new([$a,$b,$c,$d,$e,$f],[qw(a b c d e f)]);
-#$dmp = Data::Dumper->new([$f],[qw(f)]);
-$dmp = Data::Dumper->new([$a,$b, $c],[ qw(a b c) ]);
+$dmp = Data::Dumper->new([$f],[qw(f)]);
+#$dmp = Data::Dumper->new([$a,$b, $c],[ qw(a b c) ]);
 
 #$dmp->Reset->Purity(0);
 #print join "----\n", $dmp->Dump;
