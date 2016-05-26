@@ -33,21 +33,6 @@ use Data::Dumper;
 # Foo のオブジェクト
 $a = Foo->new;
 
-$b = Data::Dumper->new([$a],['c']);
+$b = $a->Freeze;
 
-# Freeze method をシリアライズ
-$b->Freezer('Freeze');
-$b->Toaster('Thaw');
-#$b->Toaster('Freeze');
-print "-----------\n";
-
-#print $b->Dump, "\n";
-$c = $b->Dump;
-print "-----------\n";
-
-print $c;
-print "-----------\n";
-$d = eval $c;
-print "-----------\n";
-print Data::Dumper->Dump([$d],['d']);
-
+$b->Thaw;
