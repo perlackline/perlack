@@ -20,7 +20,7 @@ package Foo::ZZZ;
 sub Thaw {
   my $s = shift;
   print STDERR "waking up\n";
-  $s->{state} = 'awake';
+  $s->{state} = 'thaw';
   return bless $s, 'Foo';
 }
 
@@ -33,6 +33,21 @@ use Data::Dumper;
 # Foo のオブジェクト
 $a = Foo->new;
 
-$b = $a->Freeze;
+#$a->Freeze;
+#$a->Thaw;
+$b = Data::Dumper->new([$a],['a']);
+$b->Freezer('Freeze');
+print "---\n";
+#print $b->Dump;
+$b->Toaster('Thaw');
+$c = $b->Dump;
+print "---\n";
+print Dumper $c;
+print "---\n";
+$d =  eval $c;
+print "---\n";
 
-$b->Thaw;
+print Dumper $d;
+
+print Data::Dumper->Dump([$d], ['d']);
+
