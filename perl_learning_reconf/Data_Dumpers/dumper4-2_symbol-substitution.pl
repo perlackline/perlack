@@ -10,11 +10,23 @@
 
 use Data::Dumper;
 sub foo { print "foo speaking\n" }
-# other の type glob
+
 *other = \&foo;
+
+# ARRAY REF
 $bar = [ \&other ];
-$d = Data::Dumper->new([\&other,$bar],['*other','bar']);
-$d->Seen({'*foo'=>\&foo});
-print "---\n";
+
+# Dereference
+# foo speaking\n
+#$$bar[0]->();
+
+#$d = Data::Dumper->new([\&foo],['foo']);
+$d = Data::Dumper->new([\&other, $bar],['*other', 'bar']);
+$d->Seen({'*foo' => \&foo });
 print $d->Dump;
 
+print "---\n";
+
+$code = $$bar[0];
+#&{$code};
+$code->();
