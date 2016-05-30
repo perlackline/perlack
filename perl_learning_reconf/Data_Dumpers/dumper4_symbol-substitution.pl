@@ -11,8 +11,10 @@
 use Data::Dumper;
 sub foo { print "foo speaking\n" }
 # other の type glob
+#*other = *foo{CODE};
 *other = \&foo;
 $bar = [ \&other ];
+#$bar = \&other;
 $d = Data::Dumper->new([\&other,$bar],['*other','bar']);
 $d->Seen({'*foo'=>\&foo});
 print "---\n";

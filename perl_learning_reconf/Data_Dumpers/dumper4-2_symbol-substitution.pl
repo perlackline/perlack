@@ -10,23 +10,14 @@
 
 use Data::Dumper;
 sub foo { print "foo speaking\n" }
-
-*other = \&foo;
+sub baz { print "baz speaking\n" }
+sub qux { print "qux speaking\n" }
 
 # ARRAY REF
-$bar = [ \&other ];
+$bar = [ \&foo, \&baz, \&qux ];
 
-# Dereference
-# foo speaking\n
-#$$bar[0]->();
+$d = Data::Dumper->new([$bar],['bar']);
 
-#$d = Data::Dumper->new([\&foo],['foo']);
-$d = Data::Dumper->new([\&other, $bar],['*other', 'bar']);
-$d->Seen({'*foo' => \&foo });
+$d->Seen({'*foo'=>\&foo,'*baz'=>\&baz,'*qux'=>\&qux});
+
 print $d->Dump;
-
-print "---\n";
-
-$code = $$bar[0];
-#&{$code};
-$code->();
