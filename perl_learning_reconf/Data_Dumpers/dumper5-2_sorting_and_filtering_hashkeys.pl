@@ -11,17 +11,17 @@
 use Data::Dumper;
 
 #$Data::Dumper::Sortkeys = \&my_filter;
-my $foo = { map { (ord, "$_$_$_") } 'I'..'Q' };
+my $foo = { map { (ord, "$_$_$_") } 'I'..'K' };
 my $bar = { %$foo };
 my $baz = { reverse %$foo };
-my $qux = { reverse %$foo };
+my $qux = { map { (ord, "$_$_$_") } 'a'..'d' };
 
-my $d = Data::Dumper->new([$foo,$bar,$baz]);
+my $d = Data::Dumper->new([$foo,$bar,$baz,$qux],[qw(foo bar baz qux)]);
 #my $d = Data::Dumper->new([$foo, $bar, $baz, $qux]);
 #my $d_foo = Data::Dumper->new([$foo]);
 #my $d_bar = Data::Dumper->new([$bar]);
 #my $d_baz = Data::Dumper->new([$baz]);
-#$d->Sortkeys([\&my_filter]);
+$d->Sortkeys(\&my_filter);
 
 print "---\n";
 #print Dumper [$foo, $bar, $baz ];
