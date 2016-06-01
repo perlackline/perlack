@@ -9,32 +9,30 @@
 # ソートとフィルタリング ハッシュキーの
 
 use Data::Dumper;
-
 #$Data::Dumper::Sortkeys = \&my_filter;
+
 my $foo = { map { (ord, "$_$_$_") } 'I'..'Q' };
 my $bar = { %$foo };
 my $baz = { reverse %$foo };
 my $qux = { reverse %$foo };
 
-my $d = Data::Dumper->new([$foo,$bar,$baz]);
-#my $d = Data::Dumper->new([$foo, $bar, $baz, $qux]);
-#my $d_foo = Data::Dumper->new([$foo]);
-#my $d_bar = Data::Dumper->new([$bar]);
-#my $d_baz = Data::Dumper->new([$baz]);
-#$d->Sortkeys([\&my_filter]);
+print "\$foo: $foo\n";
+print "\$bar: $bar\n";
+print "\$baz: $baz\n";
 
-print "---\n";
-#print Dumper [$foo, $bar, $baz ];
+#my $d = Data::Dumper->new([$foo,$bar,$baz]);
+#my $d = Data::Dumper->new([$foo,$bar,$baz,$qux]);
+my $d = Data::Dumper->new([$foo,$bar]);
+$d->Sortkeys([\%my_filter]);
 print $d->Dump;
-#print $d_foo->Dump;
-#print $d_bar->Dump;
-#print $d_baz->Dump;
+#print $d->Dump([$foo,$bar,$baz]);
+#print Dumper [ $foo, $bar, $baz ];
 
 sub my_filter {
   my ($hash) = @_;
   return [
     $hash eq $foo ? (sort {$b <=> $a} keys %$hash) :
-    $hash eq $bar ? (grep { $_ % 2 } keys %$hash) :
+    $hash eq $bar ? (grep {$_ % 2} keys %$hash) :
     (sort keys %$hash)
   ];
 }
