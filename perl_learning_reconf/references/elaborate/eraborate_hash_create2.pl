@@ -33,38 +33,27 @@ my %TV = (
   },  
 );
 
-#my $rec;
-#foreach my $family (keys %TV){
-#  $rec = $TV{$family}; # temp pointer
-#  my @kids = ();
-#  foreach my $person ( @{$rec->{members}} ){
-#    if ($person->{role} =~ /kid|son|daughter/){
-#      push @kids, $person;
-#    }
-#  }
-#  # REMEMBER: $rec and $TV{$family} point to same data!!
-#  $rec->{kids} = [ @kids ];
-#}
-#
-#$TV{simpsons}{kids}[0]{age}++;
-#print $TV{simpsons}{members}[2]{age}; 
-
-# 全体を表示する
-foreach my $family (keys %TV){
-  print "the $family";
-  print " is on during @{$TV{$family}{nights}}\n";
-  print "its members are:\n";
-  foreach my $who (@{$TV{$family}{members}}){
-    print " $who->{name} ($who->{role}), age $who->{age}\n";
+# ポインターの作成
+foreach my $family (keys %TV) {
+  my $rec = $TV{$family}; # temp pointer
+  my @kids = ();
+  for my $person ( @{ $rec->{members} } ) {
+    if ($person->{role} =~ /kid|son|daughter/) {
+      push @kids, $person;
+    }
   }
-  print "it turns out that $TV{$family}{role} has ";
-  print scalar (@{$TV{family}{kids}}), " kids named ";
-print "---\n";
-  print join(",",map{ $_->{name}} @{$TV{$family}{kids}});
-  print "\n";
+  # REMEMBER: $rec and $TV{$family} point to same data!!
+  $rec->{kids} = [ @kids ];
 }
 
-#use Data::Dumper;
-use DDP;
-#p %TV;
-#print Dumper \%TV;
+# ポインターを利用してデータを更新
+$TV{simpsons}{kids}[0]{age}++;
+$TV{jetsons}{kids}[0]{age}++;
+$TV{flintstones}{kids}[0]{age}++;
+
+print "$TV{simpsons}{members}[2]{age}\n";
+print "$TV{jetsons}{members}[2]{age}\n";
+print "$TV{flintstones}{members}[2]{age}\n";
+
+
+
