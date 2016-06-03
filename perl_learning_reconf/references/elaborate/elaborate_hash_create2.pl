@@ -29,6 +29,7 @@ my %TV = (
       { name => "homer", role => "lead", age => 34, },
       { name => "marge", role => "wife", age => 37, },
       { name => "bart",  role => "kid",  age => 11, },
+      { name => "test",  role => "daughter",  age => 99, },
     ],  
   },  
 );
@@ -48,12 +49,26 @@ foreach my $family (keys %TV) {
 
 # ポインターを利用してデータを更新
 $TV{simpsons}{kids}[0]{age}++;
+$TV{simpsons}{kids}[1]{age}++;
 $TV{jetsons}{kids}[0]{age}++;
 $TV{flintstones}{kids}[0]{age}++;
 
-print "$TV{simpsons}{members}[2]{age}\n";
-print "$TV{jetsons}{members}[2]{age}\n";
-print "$TV{flintstones}{members}[2]{age}\n";
+print "$TV{simpsons}{members}[2]{name}: $TV{simpsons}{members}[2]{age}\n";
+print "$TV{simpsons}{members}[3]{name}: $TV{simpsons}{members}[3]{age}\n";
+print "$TV{jetsons}{members}[2]{name}: $TV{jetsons}{members}[2]{age}\n";
+print "$TV{flintstones}{members}[2]{name}:  $TV{flintstones}{members}[2]{age}\n";
 
+print "---\n";
 
-
+foreach my $family (keys %TV){
+  print "the $family";
+  print " is on during @{ $TV{$family}{nights} }\n";
+  print "its membets are:\n";
+  foreach my $who ( @{$TV{$family}{members}}){
+    print " $who->{name} ($who->{role}), age $who->{age}\n";
+  }
+  print "it turns out that $TV{$family}{members}[0]{name} has ";
+  print scalar ( @{ $TV{$family}{kids} } ), " kids named ";
+  print join ( ", ", map{ $_->{name} } @{$TV{$family}{kids}} );
+  print "\n---\n";
+}
