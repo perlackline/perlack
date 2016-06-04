@@ -15,17 +15,20 @@ my $rec = {};
 $rec->{series} = "flintstones";
 $rec->{nights} = [ find_days() ];
 
+die "please file for arg\n" unless @ARGV;
+
 my @members = ();
-while(<>){
+while (<>) {
   my %fields = split /[\s=]+/;
   push @members, { %fields };
 }
 $rec->{members} = [ @members ];
 
-# now remember the whole thing
 my %TV;
 $TV{ $rec->{series} } = $rec;
+foreach my $key (keys $TV{ $rec->{series} });
+  ...
 
-my $d = Data::Dumper->new([$TV{$rec->{series}}],['*TV']);
-print $d->Dump;
+#print Dumper $rec;
+
 

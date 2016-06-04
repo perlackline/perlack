@@ -1,3 +1,3 @@
-field1=value1
-field2=value2
-field3=value3
+name=homer role=lead age=34
+name=marge role=wife age=37
+name=bart role=kid age=11
