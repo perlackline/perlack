@@ -26,9 +26,12 @@ $rec->{members} = [ @members ];
 
 my %TV;
 $TV{ $rec->{series} } = $rec;
-foreach my $key (keys $TV{ $rec->{series} });
-  ...
+foreach my $key (keys %TV){
+  #print "$key\n";
+}
 
-#print Dumper $rec;
-
+print Dumper $rec;
+#print Dumper $TV{$rec->{series}};
+#print $TV{$rec->{series}}{series},"\n";
+#print Dumper %{$rec};
 
