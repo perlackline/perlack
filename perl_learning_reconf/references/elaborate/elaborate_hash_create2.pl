@@ -11,6 +11,7 @@ my %TV = (
       { name => "fred",    role => "lead", age => 36, },
       { name => "wilma",   role => "wife", age => 31, },
       { name => "pebbles", role => "kid",  age => 4, },
+      { name => "anon boy",  role => "son",  age => 99, },
     ],  
   },  
   jetsons => {
@@ -20,6 +21,7 @@ my %TV = (
       { name => "george", role => "lead", age => 41, },
       { name => "jane",   role => "wife", age => 39, },
       { name => "elroy",  role => "kid",  age => 9, },
+      { name => "anon girl",  role => "daughter",  age => 99, },
     ],  
   },  
   simpsons => {
@@ -30,6 +32,7 @@ my %TV = (
       { name => "marge", role => "wife", age => 37, },
       { name => "bart",  role => "kid",  age => 11, },
       { name => "test",  role => "daughter",  age => 99, },
+      { name => "anon girl",  role => "daughter",  age => 99, },
     ],  
   },  
 );

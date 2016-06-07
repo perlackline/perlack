@@ -24,13 +24,17 @@ while (<>) {
 }
 $rec->{members} = [ @members ];
 
-my %TV;
+my %TV = ();
 $TV{ $rec->{series} } = $rec;
-foreach my $key (keys %TV){
-  #print "$key\n";
-}
+print "---\n";
+print Dumper \%TV;
+#print "\$rec keys: \n", map{ "$_\n" } keys %$rec;
+print "---\n";
+#print "\%TV keys: \n", map{ "$_\n" } keys %TV;
 
-print Dumper $rec;
+#my $d = Data::Dumper->new([\%TV],['TV']);
+#print $d->Dump, "\n";
+#print Dumper $rec;
 #print Dumper $TV{$rec->{series}};
 #print $TV{$rec->{series}}{series},"\n";
 #print Dumper %{$rec};
