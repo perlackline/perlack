@@ -4,6 +4,7 @@ use strict;
 use warnings;
 
 use YAML;
+#use YAML::XS;
 
 # Load a YAML stream of 3 YAML documents into Perl data structures.
 # YAML ストリームをロードする 3 つの YAML ドキュメントの Perl のデータ構造向けの
@@ -33,17 +34,22 @@ You probably think YAML stands for "Yet Another Markup Language". It ain't! YAML
 ...
 # ヒアドキュメント エンド
 
-print "--- scalar ---\n$string\n";
+print "--- scalar ---\n";
+print "$string\n";
 
 print "--- array ref ---\n";
 print map{ "$_\n" } @{$arrayref};
 print "\n";
-print "--- hash ref ---\n";
-#print map{ "$_ : $hashref->{$_}\n" } keys %{$hashref};
 
+print "--- hash ref ---\n";
 foreach my $key ( keys %{$hashref} ){
-    $key =~ /favorite colors/ ? print "$key\n", map {" : $_\n"} @{$$hashref{$key}} : print "$key : $$hashref{$key}\n";
-                        
+    #$key =~ /favorite colors/ ? print "$key\n", map {" : $_\n"} @{$$hashref{$key}} : print "$key : $$hashref{$key}\n";
+
+  if ($key =~ /favorite colors/){
+    print "$key:\n", map{" $_\n"} @{$$hashref{$key}};
+  }else{
+    print "$key: $$hashref{$key}\n";
+  }
 }
 
 
