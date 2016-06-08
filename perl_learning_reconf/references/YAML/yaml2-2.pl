@@ -33,12 +33,19 @@ You probably think YAML stands for "Yet Another Markup Language". It ain't! YAML
 ...
 # ヒアドキュメント エンド
 
-# Dump the Perl data structures back into YAML.
-print Dump($string,$arrayref,$hashref);
+print "--- scalar ---\n$string\n";
 
-print "------\n";
-print "------\n";
-# YAML::Dump is used the same way you'd use Data::Dumper::Dumper
-use Data::Dumper;
-print Dumper($string,$arrayref,$hashref);
+print "--- array ref ---\n";
+print map{ "$_\n" } @{$arrayref};
+print "\n";
+print "--- hash ref ---\n";
+#print map{ "$_ : $hashref->{$_}\n" } keys %{$hashref};
+
+foreach my $key ( keys %{$hashref} ){
+    $key =~ /favorite colors/ ? print "$key\n", map {" : $_\n"} @{$$hashref{$key}} : print "$key : $$hashref{$key}\n";
+                        
+}
+
+
+
 
