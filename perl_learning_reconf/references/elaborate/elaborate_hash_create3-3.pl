@@ -39,6 +39,7 @@ my %TV = (
 
 # ---------------------------------
 # make pointers to kids
+# ---------------------------------
 foreach my $family ( keys %TV ) {
   my $rec = $TV{$family};
   my @kids = ();
@@ -56,11 +57,14 @@ foreach my $family ( keys %TV ) {
   my $rec = $TV{$family};
   my @leads = ();
   foreach my $person ( @{$rec->{members}} ){
-    $rec->{leads} = $person->{name} if ( $person->{role} =~ /lead/ )
+    $rec->{leads} = $person->{name}
+      if ( $person->{role} =~ /lead/ );
   }
 }
 
+# ---------------------------------
 # print the whole thing
+# ---------------------------------
 foreach my $family (keys %TV){
 
   # family name
@@ -82,6 +86,7 @@ foreach my $family (keys %TV){
   # kids
   print scalar ( @{ $TV{$family}{kids} } ), " kids named ";
   print join ( ", ", map{ $_->{name} } @{$TV{$family}{kids}} );
-  print "\n---\n";
+  #print "\n---\n";
+  print "\n";
 }
 
