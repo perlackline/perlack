@@ -12,7 +12,7 @@ while(<>){
 
 use YAML;
 print Dump(\%total_bytes);
-#print "------\n";
-#print "------\n";
-#use Data::Dumper;
-#print Dumper(\%total_bytes);
+print "------\n";
+print "------\n";
+use Data::Dumper;
+print Dumper(\%total_bytes);
