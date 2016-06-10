@@ -42,7 +42,7 @@ my %TV = (
 );
 
 use Storable;
-store \%TV, 'some_file';
+store \%TV, 'hash_file';
 
 
 
