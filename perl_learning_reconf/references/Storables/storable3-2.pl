@@ -50,6 +50,8 @@ use Benchmark qw(cmpthese);
 #
 #my $dt = DateTimeX::Factory->new(time_zone => 'Asia/Tokyo');
 
+# ** store_fd vs nstore_fd **
+# = nstore_fd がやや遅いが誤差の範囲.
 
 my $store = sub{
     open my $fd, '>', 'hash_file' or die "$!";
