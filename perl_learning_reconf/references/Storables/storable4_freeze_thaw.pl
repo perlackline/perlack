@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-my %TV = (
+my %table = (
  
   # ハッシュ
   flintstones => {
@@ -41,36 +41,17 @@ my %TV = (
   },
 );
 
-use Storable qw/store_fd nstore_fd fd_retrieve/;
-#store \%TV, 'hash_file';
+use Storable qw/freeze nfreeze thaw/;
 
-use Benchmark qw(cmpthese);
-#use DateTimeX::Factory;
-#use Time::Moment;
-#
-#my $dt = DateTimeX::Factory->new(time_zone => 'Asia/Tokyo');
+my $serialized = freeze \%table;
+my $table_clone = thaw $serialized;
 
-# ** store_fd vs nstore_fd **
-# = nstore_fd がやや遅いが誤差の範囲.
+print "$table_clone\n";
+use Data::Dumper;
+#print Dumper $table_clone;
 
-my $store = sub{
-    open my $fd, '>', 'hash_file' or die "$!";
-    store_fd \%TV, $fd;
-    close $fd;
-    open my $read_fd, '<', 'hash_file' or die "$!";
-    my $read = fd_retrieve $read_fd;
-};
-my $nstore = sub{
-    open my $fd_n, '>', 'hash_file2' or die "$!";
-    nstore_fd \%TV, $fd_n;
-    close $fd_n;
-    open my $read_fd_n, '<', 'hash_file2' or die "$!";
-    my $read_n = fd_retrieve $read_fd_n;
-};
-#my $count = -10;
-cmpthese 50_000,{
-  'store_fd'  => $store,
-  'nstore_fd' => $nstore,
-};
+#foreach my $key (keys %{$table_clone}){
+#  print "key: $key\n";
+#}
 
 

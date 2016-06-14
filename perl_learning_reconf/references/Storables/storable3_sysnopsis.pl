@@ -50,24 +50,5 @@ use Benchmark qw(cmpthese);
 #
 #my $dt = DateTimeX::Factory->new(time_zone => 'Asia/Tokyo');
 
-
-
-#my $count = -10;
-cmpthese 50_000,{
-  'store'  => sub{ 
-    open my $fd, '>', 'hash_file' or die "$!";
-    store_fd \%TV, $fd;
-    close $fd;
-    open my $read_fd, '<', 'hash_file' or die "$!";
-    my $read = fd_retrieve $read_fd;
-  },
-  'nstore' => sub{ 
-    open my $fd_n, '>', 'hash_file2' or die "$!";
-    nstore_fd \%TV, $fd_n;
-    close $fd_n;
-    open my $read_fd_n, '<', 'hash_file2' or die "$!";
-    my $read_n = fd_retrieve $read_fd_n;
-  },
-};
-
+nstore_fd \%TV, \*STDOUT;
 
