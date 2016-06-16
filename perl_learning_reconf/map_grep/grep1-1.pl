@@ -18,7 +18,7 @@ my @numbers = ( qw(1 2 4 8 16 32 64) );
 my @odd_digit_sums = grep{
   my $sum;
   $sum += $_ for split //,$_;
-  $sum % 2;
+  $sum % 2 == 0;
 
 } @numbers;
 

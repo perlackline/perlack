@@ -9,29 +9,32 @@ use warnings;
 #  'Raraiya' => [qw(red_shirt hat lucky_socks water_bottle)],
 #);
 
-my @x = (qw(good-evening good-morning));
-my @y = (qw(good-morning good-afternoon good-evening good-night));
+my @x = (qw(
+  aaa.a
+  bbb.b
+  ccc.c
+  eee.e
+  fff.f
+  ggg.g
+));
+my @y = (qw(
+  aaa.a
+  bbb.b
+  ccc.c
+  ggg.g
+
+));
 
 # http://perldoc.jp/docs/perl/5.14.1/perlfaq4.pod#How32do32I32compute32the32difference32of32two32arrays63-32How32do32I32compute32the32intersection32of32two32arrays63
 # 二つの配列の差(difference)を求めるには? 二つの配列の共通要素(inter section)を求めるには?¶
 
-my @union = my @intersection = my @difference = ();
 my %count = ();
 
 foreach my $element (@x, @y) { $count{$element}++ }
 
-foreach my $key (keys %count){
-  print "$key: $count{$key}\n";
-}
+my @intersection = grep{
+  $count{$_} < 2;
+} sort keys %count;
 
-print "---\n";
-foreach my $element (keys %count){
-  push @union, $element;
-  push @{ $count{$element} > 1 ? \@intersection : \@difference }, $element;
-}
+print "-- intersecton --\n", map{ "$_\n" } @intersection;
 
-print "union:\n", map{ "$_\n" } @union;
-print "---\n";
-print "intersecton\n", map{ "$_\n" } @intersection;
-print "---\n";
-print "difference\n", map{ "$_\n" } @difference;
