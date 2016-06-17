@@ -3,12 +3,6 @@
 use strict;
 use warnings;
 
-#my %provisions = (
-#  'Bellri'  => [qw(bule_shirt hat jacket preserver sunscreen)],
-#  'Aida'    => [qw(sunscreen water_bottle slide_rule radio)],
-#  'Raraiya' => [qw(red_shirt hat lucky_socks water_bottle)],
-#);
-
 my @x = (qw(good-evening good-morning));
 my @y = (qw(good-morning good-afternoon good-evening good-night));
 

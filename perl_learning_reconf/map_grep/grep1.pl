@@ -3,12 +3,6 @@
 use strict;
 use warnings;
 
-#my %provisions = (
-#  'Bellri'  => [qw(bule_shirt hat jacket preserver sunscreen)],
-#  'Aida'    => [qw(sunscreen water_bottle slide_rule radio)],
-#  'Raraiya' => [qw(red_shirt hat lucky_socks water_bottle)],
-#);
-
 # 数字の桁を足して奇数になる要素の値を直接取得する
 # index 値ではなく, 直接要素を grep に渡す.
 
