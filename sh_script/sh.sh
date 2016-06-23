@@ -1,3 +1,5 @@
+#!/bin/sh
+
 # set シェルのオプション設定
 # -u 未定義変数の参照でエラーメッセージ
 set -u
@@ -17,14 +19,15 @@ IFS=$(printf ' \t\n_'); IFS=${IFS%_}
 # 各環境変数をセット
 export IFS LC_ALL=C LANG=C PATH
 
-localvar_sample(){
-  (
-    a=$(whoami)
-    b='My name is'
-    c=$(awk -v id=$a -F : '$1==id{print $5}' /etc/passwd)
-    echo "$b $c."
-  )
-}
+#---
+cat <<TEXT > foo.txt
+a
+    b
+c
+TEXT
 
-localvar_sample
+cat foo.txt |
+awk '{print NR,$0}' | # 行頭に行番号
+sort -k 1nr,1 #|       # 行番号降順ソート
+#sed 's/^[0-9]* //'    # 行番号の削除
 
