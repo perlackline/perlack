@@ -1,0 +1,306 @@
+[Callback (computer programming)]
+https://en.wikipedia.org/wiki/Callback_(computer_programming)
+
+In computer programming, a callback is a piece of executable code that is passed as an argument to other code, which is expected to call back (execute) the argument at some convenient time. The invocation may be immediate as in a synchronous callback, or it might happen at a later time as in an asynchronous callback. In all cases, the intention is to specify a function or subroutine as an entity that is, depending on the language, more or less similar to a variable.
+
+コンピュータ・プログラミングで, コールバックは 実行可能なコードの一部です 引数として渡される 他のコードに, これは期待されています 引数をコール バック ( 実行 ) することを いずれ都合のよい時に. 呼び出しは 即時かもしれません 同期コールバックとして, または 後で起こるかもしれません 非同期コールバックとして. すべてのケースで, 目的は 指定することです ファンクションかサブルーチンを つまり存在 ( entity ) として,  言語に依存しますが, 多かれ少なかれ変数と同じです. 
+
+Programming languages support callbacks in different ways, often implementing them with subroutines, lambda expressions, blocks, or function pointers.
+
+プログラミング言語は サポートします コールバックを 異なる方法で, 多くの場合実装します サブルーチン, ラムダ式, ブロック, または関数ポインタで.
+
+[Design]
+
+There are two types of callbacks, differing in how they control data flow at runtime: blocking callbacks (also known as synchronous callbacks or just callbacks) and deferred callbacks (also known as asynchronous callbacks). While blocking callbacks are invoked before a function returns (in the C example below, which illustrates a blocking callback, it is function main), deferred callbacks may be invoked after a function returns. Deferred callbacks are often used in the context of I/O operations or event handling, and are called by interrupts or by a different thread in case of multiple threads. Due to their nature, blocking callbacks can work without interrupts or multiple threads, meaning that blocking callbacks are not commonly used for synchronization or delegating work to another thread.
+
+ふたつのタイプがあります コールバックの, 異なる どのようにそれらデータフローをコントロールするか 実行時に: ブロッキングコールバック (  また 知られています 同期コールバックまたは 単にコールバックとして) それと 遅延コールバック ( また 知られています 非同期コールバックとして ). ブロッキングコールバックでは 呼びだされます ファンクションが戻る前に ( C の例では 以下の, 示しています ブロッキングコールバックを, それは ファンクションです メインの), 遅延コールバックは 呼び出されるはずです ファンクションが戻った後で. 遅延コールバックは 多くの場合利用されます 文脈で I/O の操作 または イベントハンドリングの, それと 呼ばれます 割り込み または 異なるスレッドで 複数スレッドの場合. その性質により, ブロッキングコールバックは 動作できます 割り込みや 複数スレッドなしに, 意味します ブロッキングコールバックは 一般的に利用されないことを 同期または 動作の委任に 他のスレッドへの.
+
+allbacks are used to program applications in windowing systems. In this case, the application supplies (a reference to) a specific custom callback function for the operating system to call, which then calls this application-specific function in response to events like mouse clicks or key presses. A major concern here is the management of privilege and security: whilst the function is called from the operating system, it should not run with the same privilege as the system. A solution to this problem is using rings of protection.
+
+コールバックは利用されます アプリケーションのプログラムに ウィンドウシステムの. この場合, アプリケーションは提供します ( 参照して ) 特定のカスタムコールバックファンクションを オペレーティングシステムの 呼び出して, これは それから呼び出します このアプリケーション特有のファンクションを 応答して イベントに マウスクリックやキー押下のような.  大きな関心は ここでの 管理です 権利とセキュリティの: ファンクションが呼ばれている間 システムから, それは 実行してはいけません 同じ権限で システムと. 解決策は この問題の 利用します 保護リング ( リングプロテクション ? ) を.
+
+[Implementation]
+
+The form of a callback varies among programming languages:
+
+コールバックの形式は 変わります プログラミング言語の間で
+
+・In assembly, C, C++, Pascal, Modula2 and similar languages, a machine-level pointer to a function may be passed as an argument to another (internal or external) function. This is supported by most compilers and provides the advantage of using different languages together without special wrapper libraries or classes. One example may be the Windows API which is directly (more or less) accessible by many different languages, compilers and assemblers. The downside is that some machine-level knowledge is needed and most of the type control is not in effect.
+
+アセンブリ, C, C++, Pascal, Modula2 と 同様の言語では, ファンクションへのマシンレベルのポインタを 渡せるはずです 引数を 他の ( 内部 または 外部の ) ファンクションに. これは サポートされています ほとんどのコンパイラで それと 提供します 利用する利点を 異なる言語を一緒に 特別なラッパーライブラリ または クラスなしで. ひとつの例では Windows API かもしれません 直接 ( 多かれ少なかれ ) アクセス可能な 多くの異なる言語, コンパイラ, アセンブリ から. 悪い面は いくつかのマシンレベルの知識が必要で 型制御のほとんどが 有効ではないことです.
+
+・C++ allows objects to provide their own implementation of the function call operation. The Standard Template Library accepts these objects (called functors), as well as function pointers, as parameters to various polymorphic algorithms.
+
+C++ は可能です オブジェクトの提供が ファンクション呼び出しの独自実装の. 標準テンプレートライブラリは受け入れます それらのオブジェクト ( ファンクタと呼ばれる ) を, のみならず 関数ポインタを, パラメータとして 様々な ポリモーフィック アルゴリズムへの.
+・Many interpreted languages, such as JavaScript, Lua, Python, Perl and PHP, simply allow a function object to be passed through.
+
+多くのインタプリタ型の言語は, JavaScript, Lua, Python, Perl それと PHP のような, 簡単に可能です ファンクションオブジェクト を通して
+
+・CLI languages such as C# and VB.NET provide a type-safe encapsulating reference, a "delegate", to define well-typed function pointers. These can be used as callbacks.
+
+CLI ( Common Language Infrastructure ) 言語は C# と VB.NET のような 提供し type-safe のカプセル化リファレンス, "delegate" を, 定義します well-typed ファンクションポインタを. それらは利用できます コールバックとして. 
+
+・Events and event handlers, as used in .NET languages, provide generalized syntax for callbacks.
+
+イベントとイベントハンドラは, .NET 言語で利用される, 提供します 一般化された 構文を コールバックのための.
+
+・Functional languages generally support first-class functions, which can be passed as callbacks to other functions, stored as data or returned from functions.
+
+関数型言語は 通常提供します first-class ファンクションを, これは渡せます コールバックとして 他のファンクションに, ストアされた データ または 戻りとして 関数からの.
+
+・Some languages, such as Algol 68, Perl, Python, Ruby, Smalltalk, C++11 and later, newer versions of C# and VB.NET as well as most functional languages, allow unnamed blocks of code (lambda expressions) to be supplied instead of references to functions defined elsewhere.
+
+いくつかの言語, 例えば Algol 68, Perl, Python, Ruby, Smalltalk, C++11 とそれ以降, C# と VB.NET のような, それと ほとんどの関数型言語では, 許可します コードの無名ブロック ( ラムダ式 ) を供給することを リファレンスの代わりに 関数に 定義された 別の場所で.
+
+・In some languages, e.g. Scheme, ML, JavaScript, Perl, Smalltalk, PHP (since 5.3.0), C++11 and later, Java (since 8), and many others, such functions can be closures, i.e. they can access and modify variables locally defined in the context in which the function was defined.
+
+いくつかの言語では, e.g. Schem, ML, JavaScript, Perl, Smalltalk, PHP ( 5.3.0 から ), C++11 とそれ以降, Java ( 8 から ), それと他の多く, そのようなファンクションは クロージャに出来ます, i.e. それらは出来ます アクセスと  ローカルのコンテクストで定義された変数の変更を ファンクションで定義した.
+
+In object-oriented programming languages without function-valued arguments, such as in Java before its 8 version, callbacks can be simulated by passing an instance of an abstract class or interface, of which the receiver will call one or more methods, while the calling end provides a concrete implementation. Such objects are effectively a bundle of callbacks, plus the data they need to manipulate[clarification needed]. They are useful in implementing various design patterns such as Visitor, Observer, and Strategy.
+
+オブジェクト指向プログラミングでは function-valued の引数がない, バージョン 8 以前の Java のような, コールバックは出来ます シュミレートを 渡すことで インスタンスを アブストラクト ( 抽象 ) クラス または インターフェイスの,  そのうちで レシーバーは呼び出します ひとつ または 複数のメソッドを,  呼び出し側が提供しつつ 具体的な実装を. このようなオブジェクトは 効果的です コールバックのバンドルに, プラス データは それらが操作する必要があります [ 要明確化 ]. それらは 有用です さまざまな デザインパターンの実装で 訪問者, オブザーバー, それと ストラテジー のような.
+
+[Use]
+ 3.1 JavaScript
+
+Callbacks are used in the implementation of languages such as JavaScript, including support of JavaScript functions as callbacks through js-ctypes and in components such as addEventListener. However, a naive example of a callback can be written without any complex code:
+
+コールバックは利用されます 言語の実装で JavaScript のような, 含みます コールバックとしての JavaScript ファンクションのサポートを js-stypes や コンポーネント addEventListener のような を 通じて. しかし, 素朴な例は コールバックの 記述できます そうした複雑なコードなしで: 
+
+<pre class="brush: plain;">
+function someAction(x, y, someCallback) {
+  return someCallback(x, y);
+}
+
+function calcProduct(x, y) {
+  return x * y;
+}
+
+function calcSum(x, y) {
+  return x + y;
+}
+// alerts 75, the product of 5 and 15
+alert(someAction(5, 15, calcProduct));
+// alerts 20, the sum of 5 and 15
+alert(someAction(5, 15, calcSum));
+
+</pre>
+
+First a function [someAction] is defined with a parameter intended for callback: [someCallback]. Then a function that can be used as a callback to [someAction] is defined, [calcProduct]. Other functions may be used for someCallback, like [calcSum]. In this example, [someAction()] is invoked twice, once with [calcProduct] as a callback and once with [calcSum]. The functions return the product and sum, respectively, and then the alert will display them to the screen.
+
+最初のファンクション [someAction] は 定義しています パラメータで コールバックを意図した : [someCallback] を. それから ファンクション 利用できる コールバックとして [someAction] への を定義しています, [calcProduct]. 他のファンクションは利用できるでしょう someCallback に, [calcSum] のような. この例の, [someAction()] は呼び出します 2 回, 1 回は [calcProduct] をコールバックとして もう 1 回は [calcSum] です. ファンクションは返します product と sum を, それぞれ, それと それから alert を表示します それらの スクリーンに.
+
+In this primitive example, the use of a callback is primarily a demonstration of principle. One could simply call the callbacks as regular functions, [calcProduct(x, y)]. Callbacks are generally useful when the function needs to perform actions before the callback is executed, or when the function does not (or cannot) have meaningful return values to act on, as is the case for Asynchronous JavaScript (based on timers) or XMLHttpRequest requests. Useful examples can be found in JavaScript libraries such as jQuery where the [.each()] method iterates over an array-like object, the first argument being a callback which is performed on each iteration.
+
+この素朴な例では、コールバックの利用は 主に 原理のデモンストレーションです. それは 単に呼び出します コールバックを 通常のファンクションとして, [calcProduct(x, y)]. コールバックは通常 有用です ファンクションが アクションを必要とする コールバックを実行する前に, または ファンクションが しない ( または 出来ない ) 持つことを 意味のある 戻り値を 作用で, 非同期 JavaScript ( タイマーに基づいた ) や XMLHttpRequest リクエストのように. 有用な例は 見つけることが出来ます JavaScript ライブラリで jQuery のような そこの [.each()] メソッドは反復処理します array-like オブジェクト上で, 最初の引数は コールバックされ これは行われます 各反復で. 
+
+ 3.2 C
+
+Callbacks have a wide variety of uses, for example in error signaling: a Unix program might not want to terminate immediately when it receives SIGTERM, so to make sure that its termination is handled properly, it would register the cleanup function as a callback. Callbacks may also be used to control whether a function acts or not: Xlib allows custom predicates to be specified to determine whether a program wishes to handle an event.
+
+コールバックは持っています 多様な用途を, 例えば エラー通知で: Unix プログラムは 望まない場合があります 即時終了を SIGTERM を受け取った時に, なので 確認します その終了が 適切に取り扱われているか, それは 登録します クリーンアップファンクションを コールバックとして. コールバックは また 利用出来ます 制御に ファンクションが作用するか否か: Xlib は可能です カスタム predicates ( 述語 ) を指定することが 決定するために プログラムが望むか否かを イベントの取り扱いを.  
+
+The following C code demonstrates the use of callbacks to display two numbers.
+
+次の C コードは 示します コールバックの利用を 表示するための 2 つの数字を.
+
+<pre class="brush: plain;">
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+
+/* The calling function takes a single callback as a parameter. */
+void PrintTwoNumbers(int (*numberSource)(void)) {
+  printf("%d and %d\n", numberSource(), numberSource());
+}
+
+/* A possible callback */
+int overNineThousand(void) {
+  return (rand() % 1000) + 9001;
+}
+
+/* Another possible callback. */
+int meaningOfLife(void) {
+  /* via The Hitchhiker's Guide to the Galaxy
+  return 42;
+}
+
+/* Here we call PrintTwoNumbers() with three different callbacks. */
+int main(void) {
+  printTwoNumbers(&rand);
+  printTwoNumbers(&overNineThusand);
+  printTwoNumbers(&meaningOfLife);
+  return 0;
+}
+
+</pre>
+
+This should provide output similar to:
+
+これは提供するでしょう 似たような出力を: 
+
+<pre class="brush: plain;">
+125185 and 89187225
+ 9084 and 9441
+ 42 and 42
+
+</pre>
+
+Note how this is different from simply passing the output of the callback function to the calling function, [PrintTwoNumbers()] - rather than printing the same value twice, the [PrintTwoNumbers] calls the callback as many times as it requires. This is one of the two main advantages of callbacks.
+
+注意してください どのようにこれが異なっているか 単純に渡すことと コールバックファンクションの出力を 呼び出し側のファンクション, PrintTwoNumbers() に - むしろ出力するよりも 同じ値を 2 回, PrintTwoNumbers は呼び出します コールバックを呼び出します 何度でも その必要に応じて. これは 2 つの主な利点の 1 つです コールバックの.
+
+The other advantage is that the calling function can pass whatever parameters it wishes to the called functions (not shown in the above example). This allows correct information hiding: the code that passes a callback to a calling function does not need to know the parameter values that will be passed to the function. If it only passed the return value, then the parameters would need to be exposed publicly.[examples needed]
+
+他の利点は 呼び出し側のファンクションが 何でも渡せることです その望むパラメータを 呼び出したファンクションに ( 示していません 上の例では ). これは可能にします 正しい情報の隠蔽を: 渡すコードは コールバックを 呼び出し側のファンクションに 知る必要はありません パラメータの値を 渡される ファンクションに. もし それが渡すだけなら 戻り値を, その後パラメータは 必要があります さらされる パブリックに. [要例]  
+
+Another example:
+
+他の例:
+
+<pre class="brush: plain;">
+/*
+ * This is a simple C program to demonstrate the usage of callbacks
+ * Tha callback function is in the same file as the calling code.
+ * Tha callback function can later be put into external library like
+ * e.g. a shared object to increase flexibility.
+ *
+ */
+
+#include <stdio.h>
+#include <string.h>
+
+typedef struct _MyMsg {
+    int appId;
+    char msgbody[32];
+} Mymsg;
+
+void myfunc(Mymsg *msg)
+{
+    if (strlen(msg->msgbody) > 0 )
+        printf("App Id = %d \nMsg = %s \n",msg->appId, msg->msgbody);
+    else
+        printf("App Id = %d \nMsg = No Msg \n",msg->appId);
+}
+
+/*
+ * Prototype declaration 
+ */
+void (*callback)(MyMsg *);
+
+int main(void)
+{
+    MyMsg msg1;
+    msg1.appId = 100;
+    strcpy(msg1.mdsbody, "This is a test\n");
+
+    /*
+     * Assign the address of the function "myfunc" to the function
+     * pointer "callback" (may be also written as "callback = &myfunc;")
+    callback = myfunc;
+
+    /*
+     * Call the function (may be also written as "(*callback)(&msg1);")
+     */
+    callback(&msg1);
+
+    return 0;
+}
+ 
+</pre>
+
+The output after compilation;
+
+コンパイル後の出力:
+
+<pre class="brush: plain;">
+$ gcc cbtest.c
+$ ./a.out
+App Id = 100
+Msg = This is a test
+
+</pre>
+
+This information hiding means that callbacks can be used when communicating between processes or threads, or through serialised communications and tabular data. [clarification needed]
+
+この情報の隠蔽は意味します コールバックが利用できることを 通信するときに プロセスまたはスレッド間で, または 通して シリアライズ化した通信と表形式のデータを. [要明確化]
+
+ 3.3 Python
+
+A classic use of callbacks in Python (and other languages) is to assign events to UI elements.
+
+コールバックのクラシックな利用は Python ( それと他の言語 ) での イベントをアサインすることです UI 要素に.
+
+Here is a very trivial example of the use of a callback in Python. First define two functions, the callback and the calling code, then pass the callback function into the calling code.
+
+これはとてもささいな例です コールバックの利用の Python で. まず 定義します 2 つのファンクションを, コールバックと呼び出しのコードです, それから 渡します コールバックファンクションを 呼び出し側のコードに.
+
+<pre class="brush: plain;">
+def my_callback(val):
+  print("function my_callback was called with {0}".format(val))
+
+def caller(val, func):
+  func(val)
+
+for i in range(5):
+  caller(i, my_callback)
+
+</pre>
+
+This results in the following output on standard out.
+
+このリザルトは 次を出力します 標準出力に.
+
+<pre class="brush: plain;">
+function my_callback was called with 0
+function my_callback was called with 1
+function my_callback was called with 2
+function my_callback was called with 3
+function my_callback was called with 4
+
+</pre>
+
+ 3.4 Lua
+
+A color tweening example using the ROBLOX engine that takes an optional .done callback:
+
+色の tweening の例です 利用した ROBLOX エンジンを それは取ります オプションの .done コールバックを:
+
+<pre class="brush: plain;">
+wait(1)
+local DT = wait()
+
+function tween_color(object, finish_color, fade_time)
+  local step_r = finish_color.r - object.BackgroundColor3.r
+  local step_g = finish_color.g - object.BackgroundColor3.g
+  local step_b = finish_color.b - object.BackgroundColor3.b
+  local total_steps = 1 / (DT * (1 / fade_time))
+  local compleate;
+  coroutine.wrap(function()
+    for i = 0, 1, DT * (1 / fade_time) do
+      object.BackgroundColor3 = Color3.new (
+        object.BackgroundColor3.r + (step_r / total_steps),
+        object.BackgroundColor3.g + (step_g / total_steps),
+        object.BackgroundColor3.r + (step_b / total_steps)
+      )
+      wait()
+    end
+    if completed then
+      compleated()
+    end
+  end)()
+  return {
+    done = function(callback)
+      compleated = callback
+    end
+  }
+
+  tween_color(some_object, Color3.new(1, 0, 0).done(function()
+    print "Color tweening finished!"
+  end)
+
+
+</pre>
+
+...
+https://en.wikipedia.org/wiki/Callback_(computer_programming) 
+
