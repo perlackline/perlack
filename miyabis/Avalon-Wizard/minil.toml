@@ -1,0 +1,4 @@
+name = "Avalon-Wizard"
+# badges = ["travis"]
+module_maker="ModuleBuildTiny"
+

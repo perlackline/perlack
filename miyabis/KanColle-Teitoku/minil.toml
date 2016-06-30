@@ -1,0 +1,4 @@
+name = "KanColle-Teitoku"
+# badges = ["travis"]
+module_maker="ModuleBuildTiny"
+
