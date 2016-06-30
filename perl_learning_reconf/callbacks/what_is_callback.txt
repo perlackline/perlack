@@ -1,15 +1,133 @@
 [Callback (computer programming)]
 https://en.wikipedia.org/wiki/Callback_(computer_programming)
 
+<h3 class="my_heads01">call back とは</h3>
+
+「 コールバック 」は、英単語「 call 」と「 back 」で構成された「 callback 」です。
+
+その意味は「 呼び返す 」や「 召喚する 」で、電話でのやりとりでいえば「 後でかけ直す 」です。これがプログラミングの世界でどのような意味を持つのかを確認します。
+
+日本語の情報でも有用なものがあるかと思いますが、僕の観測範囲では、英語の情報の方が、その情報を必要とする人に寄り添った解説がされているように思います。
+
+ですから、今回は英語版の <a href="https://en.wikipedia.org/wiki/Callback_(computer_programming)" target="_blank">Callback (computer programming) - Wikipedia</a> を確認します。
+
+なお、<a href="http://wa3.i-3-i.info/word12295.html" target="_blank">コールバック関数 (callback function) - わわわIT用語辞典</a> では例によってシンプルで分かりやすい解説がされています。
+
+以下の項は、英語版 Wikipedia の「 コールバック 」のページを要約・意訳したものです。「 わわわIT用語辞典 」の解説で飽き足らない場合に読んでもらえれば、何か発見があるかもしれません。
+
+
+<h3 class="my_heads01">Callback [ 要約 ]</h3>
+
+&emsp; ・ 「 コールバック 」は他のコードに引数として渡される実行可能なコード。
+
+&emsp; ・ 都合の良いタイミングで引数のコードを呼び出し ( コールバック ) して実行する。
+
+&emsp; ・ 「 同期コールバック 」と「 非同期コールバック」がある。
+
+&emsp; ・ 「 同期コールバック」は即時呼び出し。
+
+&emsp; ・ 同期コールバックは、単なる「 コールバック 」や「 ブロッキングコールバック」として知られる。
+
+&emsp; ・ 「 非同期コールバック 」は後で ( 任意のタイミングで ) 呼び出す。
+
+&emsp; ・ 非同期コールバックは、「 遅延コールバック 」として知られる。
+
+&emsp; ・ コールバックの意図は実行可能なコードをほぼ変数と同じように扱うこと。
+
+&emsp; ・ 多くはサブルーチン, ラムダ式 , ブロック, ファンクションポインタ等でサポートされる。
+
+&emsp; ・ Perl 等の多くの言語では、コールバックは「 クロージャ 」 ( closure ) (<a href="http://pointoht.ti-da.net/e8120632.html" target="_blank">0x26c</a>) に出来る。
+
+&emsp; ・ ウィンドウシステムのアプリケーションにもコールバックは利用される。
+
+
+<h3 class="my_heads01">Callback [ 意訳 ]</h3>
+
+コンピュータプログラミングの「 コールバック 」は、*他のコードに引数として渡される実行可能なコード* です。
+
+これは、都合のよいタイミングで引数のコードを呼び出し ( call back ) して実行することを期待しています。
+
+引数のコードは、「 同期コールバック 」として即時に呼び出される場合と、「 非同期コールバック 」として任意のタイミング ( 後で ) 呼び出される場合があります。
+
+すべてのケースでコールバックが意図するのは、言語に応じてファンクションやサブルーチンをエンティティ ( 存在 ) として指定することで、それはおおむね変数と同じように扱われます。
+
+各プログラミング言語は異なる方法でコールバックをサポートしていますが、それらは大抵「 サブルーチン 」, 「 ラムダ式 」, 「 ブロック 」または「 ファンクションポインタ 」です。
+
+
+<strong>[ 設計 ]</strong>
+
+コールバックには、実行時にどのようにデータフローをコントロールするかによって、「 ブロッキングコールバック 」と「 遅延コールバック 」の 2 つの異なるタイプがあります。
+
+「 ブロッキングコールバック 」は、「 同期コールバック 」や「 単なるコールバック 」として知られている手法で、ファンクションが戻ってくる前に呼び出されます。
+
+「 遅延コールバック 」は、「 非同期コールバック 」として知られていて、ファンクションが戻った後で呼び出されます。「 遅延コールバック」は、多くの場合 I/O 操作やイベントハンドリングの文脈で利用され、「 割込み 」や複数スレッドの場合は異なるスレッドから起動されます。
+
+「 ブロッキングコールバック 」は「 割込み 」や複数のスレッドなしに動作するので、一般に「 同期 」処理や他のスレッドへの「 仕事の委任 」には利用されません。
+
+ウィンドウシステムのアプリケーションプログラムにもコールバックは利用されます。
+
+この場合、アプリケーションはオペレーティングシステムの呼び出しに特定のカスタムコールバックファンクション ( へのリファレンス ) を提供します。
+
+それから、キーの押下やマウスクリックのようなイベントに応答して アプリケーション特有のファンクションを呼び出します。
+
+この際の大きな関心事は、権限とセキュリティの管理です。
+
+システムからファンクションから呼ばれる際に、そのファンクションがシステムと同じ権限で実行されることは問題になりますので、解決策として「 保護リング 」( rings of protection : リングプロテクション ? ) を利用されます。
+
+
+<strong>[ 実装 ]</strong>
+
+コールバックの形式は、プログラミング言語によって変わります。
+
+「 アセンブリ 」, 「 C 」, 「 C++ 」, 「 Pascal 」, 「 Modula2 」や同様の言語では、( 内部または外部の ) ファンクションに、ファンクションへのマシンレベルのポインタを引数として渡せるはずです。
+
+これはほとんどのコンパイラでサポートされていて、特別なラッパーライブラリやクラスなしで異なる言語を一緒に利用する利点を提供します。
+
+利点を利用している例としては、多くの異なる言語から ( おおむね ) 直接アクセス可能となっている Windows API があります。
+
+一方で悪い面は、いくつかのマシンレベルの知識が必要であることと、型制御のほとんどが無効になることです。
+
+
+「 C++ 」では、ファンクションを呼び出すための独自実装のオブジェクトの提供が可能です。標準テンプレートライブラリは、「 ファンクタ 」( functors ) と呼ばれるそれらのオブジェクトを受け入れます。
+
+また、様々なポリモーフィック ( polymorphic ) アルゴリズムへのファンクションポインタもパラメータとして受け入れることも出来ます。
+
+「 JavaScript 」, 「 Lua 」, 「 Python 」, 「 Perl 」それから「 PHP 」のような多くのインタプリタ型言語では、ファンクションオブジェクトを通して簡単に実装出来ます。
+
+「 C# 」や「 VB.NET 」のような「 CLI 」( Common Language Infrastructure ) 言語は、type-safe のカプセル化リファレンス「 delegate 」を提供し、well-typed のファンクションポインタを定義します。これらはコールバックとして利用出来ます。
+
+「 .NET 」言語で利用されるイベントとイベントハンドラは、コールバックのための一般化された構文を提供します。
+
+「 関数型 」言語は、通常 first-class ファンクションを提供します。コールバックとして他のファンクションやストアにファンクションの戻り値やデータとして渡せます。
+
+いくつかの言語、例えば「 Schem 」, 「 ML 」, 「 JavaScript 」, 「 Perl 」, 「 Smalltalk 」, 「 PHP ( 5,3,0 以降 ) 」, 「 C++ 11 ( とそれ以降 ) 」, 「 Java ( 8 以降 ) 」その他の多くでは、コールバックに利用するファンクションはクロージャにすることが出来ます。i.e. ローカルのコンテキストで定義した変数へのアクセスと変更が出来ます。
+
+function-valued の引数がないバージョン 8 より前の Java のようなオブジェクト指向プログラミングでは、インスタンスをアブストラクト ( 抽象 ) クラスまたはインターフェイスを渡すことでコールバックをシミュレート出来ます。
+
+その内で「 レシーバー 」( receiver ) は、呼び出し側が 1 つまたは複数のメソッドを提供しつつ具体的な実装を呼び出します。
+
+このようなオブジェクトはコールバックのバンドルに効果的で、「 ビジター 」, 「 オブザーバー 」や「 ストラテジー 」のようなデザインパターンの実装にも有用です。 
+
+
+<h3 class="my_heads01">直訳</h3>
+
+以下は、[<a href="https://en.wikipedia.org/wiki/Callback_(computer_programming)" target="_blank">Callback (computer programming)</a>]  の単純な直訳です。
+
+[Use] の項目には、JavaScript, C, Python, Lua の素朴なコールバックコードの例示もあります。 
+
+
+<h3 class="my_heads01">Callback (computer programming)</h3>
+
 <blockquote>In computer programming, a callback is a piece of executable code that is passed as an argument to other code, which is expected to call back (execute) the argument at some convenient time. The invocation may be immediate as in a synchronous callback, or it might happen at a later time as in an asynchronous callback. In all cases, the intention is to specify a function or subroutine as an entity that is, depending on the language, more or less similar to a variable.</blockquote>
 
-コンピュータ・プログラミングで, コールバックは 実行可能なコードの一部です 引数として渡される 他のコードに, これは期待されています 引数をコール バック ( 実行 ) することを いずれ都合のよい時に. 呼び出しは 即時かもしれません 同期コールバックとして, または 後で起こるかもしれません 非同期コールバックとして. すべてのケースで, 目的は 指定することです ファンクションかサブルーチンを つまり存在 ( entity ) として,  言語に依存しますが, 多かれ少なかれ変数と同じです. 
+コンピュータプログラミングで, コールバックは 実行可能なコードの一部です 引数として渡される 他のコードに, これは期待されています 引数をコール バック ( 実行 ) することを いずれ都合のよい時に. 呼び出しは 即時かもしれません 同期コールバックとして, または 後で起こるかもしれません 非同期コールバックとして. すべてのケースで, その意図するものは 指定することです ファンクションかサブルーチンを 存在 ( entity ) として,  言語に応じて, 多かれ少なかれ変数と同じです. 
 
 <blockquote>Programming languages support callbacks in different ways, often implementing them with subroutines, lambda expressions, blocks, or function pointers.</blockquote>
 
-プログラミング言語は サポートします コールバックを 異なる方法で, 多くの場合実装します サブルーチン, ラムダ式, ブロック, または関数ポインタで.
+プログラミング言語は サポートします コールバックを 異なる方法で, 多くの場合実装します サブルーチン, ラムダ式, ブロック, またはファンクションポインタで.
 
-[Design]
+
+<h3 class="my_heads01">[Design]</h3>
 
 <blockquote>There are two types of callbacks, differing in how they control data flow at runtime: blocking callbacks (also known as synchronous callbacks or just callbacks) and deferred callbacks (also known as asynchronous callbacks). While blocking callbacks are invoked before a function returns (in the C example below, which illustrates a blocking callback, it is function main), deferred callbacks may be invoked after a function returns. Deferred callbacks are often used in the context of I/O operations or event handling, and are called by interrupts or by a different thread in case of multiple threads. Due to their nature, blocking callbacks can work without interrupts or multiple threads, meaning that blocking callbacks are not commonly used for synchronization or delegating work to another thread.</blockquote>
 
@@ -17,9 +135,10 @@ https://en.wikipedia.org/wiki/Callback_(computer_programming)
 
 <blockquote>allbacks are used to program applications in windowing systems. In this case, the application supplies (a reference to) a specific custom callback function for the operating system to call, which then calls this application-specific function in response to events like mouse clicks or key presses. A major concern here is the management of privilege and security: whilst the function is called from the operating system, it should not run with the same privilege as the system. A solution to this problem is using rings of protection.</blockquote>
 
-コールバックは利用されます アプリケーションのプログラムに ウィンドウシステムの. この場合, アプリケーションは提供します ( 参照して ) 特定のカスタムコールバックファンクションを オペレーティングシステムの 呼び出して, これは それから呼び出します このアプリケーション特有のファンクションを 応答して イベントに マウスクリックやキー押下のような.  大きな関心は ここでの 管理です 権利とセキュリティの: ファンクションが呼ばれている間 システムから, それは 実行してはいけません 同じ権限で システムと. 解決策は この問題の 利用します 保護リング ( リングプロテクション ? ) を.
+コールバックは利用されます アプリケーションのプログラムに ウィンドウシステムの. この場合, アプリケーションは提供します ( へのリファレンス ) 特定のカスタムコールバックファンクションを オペレーティングシステムの 呼び出しに, これは それから呼び出します このアプリケーション特有のファンクションを 応答して イベントに マウスクリックやキー押下のような.  大きな関心は ここでの 管理です 権利とセキュリティの: ファンクションが呼ばれている間 システムから, それは 実行してはいけません 同じ権限で システムと. 解決策は この問題の 利用します 保護リング ( リングプロテクション ? ) を.
 
-[Implementation]
+
+<h3 class="my_heads01">[Implementation]</h3>
 
 <blockquote>The form of a callback varies among programming languages:</blockquote>
 
@@ -27,11 +146,11 @@ https://en.wikipedia.org/wiki/Callback_(computer_programming)
 
 <blockquote>・In assembly, C, C++, Pascal, Modula2 and similar languages, a machine-level pointer to a function may be passed as an argument to another (internal or external) function. This is supported by most compilers and provides the advantage of using different languages together without special wrapper libraries or classes. One example may be the Windows API which is directly (more or less) accessible by many different languages, compilers and assemblers. The downside is that some machine-level knowledge is needed and most of the type control is not in effect.</blockquote>
 
-アセンブリ, C, C++, Pascal, Modula2 と 同様の言語では, ファンクションへのマシンレベルのポインタを 渡せるはずです 引数を 他の ( 内部 または 外部の ) ファンクションに. これは サポートされています ほとんどのコンパイラで それと 提供します 利用する利点を 異なる言語を一緒に 特別なラッパーライブラリ または クラスなしで. ひとつの例では Windows API かもしれません 直接 ( 多かれ少なかれ ) アクセス可能な 多くの異なる言語, コンパイラ, アセンブリ から. 悪い面は いくつかのマシンレベルの知識が必要で 型制御のほとんどが 有効ではないことです.
+アセンブリ, C, C++, Pascal, Modula2 と 同様の言語では, ファンクションへのマシンレベルのポインタを 渡せるはずです 引数として 他の ( 内部 または 外部の ) ファンクションに. これは サポートされています ほとんどのコンパイラで それと 提供します 利用する利点を 異なる言語を一緒に 特別なラッパーライブラリ または クラスなしで. ひとつの例では Windows API かもしれません 直接 ( 多かれ少なかれ ) アクセス可能な 多くの異なる言語, コンパイラ, アセンブリ から. 悪い面は いくつかのマシンレベルの知識が必要で 型制御のほとんどが 有効ではないことです.
 
 <blockquote>・C++ allows objects to provide their own implementation of the function call operation. The Standard Template Library accepts these objects (called functors), as well as function pointers, as parameters to various polymorphic algorithms.</blockquote>
 
-C++ は可能です オブジェクトの提供が ファンクション呼び出しの独自実装の. 標準テンプレートライブラリは受け入れます それらのオブジェクト ( ファンクタと呼ばれる ) を, のみならず 関数ポインタを, パラメータとして 様々な ポリモーフィック アルゴリズムへの.
+C++ は可能です オブジェクトの提供が ファンクション呼び出しの独自実装の. 標準テンプレートライブラリは受け入れます それらのオブジェクト ( ファンクタと呼ばれる ) を, のみならず ファンクションポインタを, パラメータとして 様々な ポリモーフィック アルゴリズムへの.
 
 <blockquote>・Many interpreted languages, such as JavaScript, Lua, Python, Perl and PHP, simply allow a function object to be passed through.</blockquote>
 
@@ -47,11 +166,11 @@ CLI ( Common Language Infrastructure ) 言語は C# と VB.NET のような 提�
 
 <blockquote>・Functional languages generally support first-class functions, which can be passed as callbacks to other functions, stored as data or returned from functions.</blockquote>
 
-関数型言語は 通常提供します first-class ファンクションを, これは渡せます コールバックとして 他のファンクションに, ストアされた データ または 戻りとして 関数からの.
+関数型言語は 通常提供します first-class ファンクションを, これは渡せます コールバックとして 他のファンクションや, ストアに データ または 戻りとして ファンクションからの.
 
 <blockquote>・Some languages, such as Algol 68, Perl, Python, Ruby, Smalltalk, C++11 and later, newer versions of C# and VB.NET as well as most functional languages, allow unnamed blocks of code (lambda expressions) to be supplied instead of references to functions defined elsewhere.</blockquote>
 
-いくつかの言語, 例えば Algol 68, Perl, Python, Ruby, Smalltalk, C++11 とそれ以降, C# と VB.NET のような, それと ほとんどの関数型言語では, 許可します コードの無名ブロック ( ラムダ式 ) を供給することを リファレンスの代わりに 関数に 定義された 別の場所で.
+いくつかの言語, 例えば Algol 68, Perl, Python, Ruby, Smalltalk, C++11 とそれ以降, C# と VB.NET のような, それと ほとんどの関数型言語では, 許可します コードの無名ブロック ( ラムダ式 ) を供給することを リファレンスの代わりに ファンクションに 定義された 別の場所で.
 
 <blockquote>・In some languages, e.g. Scheme, ML, JavaScript, Perl, Smalltalk, PHP (since 5.3.0), C++11 and later, Java (since 8), and many others, such functions can be closures, i.e. they can access and modify variables locally defined in the context in which the function was defined.</blockquote>
 
@@ -59,10 +178,12 @@ CLI ( Common Language Infrastructure ) 言語は C# と VB.NET のような 提�
 
 <blockquote>In object-oriented programming languages without function-valued arguments, such as in Java before its 8 version, callbacks can be simulated by passing an instance of an abstract class or interface, of which the receiver will call one or more methods, while the calling end provides a concrete implementation. Such objects are effectively a bundle of callbacks, plus the data they need to manipulate[clarification needed]. They are useful in implementing various design patterns such as Visitor, Observer, and Strategy.</blockquote>
 
-オブジェクト指向プログラミングでは function-valued の引数がない, バージョン 8 以前の Java のような, コールバックは出来ます シュミレートを 渡すことで インスタンスを アブストラクト ( 抽象 ) クラス または インターフェイスの,  そのうちで レシーバーは呼び出します ひとつ または 複数のメソッドを,  呼び出し側が提供しつつ 具体的な実装を. このようなオブジェクトは 効果的です コールバックのバンドルに, プラス データは それらが操作する必要があります [ 要明確化 ]. それらは 有用です さまざまな デザインパターンの実装で 訪問者, オブザーバー, それと ストラテジー のような.
+オブジェクト指向プログラミングでは function-valued の引数がない, バージョン 8 以前の Java のような, コールバックをシミュレート出来ます 渡すことで インスタンスを アブストラクト ( 抽象 ) クラス または インターフェイスを,  そのうちで レシーバーは呼び出します ひとつ または 複数のメソッドを,  呼び出し側が提供しつつ 具体的な実装を. このようなオブジェクトは 効果的です コールバックのバンドルに, プラス データは それらが操作する必要があります [ 要明確化 ]. それらは 有用です さまざまな デザインパターンの実装で 訪問者, オブザーバー, それと ストラテジー のような.
 
-[Use]
- 3.1 JavaScript
+
+<h3 class="my_heads01">[Use]</h3>
+
+<strong> 3.1 JavaScript</strong>
 
 <blockquote>Callbacks are used in the implementation of languages such as JavaScript, including support of JavaScript functions as callbacks through js-ctypes and in components such as addEventListener. However, a naive example of a callback can be written without any complex code:</blockquote>
 
@@ -95,7 +216,7 @@ alert(someAction(5, 15, calcSum));
 
 この素朴な例では、コールバックの利用は 主に 原理のデモンストレーションです. それは 単に呼び出します コールバックを 通常のファンクションとして, [calcProduct(x, y)]. コールバックは通常 有用です ファンクションが アクションを必要とする コールバックを実行する前に, または ファンクションが しない ( または 出来ない ) 持つことを 意味のある 戻り値を 作用で, 非同期 JavaScript ( タイマーに基づいた ) や XMLHttpRequest リクエストのように. 有用な例は 見つけることが出来ます JavaScript ライブラリで jQuery のような そこの [.each()] メソッドは反復処理します array-like オブジェクト上で, 最初の引数は コールバックされ これは行われます 各反復で. 
 
- 3.2 C
+ <strong>3.2 C</strong>
 
 <blockquote>Callbacks have a wide variety of uses, for example in error signaling: a Unix program might not want to terminate immediately when it receives SIGTERM, so to make sure that its termination is handled properly, it would register the cleanup function as a callback. Callbacks may also be used to control whether a function acts or not: Xlib allows custom predicates to be specified to determine whether a program wishes to handle an event.</blockquote>
 
@@ -177,10 +298,10 @@ typedef struct _MyMsg {
 
 void myfunc(Mymsg *msg)
 {
-    if (strlen(msg->msgbody) > 0 )
-        printf("App Id = %d \nMsg = %s \n",msg->appId, msg->msgbody);
+    if (strlen(msg-&gt;msgbody) > 0 )
+        printf("App Id = %d \nMsg = %s \n",msg-&gt;appId, msg-&gt;msgbody);
     else
-        printf("App Id = %d \nMsg = No Msg \n",msg->appId);
+        printf("App Id = %d \nMsg = No Msg \n",msg-&gt;appId);
 }
 
 /*
@@ -225,7 +346,7 @@ Msg = This is a test
 
 この情報の隠蔽は意味します コールバックが利用できることを 通信するときに プロセスまたはスレッド間で, または 通して シリアライズ化した通信と表形式のデータを. [要明確化]
 
- 3.3 Python
+ <strong>3.3 Python</strong>
 
 <blockquote>A classic use of callbacks in Python (and other languages) is to assign events to UI elements.</blockquote>
 
@@ -260,7 +381,7 @@ function my_callback was called with 4
 
 </pre>
 
- 3.4 Lua
+ <strong>3.4 Lua</strong>
 
 <blockquote>A color tweening example using the ROBLOX engine that takes an optional .done callback:</blockquote>
 
@@ -301,7 +422,4 @@ function tween_color(object, finish_color, fade_time)
 
 
 </pre>
-
-...
-https://en.wikipedia.org/wiki/Callback_(computer_programming) 
 
