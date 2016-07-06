@@ -1,0 +1,46 @@
+IO::Handle
+
+Perl はファイルを open する際に、裏では IO::Handle モジュールを利用していて、実のところ、ファイルハンドルスカラは、内部的に IO::Handle モジュールのオブジェクトとして扱われている。
+
+そのため、print 文のファイルハンドルの後にはカンマを必要としない。なぜなら、これは「 間接オブジェクト記法 」だから。
+
+---
+# 間接オブジェクト記法
+print $fh "output line\n";
+---
+は
+---
+$fh->print("output line\n");
+---
+と同じ。
+
+ファイルハンドルスカラは、表向きグロブ。
+---
+print $fh;
+
+# GLOB(0x16e1160)
+---
+
+
+モジュール IO::Handle は、入出力全般の基底クラスなので、ファイルに限らず多くの入出力を処理できるが、直接利用せず用途に合わせた派生モジュール ( IO::* ) を利用する。
+
+通常ファイルの入出力は IO::File を利用する。
+
+
+---
+Perl 「 モジュール 」 CGI.pm フォーム ファイルアップロードの基本処理 (0x109)
+Perl 「 モジュール 」 CGI 実用的なファイルアップロード 11 アップロードの処理 破 (0x118)
+---
+
+CGI.pm の upload() は、軽量ファイルハンドル ( オブジェクト) を返すが、このファイルハンドルは IO::Handle の派生クラスにないため、他のモジュールとの相互運用時に問題がおこる場合がある。このため、次のように handle() を利用して IO::Handle 互換のファイルハンドルを取得する。
+
+http://perldoc.jp/docs/modules/CGI-3.49/CGI.pod#FORM32ELEMENTS
+---
+my $lightweight_fh = $q->upload('field name');
+# Upgrade the handle to one compatible with IO::Handle:
+my $io_handle = $lightweight_fh->handle;
+---
+
+Perl リファレンス 16 データ構造 複雑なレコード (d019)
+
+
