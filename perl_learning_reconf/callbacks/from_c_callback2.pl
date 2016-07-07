@@ -5,8 +5,9 @@ use warnings;
 
 # from C
 
+# データ構造
 my $Mymsg = {
-      appId => 1,
+      appId => 0,
       msgbody => '',
 };
 
@@ -21,9 +22,11 @@ sub myfunc {
 
 my $msg1 = $Mymsg;
 $msg1->{appId} = 100;
-#$msg1->{msgbody} = "This is a test\n";
+$msg1->{msgbody} = "This is a test\n";
 
+# ファンクション myfunc のアドレスを $callback にアサイン
 my $callback = \&myfunc;
 
+# ファンクション呼び出し
 $callback->($msg1);
 
