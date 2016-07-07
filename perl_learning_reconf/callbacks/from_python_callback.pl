@@ -13,6 +13,8 @@ my $my_callback = sub {
 my $caller = sub {
   my $val = shift;
   my $func = shift;
+
+  # my_callback をコールバック
   $func->($val);
 };
 
