@@ -1,13 +1,6 @@
-use type-glob
-use blogref
-use type-glob
-use blogref
-adding text
-adding text
-adding text
-adding text
-adding text
-adding text
-adding text
-adding text
-adding text
+log text
+adding massage
+{IO}
+{GLOB}
+{NAME}
+use scalar
