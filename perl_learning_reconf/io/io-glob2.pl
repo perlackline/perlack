@@ -8,6 +8,7 @@ open LOG_FH, ">> $file" or die "could not open $file: $!";
 
 print *LOG_FH, "\n";
 print \*LOG_FH, "\n";
+print LOG_FH;
 
 print "---\n";
 
