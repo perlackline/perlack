@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-use strict;
+#use strict;
 use warnings;
 
 my $file = 'text';
@@ -13,14 +13,26 @@ print *LOG_FH{PACKAGE}, "\n";
 
 print "---\n";
 
-log_massage (*LOG_FH, 'adding massage');
-log_massage (*LOG_FH{IO}, '{IO}');
-log_massage (*LOG_FH{GLOB}, '{GLOB}');
-log_massage (*LOG_FH{NAME}, '{NAME}');
-#log_massage (LOG_FH, 'sinply string');
+# log_message (LOG_FH, 'bare adding message'); # Error by strict subs
+log_message (*LOG_FH, 'adding message');
+log_message (*LOG_FH{IO}, '{IO}');
+log_message (*LOG_FH{GLOB}, '{GLOB}');
+log_message (*LOG_FH{NAME}, '{NAME}');
+#log_message (LOG_FH, 'sinply string');
 
-sub log_massage {
-  local *FH = shift;
-  print FH @_, "\n";
+print "---\n";
+
+print *LOG_FH, "\n";
+print ref *LOG_FH, "\n";
+
+
+sub log_message {
+  #local *FH = shift;
+  my $fh = shift;
+  #print FH @_, "\n";
+  print $fh @_, "\n";
+
+  print "in sub\n";
+  print $fh, "\n";
 }
 

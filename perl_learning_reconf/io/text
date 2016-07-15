@@ -1,6 +1,2 @@
-log text
-adding massage
-{IO}
-{GLOB}
-{NAME}
-use scalar
+log_message
+log_message
