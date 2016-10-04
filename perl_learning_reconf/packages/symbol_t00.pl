@@ -17,23 +17,21 @@ $foo = 'this is scalar';
 #  /'foo'/;
 #} Data::Dumper->Dump([\%main::],[qw( *main:: )]),"\n";
 print "---\n";
-print grep { /foo/ } map {
-  "[key] $_ [value] $main::{$_}\n";
-} keys %main::; 
+#print grep { /foo/ } map {
+#  "[key] $_ [value] $main::{$_}\n";
+#} keys %main::; 
 
+print ${*main::foo},"\n";
+print $main::foo,"\n";
+print @{*main::foo},"\n";
+print %{*main::foo},"\n";
+print ${*main::0},"\n";
 
-
-
-#print ${$main::{foo}},"\n";
-#print @{$main::{foo}},"\n";
-#print %{$main::{foo}},"\n";
-#print ${$main::{0}},"\n";
-#
-#print "---\n";
-#print \$main::{foo},"\n";
-#print \@main::{foo},"\n";
-#print \%main::{foo},"\n";
-#print \$main::{0},"\n";
+print "---\n";
+print \$main::foo,"\n";
+print \@main::foo,"\n";
+print \%main::foo,"\n";
+print \$main::0,"\n";
 #
 #print "---\n";
 #print ${*foo{SCALAR}},"\n";
@@ -45,11 +43,22 @@ print "---bar---\n";
 #local *main::bar = *main::0;
 *main::bar = *main::foo;
 
-print "$bar\n";
-print "$_ " for @bar;
-print "\n";
-print "$_ : $bar{$_} " for sort keys %bar;
-print "\n";
+print \$main::bar,"\n";
+print $main::bar,"\n";
+print \@main::bar,"\n";
+print \%main::bar,"\n";
+print \$main::0,"\n";
+
+print "--- *main::foo and *main::bar ---\n";
+
 print *main::foo, "\n";
 print *main::bar, "\n";
+
+#print "$bar\n";
+#print "$_ " for @bar;
+#print "\n";
+#print "$_ : $bar{$_} " for sort keys %bar;
+#print "\n";
+#print *main::foo, "\n";
+#print *main::bar, "\n";
 

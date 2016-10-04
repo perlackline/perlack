@@ -1,0 +1,5 @@
+print "outer print\n";
+UNITCHECK { print "outer UNITCHECK\n"}
+CHECK { print "outer CHECK\n"}
+
+1;
