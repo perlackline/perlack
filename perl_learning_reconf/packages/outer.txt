@@ -1,5 +1,4 @@
 print "outer print\n";
-UNITCHECK { print "outer UNITCHECK\n"}
-CHECK { print "outer CHECK\n"}
+INIT { print "outer INIT\n"}
 
 1;
