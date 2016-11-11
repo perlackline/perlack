@@ -38,11 +38,12 @@ my $file= File->new(
     last_mod_time => 1304974868,
 );
 
-#use Data::Dumper;
-#print Dumper $file;
+use Data::Dumper;
+print Dumper $file;
 
 #$file->print_info("The file is located at ");
-$file->print_info;
+#$file->print_info;
 
-print $file->path, "\n";
+#print $file->path, "\n";
+
 
