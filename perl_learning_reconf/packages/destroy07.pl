@@ -1,0 +1,95 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+# check destroy
+# create temp file..
+
+package Animal;
+
+# 一時ファイルを操作するモジュール
+use File::Temp qw(tempfile);
+
+# コンストラクタ
+sub new {
+  my $class = shift;
+  my $name = shift || 'Tarou';
+  my $self = { Name => $name };
+
+  # 一時ファイルのファイルハンドルとファイル名を取得 
+  my ($fh, $filename) = tempfile;
+  #my ($fh, $filename) = tempfile( UNLINK => 1 );
+
+  # それぞれをアトリビュートとしてセット
+  $self->{temp_fh} = $fh;
+  $self->{temp_filename} = $filename;
+  # ---
+
+  bless $self, $class;
+}
+
+# 名前のアクセサ
+sub name {
+  my $either = shift;
+  ref $either ? $either->{Name} : "an unnamed $either";
+}
+
+# 一時ファイルの名前のゲッター
+sub tmp_get_name {
+  my $self = shift;
+  $self->{temp_filename};
+}
+
+# ライター
+sub tmp_write {
+  my $self = shift;
+  my $fh = $self->{temp_fh};
+  print $fh @_;
+}
+
+# リーダー
+sub tmp_read{
+
+  # ファイルポインタが末尾にあるため先頭にリセットしてから読み込み
+  use Fcntl ':seek';
+  my $self = shift;
+  seek $self->{temp_fh}, 0,SEEK_SET or die "Cannot seek fh:$!";
+  my @lines = readline $self->{temp_fh};
+
+  # 読み込んだ内容をリターン
+  join '', @lines;
+
+ }
+
+# デストラクタ
+sub DESTROY {
+  my $self = shift;
+
+  # ファイルハンドルをクローズ
+  my $fh = $self->{temp_fh};
+  # close $fh;
+  close $self->{temp_fh};
+
+  # ファイルを削除
+  warn 'unlink: ', $self->{temp_filename}, "\n";
+  unlink $self->{temp_filename};
+
+  warn '[', $self->name, " has died.]\n";
+}
+
+package main;
+
+my $animal = Animal->new;
+
+# 一時ファイルの名前をゲット
+print $animal->tmp_get_name, "\n";
+
+# 一時ファイルに書き込み 
+$animal->tmp_write("It's Animal object!\n");
+
+# 一時ファイルから読み込み
+print "READ:\n", $animal->tmp_read;
+
+print "End of program.\n";
+
