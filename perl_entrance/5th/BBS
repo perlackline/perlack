@@ -1,0 +1,51 @@
+#!/usr/bin/env perl
+use Mojolicious::Lite;
+
+my @entries = ();
+get '/' => sub {
+  my $c = shift;
+  $c->stash(entries => \@entries);
+  $c->render('index');
+};
+post '/post' => sub {
+  my $c = shift;
+  my $entry_body = $c->param('body');
+  my $entry_name = $c->param('name');
+  my $entry_mail = $c->param('mail');
+  push @entries, $_ for ($entry_body,$entry_name,$entry_mail);
+  $c->redirect_to('/');
+};
+
+app->start;
+__DATA__
+
+@@ post.html.ep
+% layout 'default';
+% title '出力';
+%= form_for '/post' => method => 'POST' => begin
+  %= text_field 'body'
+  %= submit_button '投稿する'
+% end
+<p><%= $entry %></p>
+
+@@ index.html.ep
+% layout 'default';
+% title '入力フォーム';
+%= form_for '/post' => method => 'POST' => begin
+  %= text_field 'name'
+  名前<br>
+  %= text_field 'mail'
+  メールアドレス<br>
+  %= text_field 'body'
+  %= submit_button '投稿する'
+% end
+% for my $entry (@{$entries}){
+    <p><%= $entry %></p>
+% }
+
+@@ layouts/default.html.ep
+<!DOCTYPE html>
+<html>
+  <head><title><%= title %></title></head>
+  <body><%= content %></body>
+</html>
