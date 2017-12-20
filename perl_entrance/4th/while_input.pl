@@ -6,7 +6,7 @@ use warnings;
 # 2/3
 print "---- 2/3\n";
 while (chomp(my $input = <STDIN>)) {
-  if ($input =~ 0) {
+  if ($input eq 0) {
     last;
   }
   if ($input =~ /[pP]erl/){
@@ -23,7 +23,7 @@ while (chomp(my $input = <STDIN>)) {
 # 3/3
 print "---- 3/3\n";
 while (chomp(my $input = <STDIN>)) {
-  if ($input =~ 0) {
+  if ($input eq 0) {
     last;
   }
   if ($input =~ /^papix/){

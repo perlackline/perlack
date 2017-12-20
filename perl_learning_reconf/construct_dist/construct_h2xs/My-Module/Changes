@@ -1,0 +1,6 @@
+Revision history for Perl extension My::Module.
+
+0.01  Thu Apr 13 10:24:25 2017
+	- original version; created by h2xs 1.23 with options
+		-b 5.10.1 -XAn My::Module
+

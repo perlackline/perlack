@@ -1,0 +1,60 @@
+=head1 Hedding 1
+
+=head2 Hedding 2
+
+=head2 Hedding 2 for $/
+
+=head3 Hedding 3
+
+=over
+
+=item *
+
+first item
+
+=item *
+
+second item
+
+=back
+
+=over
+
+=item foo
+
+hogehoge
+
+  hello perl
+  print "aaa bbb \n";
+
+=item bar
+
+hugahuga
+
+=begin text
+
+    ---------------
+    |  foo        |
+    |        bar  |
+    ---------------
+
+  ^^^^ Figure 1. ^^^^
+
+=end text
+
+=head4 Hedding 4
+
+hello !
+
+  my %hash = (kye => 'val');
+
+
+=begin text
+
+Figure 1.
+
+=end text
+
+hello !!
+
+=cut

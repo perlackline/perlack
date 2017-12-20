@@ -16,6 +16,32 @@ get '/' => sub {
     hoby  => $hoby,
     language => $language,
   );
+  #$c->render(template => 'fizzbuzz');
+  #$c->render(template => 'profile');
+  $c->render(template => 'index');
+};
+
+get '/profile' => sub {
+  my $c = shift;
+  $c->stash(
+    title => $title,
+    name  => $name,
+    hoby  => $hoby,
+    language => $language,
+  );
+  #$c->render(template => 'fizzbuzz');
+  $c->render(template => 'profile');
+  #$c->render(template => 'index');
+};
+
+get '/fizzbuzz' => sub {
+  my $c = shift;
+  $c->stash(
+    title => $title,
+    name  => $name,
+    hoby  => $hoby,
+    language => $language,
+  );
   $c->render(template => 'fizzbuzz');
   #$c->render(template => 'profile');
   #$c->render(template => 'index');

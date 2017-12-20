@@ -9,33 +9,20 @@ get '/' => sub {
 };
 post '/post' => sub {
   my $c = shift;
-  my $body = $c->param('body') // '';
-  my $name = $c->param('name') // '';
-  my $mail = $c->param('mail') // '';
-
-  my $entry = {
-     'body' => $body,
-     'name' => $name,
-     'mail' => $mail,
-  };
-  if ($entry->{mail} eq 'age'){ 
-    unshift @entries, $entry;
-  } else {
-    push @entries, $entry;
-  }
-
+  my $entry_body = $c->param('body');
+  my $entry_name = $c->param('name');
+  my $entry_mail = $c->param('mail');
+  push @entries, $_ for ($entry_body,$entry_name,$entry_mail);
   $c->redirect_to('/');
   #$c->render('index');
 };
 
-defined
 app->start;
 __DATA__
 
 @@ index.html.ep
 % layout 'default';
 % title '入力フォーム';
-%= unless (defined 
 %= form_for '/post' => method => 'POST' => begin
   %= text_field 'name'
   名前<br>
@@ -43,13 +30,9 @@ __DATA__
   メールアドレス<br>
   %= text_field 'body'
   %= submit_button '投稿する'
-  <hr>
 % end
 % for my $entry (@{$entries}){
-    <p>name:<%= $entry->{name} %></p>
-    <p>mail:<%= $entry->{mail} %></p>
-    <p>body:<%= $entry->{body} %></p>
-    <hr>
+    <p><%= $entry %></p>
 % }
 
 @@ layouts/default.html.ep
@@ -58,4 +41,3 @@ __DATA__
   <head><title><%= title %></title></head>
   <body><%= content %></body>
 </html>
-
