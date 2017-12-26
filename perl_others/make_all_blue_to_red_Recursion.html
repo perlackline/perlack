@@ -1,0 +1,69 @@
+<html>
+<!--
+# HTML のタグを調べて背景が青いタグを垢に変える
++ タグの名前や id が限定されていれば
+  - document.getElementByTagName() や
+  - document.getElementById() が使える
++ が, すべてのタグを調べて適用することは困難
++ ループで調べるとタグの入れ子 (Nest) が問題になる
+  - タグの子ノードリストは childNodes で取得可能なので
+  - このリストをループして各要素を調べればよいが
+  - 子ノードの子ノードが問題になる
+  - 予め Nest がいくつかを調べるのは困難
+こうした場合に "再帰" が便利
+-->
+<script type="text/javascript">
+  function changeColor(element) {
+    // 子ノードがあるか調べる
+
+    // element が null なら
+    if (element == null) {
+      // element に body をセット
+      var element = document.body;
+    }
+    // 子ノードリストの長さが 1 以上あれば
+    if (element.childNodes.length > 0) {
+      // 子ノードで changeColor() の *再帰* 呼び出し
+      changeColor(element.firstChild);
+    }
+    // ノード型が ELEMENT_NODE つまり 1 だった場合
+    if (element.nodeType  == 1) {
+      // 背景が blue だった場合
+      if (element.style.backgroundColor == "blue") {
+        // 背景を red に変更する
+        element.style.backgroundColor = "red";
+      }
+    }
+    // ノードリストに別のノードがあれば
+    if (element.nextSibling != null) {
+      // 次のノードで changeColor() を *再帰* 呼び出し
+      changeColor(element.nextSibling);
+    }
+  }
+</script>
+<body>
+
+<form>
+<table border="1">
+  <tr>
+    <td style="background-color: blue;">Get red</td>
+    <td>Do not turn  red</td>
+  </tr>
+  <tr>
+    <td><span style="background-color: blue;">Make red</td>
+  </tr>
+</table>
+<div style="width: 200px; border-style: solid;">
+<span>Do not turn red here</span>
+</div>
+<div id="test1"><span id="test2">Nest the tags</span></div>
+</form>
+<input type="button" value="Run" onclick="changeColor()" />
+
+</body>
+</html>
+
+
+
+
+

@@ -1,0 +1,43 @@
+<html>
+<body>
+<!--
+# フィボナッチ数列の n 番目を求める際に *再帰* を使わずループで対応するアルゴリズム
+再起は使っていないが配列で計算結果を記憶しているので, パフォーマンスは再起とそれほど変わらない
+-->
+<script type="text/javascript">
+function startCalc() {
+  // 前の結果を消す
+  document.getElementById("disp").innerHTML = "";
+  // 入力された数値を取得
+  var number = document.getElementById("number").value;
+  var start = Number(new Date());
+  // fibonacci number の計算開始
+  display("disp","Fibonacci number of " + number + " = " + fibonacci(number));
+  var end = Number(new Date());
+  // 計算の終了時刻 - 開始時刻  = 計算に掛かった時間
+  display("disp", "exec time: " + (end - start) + "/ms");
+  // 計算した回数
+}
+function fibonacci(n) {
+  fibonacciResult = new Array();
+  fibonacciResult[0] = 0;
+  fibonacciResult[1] = 1;
+  for (i = 2; i <= n; i++) {
+    fibonacciResult[i] =
+      fibonacciResult[i - 1] + fibonacciResult[i - 2];
+  }
+  // n 番目の計算結果を返す
+  return fibonacciResult[n];
+}
+function display(id, str) {
+  var element = document.getElementById(id);
+  element.innerHTML += str + "<br/>";
+}
+</script>
+Calculate the <input type="text" id="number"> th Fibonacci number.<br/>
+<input type="submit" value="start calc" onclick="startCalc()">
+<div id="disp""></div>
+</body>
+</html>
+
+

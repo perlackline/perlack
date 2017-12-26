@@ -1,0 +1,72 @@
+<html>
+<body>
+<!--
+# フィボナッチ数列の n 番目を求める
+最初は 0, 次が 1 それ以降は 直前の 2 つの数字を足したものになる数列を *フィボナッチ数列* という.
++ 3rd 0 + 1 = 1
++ 4th 1 + 1 = 2
++ 5th 1 + 2 = 3
++ 6th 2 + 3 = 5
++ 7th 3 + 5 = 8 ...
+この数列の n 番目を計算するプログラム
++ フィボナッチ数列の定義
+  F0 = 0
+  F1 = 1
+  Fi = Fi-1 + Fi-2 (i>=2)
+定義そのおのが再帰になっているので, プログラムもそのまま再帰で書ける
+
+ただし, 以下のアルゴリズムでは同じ計算を複数回行ってしまうので効率がよくない (Fi の i の増大にともない計算回数が飛躍的に増大する).
+eg. F4 の場合 (f2 が 2 回計算される)
+[f4]->[f3]->[f2]->[f1]
+      +     +     +
+      [f2]  [f1]  [f0]
+         |
+         +->[f1]
+            +
+            [f0]
+
+-->
+<script type="text/javascript">
+var count = 0;
+function startCalc() {
+  // カウンタリセット
+  count = 0;
+  // 前の結果を消す
+  document.getElementById("disp").innerHTML = "";
+  // 入力された数値を取得
+  var number = document.getElementById("number").value;
+  var start = Number(new Date());
+  // fibonacci number の計算開始
+  display("disp","Fibonacci number of " + number + " = " + fibonacci(number));
+  var end = Number(new Date());
+  // 計算の終了時刻 - 開始時刻  = 計算に掛かった時間
+  display("disp", "exec time: " + (end - start) + "/ms");
+  // 計算した回数
+  display("disp", "Num of calc: : " + count);
+}
+function fibonacci(n) {
+  // 1 より小さいなら
+  if (n < 1) {
+    return 0;
+  }
+  // 1 なら
+  if (n == 1 ) {
+    return 1;
+  }
+  // 計算した回数 
+  count++;
+  // (Fi - 1) + (Fi - 2) で再計算
+  return fibonacci(n - 1) + fibonacci(n - 2);
+}
+function display(id, str) {
+  var element = document.getElementById(id);
+  element.innerHTML += str + "<br/>";
+}
+</script>
+Calculate the <input type="text" id="number"> th Fibonacci number.<br/>
+<input type="submit" value="start calc" onclick="startCalc()">
+<div id="disp""></div>
+</body>
+</html>
+
+

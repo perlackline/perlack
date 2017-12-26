@@ -1,0 +1,193 @@
+<html>
+<head>
+<script type="text/javascript">
+/*
+# パズル「ハノイの塔」を解く
+ハノイのルールに従ってすべての円盤を 0 から 2 に移動する
+円盤が 3 個の場合
+  0     1    2
+  _     |    |
+ ___    |    |    start
+_____   |    |
+_______________________
+  0     1    2
+  |     |    |
+ ___    |    |    0->2
+_____   |    _
+
+  0     1    2
+  |     |    |
+  |     |    |    0->1
+_____  ___   _ 
+
+  0     1    2
+  |     |    |
+  |     _    |    2->1
+_____  ___   | 
+
+  0     1    2
+  |     |    |
+  |     _    |    0->2
+  |    ___ _____
+
+  0     1    2
+  |     |    |
+  |     |    |    1->0
+  _    ___ _____
+
+  0     1    2
+  |     |    |
+  |     |   ___   1->2
+  _     |  _____
+
+  0     1    2
+  |     |    _
+  |     |   ___   0->2
+  |     |  _____
+次の手順ですべての円盤をルールに従って移動できる
+1. 0 から n-1 個の円盤を 1 に移動する
+2. 最大の円盤を 0 から 2 に移動する
+3. 1 の円盤 (n-1 個) を 2 に移動する
+*/
+// 計算 start
+function process(from,to) {
+  this.moveFrom = from;
+  this.moveTo   = to;
+}
+var processList = new Array();
+var index = 0;
+// ハノイの塔を解く手順
+function hanoi(from,to,spare,numberOfDisk) {
+  if (numberOfDisk > 1) {
+    hanoi(from,spare,to,numberOfDisk - 1); 
+    processList.push(new process(from,to));
+    hanoi(spare,to,from,numberOfDisk - 1);
+  } else {
+    // 円盤が 1 なら単に form -> to で移動
+    processList.push(new process(from,to));
+  }
+}
+// 円盤の数
+var disks = 4;
+// *再帰*
+hanoi(0,2,1,disks);
+// 計算 end
+
+// 表示のためのプログラム start
+// tower クラス本体
+function tower(id) {
+  // id = 0 (左), id = 1 (中), id = 2 (右)
+  this.id = id;
+  // step[0] = 一番下, step[1] = その上, step[2] = その上 ....
+  this.step = new Array();
+  // step[n] は円盤の状態, 0 はなし, 1 以上はその大きさの円盤がある
+}
+
+// 棒に円盤をセットするメソッド
+tower.prototype.set = function(disk) {
+  // step[n] の末尾 = 一番上に disk を push する
+  this.step.push(disk);
+}
+// 棒から円盤をゲットするメソッド
+tower.prototype.get = function() {
+  // step が 0 より大きい場合 = 円盤があるなら
+  if (this.step.length > 0) {
+    // 円盤を表す値を get
+    return this.step.pop();
+  }
+}
+// toTower の棒に円盤を移動する
+tower.prototype.move = function(toTower) {
+  toTower.set(this.get());
+}
+// 3 つの棒を生成
+var towers = new Array(new tower(0),new tower(1), new tower(2));
+// 左の棒に円盤を 4 つセット
+for (i = 0; i < disks; i++) {
+  towers[0].set(disks - i);
+/* 棒と円盤の状態
+towers[0].step[3] = 1 | towers[1].step[3] | towers[2].step[3]
+towers[0].step[2] = 2 | towers[1].step[2] | towers[2].step[2]
+towers[0].step[1] = 3 | towers[1].step[1] | towers[2].step[1]
+towers[0].step[0] = 4 | towers[1].step[0] | towers[2].step[0]
+*/
+}
+
+// document.getElementById() を実行するための HTML 上の ID
+var diskId = new Array("","one","two","three","four");
+
+// 1 回の移動を行う関数
+function move() {
+  // processList (手順) が 0 の場合は何もしない
+  if (processList.length == 0) {
+    return;
+  }
+  // 手順から先頭の値を取り出す
+  var p = processList.shift();
+  // 手順に従って円盤を移動
+  towers[p.moveFrom].move(towers[p.moveTo]);
+  // 現在の円盤の状態を表示
+  displayTower();
+}
+
+// 現在の円盤の状態を表示する関数
+function displayTower() {
+  for (i = 0; i < 3 ; i++) {
+    for (j = 0; j < disks; j++) {
+      var diskStatus = towers[i].step[j];
+      if (diskStatus > 0) {
+        var disk = document.getElementById(diskId[diskStatus]);
+        disk.style.top = (3 - j) * 20 + 120;
+        disk.style.left = (i * 100) + 60 + (4 - diskStatus) * 10;
+      }
+    }
+  }
+}
+</script>
+
+<!-- 棒の形を定義するスタイルシートのクラス (棒はすべて同じ形なのでクラス化) -->
+<style type="text/css">
+.bar {
+  position: absolute;
+  width: 10;
+  height: 150;
+  background-color: gray;
+}
+</style>
+</head>
+<!-- body の onload イベントで円盤の状態を表示する-->
+<!-- onload は Web ブラウザが HTML をすべて読み込んだタイミングで実行 -->
+<body onload="displayTower()">
+<!-- ムーブボタン -->
+<input type="button" value="move" onclick="move()" />
+<!-- リロードボタン -->
+<input type="button" value="reload" onclick="location.reload(true)" />
+
+<!-- 3 本の棒を表示 -->
+<div class="bar" style="top: 50; left: 95;"></div>
+<div class="bar" style="top: 50; left: 195;"></div>
+<div class="bar" style="top: 50; left: 295;"></div>
+
+<!-- 3 本の棒の土台の線を表示 -->
+<div style="position: absolute;
+  width: 310; height: 2;
+  background-color: black;
+  top: 200; left: 50"></div>
+
+<!-- 4 個の円盤を表示 -->
+<!-- 位置は displayTower で計算する -->
+<div id="four" style="position: absolute;
+  width: 80; height: 20;
+  background-color: red;"></div>
+<div id="three" style="position: absolute;
+  width: 60; height: 20;
+  background-color: blue;"></div>
+<div id="two" style="position: absolute;
+  width: 40; height: 20;
+  background-color: green;"></div>
+<div id="one" style="position: absolute;
+  width: 20; height: 20;
+  background-color: orange;"></div>
+
+</body>
+</html>

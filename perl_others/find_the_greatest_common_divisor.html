@@ -1,0 +1,35 @@
+<html>
+<body>
+<!--
+# Find the Greatest Common Divisor Using the Euclidian Algorithm
++ ユークリッド互除法
+- 2 つの整数 a,b
+- a/b の余りを r
+- a と b の最大公約数は r と b の最大公約数
+- b/r の余りを求める
+- これを繰り返して余りが 0 になった時の除数が最大公約数
+-->
+<script type="text/javascript">
+  function greatest_common_divisor(a,b) {
+    display("greatest_common_divisor", "calculating: The greatest common divior of " + a + "and" + b);
+    var r = a % b;
+    if (r == 0) {
+      return b;
+    }
+    return greatest_common_divisor(b,r);
+  }
+  function display(id,str) {
+    var element = document.getElementById(id);
+    element.innerHTML += str + "<br/>";
+  }
+</script>
+
+<div id="greatest_common_divisor"></div>
+
+<script type="text/javascript">
+  display("greatest_common_divisor", "The greatest common divisor is " + greatest_common_divisor(14,21));
+</script>
+
+</body>
+</html>
+

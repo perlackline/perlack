@@ -1,0 +1,53 @@
+<html>
+<body>
+<!--
+# フィボナッチ数列の n 番目を求める
+  Fi = Fi-1 + Fi-2 (i>=2)
+同じ計算が飛躍的に増える非効率なアルゴリズム (fibonacci_sequence_inefficient.html) を改善するために, 一度計算した結果を覚えておくようにするアルゴリズム
+-->
+<script type="text/javascript">
+var fibonacciResult = new Array();
+var count = 0;
+function startCalc() {
+  // カウンタリセット
+  count = 0;
+  // 計算結果のリセット
+  fibonacciResult = new Array();
+  fibonacciResult[0] = 0;
+  fibonacciResult[1] = 1;
+  // 前の結果を消す
+  document.getElementById("disp").innerHTML = "";
+  // 入力された数値を取得
+  var number = document.getElementById("number").value;
+  var start = Number(new Date());
+  // fibonacci number の計算開始
+  display("disp","Fibonacci number of " + number + " = " + fibonacci(number));
+  var end = Number(new Date());
+  // 計算の終了時刻 - 開始時刻  = 計算に掛かった時間
+  display("disp", "exec time: " + (end - start) + "/ms");
+  // 計算した回数
+  display("disp", "Num of calc: : " + count);
+}
+function fibonacci(n) {
+  // まだ計算していない数なら
+  if (fibonacciResult[n] == undefined) {
+    // 計算回数をカウントアップして
+    count++;
+    // 計算結果を配列の n 番目にセット
+    fibonacciResult[n] = fibonacci(n - 1) + fibonacci(n - 2);
+  }
+  // n 番目の計算結果を返す
+  return fibonacciResult[n];
+}
+function display(id, str) {
+  var element = document.getElementById(id);
+  element.innerHTML += str + "<br/>";
+}
+</script>
+Calculate the <input type="text" id="number"> th Fibonacci number.<br/>
+<input type="submit" value="start calc" onclick="startCalc()">
+<div id="disp""></div>
+</body>
+</html>
+
+
