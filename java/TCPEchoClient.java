@@ -39,9 +39,6 @@ public class TCPEchoClient {
 		while (totalBytesRcvd < byteBuffer.length) {
 
 System.out.println("受信待ち....");
-System.out.println("??  ??");
-bytesRcvd = in.read(byteBuffer, totalBytesRcvd, byteBuffer.length - totalBytesRcvd);
-System.out.println("?? " + byteBuffer + " ??");
 
 		  if ((bytesRcvd = in.read(byteBuffer, totalBytesRcvd,
 						byteBuffer.length - totalBytesRcvd)) == -1)
