@@ -1,0 +1,234 @@
+# ~/.bashrc: executed by bash(1) for non-login shells.
+# see /usr/share/doc/bash/examples/startup-files (in the package bash-doc)
+# for examples
+# ~/.bashrc: 実行される bash(1) によって non-login シェルのために.
+# 参照してください /usr/share/doc/bash/example/starup-files (パッケージ bash-doc の) を
+# 例えば
+
+# If not running interactively, don't do anything
+# もし実行していないなら インタラクティブで, 何もしない
+
+# (basically) flag i が含まれてないなら ファンクションやスクリプトを停止するというコード
+case $- in
+    *i*) ;;
+      *) return;;
+esac
+# $-
+# ビルトインコマンド (options, flag?) をチェック
+# himBH
+# h: "hash all" bash に覚えておくように指示する コマンドの位置を 問い合わせによってみつけた
+# i: シェルがインタラクティブ
+# m: "monitor" ジョブコントロールを有効にする
+# B: "brace expand" ブレース拡張を有効にする
+# H: "history expand" 可能にする コマンドの再実行を ヒストリから その番号に前置することで 感嘆符 ! を
+
+# don't put duplicate lines or lines starting with space in the history.
+# See bash(1) for more options
+# 置かない 重複する行 or 空白ではじまる行を history に.
+HISTCONTROL=ignoreboth
+# ignoreboth: ignorespcae && ignoredups
+
+# append to the history file, don't overwrite it
+# ヒストリファイルに追加する, それを上書きしない
+# shopt : bash の組み込みコマンド
+# -s : オプションを有効化
+# histappend : シェルが exit するときに HISTFILE で設定したファイル名にヒストリリストを上書きではなく追加する
+shopt -s histappend
+
+# for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
+# ヒストリの長さの設定 bash(1) の HISTSIZE と HISTFILESIZE を参照
+HISTSIZE=1000
+HISTFILESIZE=2000
+
+# check the window size after each command and, if necessary,
+# update the values of LINES and COLUMNS.
+# 各コマンドの後のウィンドウサイズをチェックして, もし必要なら, LINES と COLUMNS の値をアップデートする
+shopt -s checkwinsize
+
+# If set, the pattern "**" used in a pathname expansion context will
+# match all files and zero or more directories and subdirectories.
+# もしセットしたら, パターン "**" は 使われる パスネーム展開のコンテキストで マッチする すべてのファイルと ゼロ以上のディレクトリ それと サブディレクトリに
+#shopt -s globstar
+
+# make less more friendly for non-text input files, see lesspipe(1)
+# less をより親切にする 非テキストの入力ファイルのために, 参照 lesspipe(1)
+# [ -x /usr/bin/lesspipe ]
+# lesspipe を実行するテスト
+# eval "$(SHELL=/bin/sh lesspipe)"
+# lesspipe を実行して sh の環境変数に LESSOPEN, LESSCLOSE を設定する
+[ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
+
+# set variable identifying the chroot you work in (used in the prompt below)
+# 変数をセットする chroot を識別する あなたが work している ( 以下の *プロンプトで* 使われる)
+# -z STRING
+# string の長さがゼロなら true (see man [ or test(1))
+# ${parameter:-word}
+# デフォルト値を使う. もし parameter がセットされてないか null なら, word の展開が, そうでないなら parameter の値が代用される
+# -r FILE
+# ファイルが存在し読み取り権限が与えられていたら true (see man [ or test(1))
+
+# 変数 ${debian_chroot} が空かつファイル /etc/debian_chroot が存在しているなら (デフォルトでは存在しない)
+if [ -z "${debian_chroot:-}" ] && [ -r /etc/debian_chroot ]; then
+    # /etc/debian_chroot の記述を debian_chroot にセットする
+    debian_chroot=$(cat /etc/debian_chroot)
+fi
+
+# set a fancy prompt (non-color, unless we know we "want" color)
+# ファンシーなプロンプトをセットする (非カラー, 求めるカラーを知らない場合は)
+case "$TERM" in
+    xterm-color) color_prompt=yes;;
+esac
+
+# uncomment for a colored prompt, if the terminal has the capability; turned
+# off by default to not distract the user: the focus in a terminal window
+# should be on the output of commands, not on the prompt
+# 色付きプロンプトのためにアンコメントする, もしターミナルが機能を持っているなら;
+# デフォルトではオフになっている ユーザを紛らわせないなめに: 
+# ターミナルウィンドウでのフォーカスはコマンドの出力になるはずです, プロンプトではなく
+#force_color_prompt=yes
+
+# -n STRING
+# STRING の長さが非ゼロなら true
+if [ -n "$force_color_prompt" ]; then
+  # -x FILE
+	# ファイルが存在して実行 (or 検索) 権限が与えられている 
+	# tput
+	# tarminal or query terminfo データベースを初期化する (see man tput) (?) エスケープシーケンスのラッパー ?
+	# setaf (set_a_foreground)
+	# フォアグランドカラーを #1 にセットする, ANSI エスケープを使って (see man terminfo(5))
+	# tput setaf 1
+	# ターミナルのフォアグランドカラーを 1 (赤) にセットする
+	# >&/dev/null
+	# stdout, stderr を /dev/null 行きにする, >&WORD, &>WORD は同じで, >WORD 2>&1 と同じ.
+	# &>WORD では WORD が数字 or - に展開されないかもしれないので man では >&WORD が好ましいとされている　(see "Redirecting Standard Output and Standard Error" in man bash(1))
+
+    if [ -x /usr/bin/tput ] && tput setaf 1 >&/dev/null; then
+	# We have color support; assume it's compliant with Ecma-48
+	# (ISO/IEC-6429). (Lack of such support is extremely rare, and such
+	# a case would tend to support setf rather than setaf.)
+	# 私たちはカラーをサポートします; 仮定する それが準拠していると Ecma-48 (ISO/IEC-6429) に.
+  # (こうしたサポートの欠如はかなりまれで, そうしたケースではサポートする傾向がある setf を setaf ではなく
+
+  # tput が実行できて tput setaf 1 が動くなら
+	color_prompt=yes
+    else
+	# tput が使えないなら
+	color_prompt=
+    fi
+fi
+
+# 上記で $color_prompt が yes にセットされている (カラープロンプトが使える) かに応じて
+# プロンプトの表示をセットする
+if [ "$color_prompt" = yes ]; then
+# PS1
+# このパラメータの値は展開されて 使われる プライマリのプロンプト文字列に.
+# デフォルトの値は ``\s-\v\$ '' = \s(シェルの名前) - \v(version of bash)\$($), eg. bash-2.00$
+    # \033[
+		# <Esc>[ の意味, bash では \e[, \x1B と同じ. 
+		# <Esc>[FormatCodem でエスケープシーケンスを指定 (m はターミネータ
+		# \033[01;32m\]\u@\h
+		# 01 : 太字, 32 : 緑, \u : ユーザ名, \h : 最初の . までのホスト名 (eg. host.name -> host)
+		# 00 : ノーマルテキストで ":"
+		# 01 : 太字, 34 : 青, \w : 現在のワーキングディレクトリ ($HOME は ~ で省略, \W は basename のみ)
+    PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
+else
+    # \u : ユーザ名, "@", \h : ホスト名, ":", \w : ワーキングディレクトリ, "$" 
+		# eg. user@host:~/where$
+    PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
+fi
+# 値をアンセット
+unset color_prompt force_color_prompt
+
+# If this is an xterm set the title to user@host:dir
+# もしこれが xterm セットする タイトルを user@host:dir に
+case "$TERM" in
+xterm*|rxvt*)
+    # \e]0; ... \a
+		# xterm のウィンドウのタイトルとアイコンを ... にセットする. \a (ASCII BEL) で閉じる
+    PS1="\[\e]0;${debian_chroot:+($debian_chroot)}\u@\h: \w\a\]$PS1"
+    ;;
+*)
+    ;;
+esac
+
+# enable color support of ls and also add handy aliases
+# 可能にする カラーサポートを ls の それとまた追加する 便利なエイリアスを
+if [ -x /usr/bin/dircolors ]; then
+    # dircolors
+		# ls のカラー設定を行うコマンド (see man dircolors(1))
+    # ~/.dircolors が読み込み可能なら bash 形式で ~/.dircolors を読み取る
+		# または dircolors -b を実行して bash 形式で LS_COLORS をセット
+    test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
+    alias ls='ls --color=auto'
+    #alias dir='dir --color=auto'
+    #alias vdir='vdir --color=auto'
+
+    alias grep='grep --color=auto'
+    alias fgrep='fgrep --color=auto'
+    alias egrep='egrep --color=auto'
+fi
+
+# colored GCC warnings and errors
+# 色付きの GCC 警告とエラー
+#export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
+
+# some more ls aliases
+# もう少し ls のエイリアス
+alias ll='ls -alF'
+alias la='ls -A'
+alias l='ls -CF'
+
+# Add an "alert" alias for long running commands.  Use like so:
+#   sleep 10; alert
+# 追加する "alert" のエイリアスを 長時間実行しているコマンドのために.  
+# notify-send
+# デスクトップ通知を送る
+# --urgency=low
+# 緊急度を low に指定する
+# -i
+# アイコンファイル名を指定する or ストックアイコンを表示する
+# $?
+# 直前のコマンドの終了ステータス (0 = 正常, 他 = 異常終了)
+# [ $? = 0 ]
+# $? が 0 なら (test の [ ] の中で = は equal (代入ではなく))
+# echo terminal
+# stdout に terminal を出力
+# history | tail -n1
+# コマンドヒストリの末尾 1 行を出力
+# sed -e
+# sed でスクリプトを実行
+# '\''
+# シングルクォート内でシングルクォートをエスケープしてシングルクォート(open) を配置
+# s/^\s*[0-9]\+\s*//;
+# history の出力から先頭の空白, 数値, 空白を削除 (eg. "905  echo foo" -> "echo foo")
+# s/[;&|]\s*alert$//  
+# 記号 ;, &, | のいずれかに続く空白と文字列 alert(行末) を削除 (eg. "echo foo; alert" -> "echo foo")
+# '\''
+# シングルクォート内でシングルクォートをエスケープしてシングルクォート(close) を配置
+alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
+
+# Alias definitions.
+# You may want to put all your additions into a separate file like
+# ~/.bash_aliases, instead of adding them here directly.
+# See /usr/share/doc/bash-doc/examples in the bash-doc package.
+# エイリアスの定義.
+# あなたが置くことを望むなら すべてのあなたの追加を 別のファイルに
+# ~/.bash_aliases のような, 追加する代わりに それらをここに直接
+if [ -f ~/.bash_aliases ]; then
+    # 組み込みコマンド "." (ドット) でファイルを読み込んで実行する
+    . ~/.bash_aliases
+fi
+
+# enable programmable completion features (you don't need to enable
+# this, if it's already enabled in /etc/bash.bashrc and /etc/profile
+# sources /etc/bash.bashrc).
+# 有効にする プログラマブルな補完機能を (あなたは有効にする必要はありません
+# これを, もしそれがすでに有効になっているなら /etc/bash.bashrc と /etc/profile で
+# /etc/bash.bashrc をソースにした
+if ! shopt -oq posix; then
+  if [ -f /usr/share/bash-completion/bash_completion ]; then
+    . /usr/share/bash-completion/bash_completion
+  elif [ -f /etc/bash_completion ]; then
+    . /etc/bash_completion
+  fi
+fi
