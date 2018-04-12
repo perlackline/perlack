@@ -110,7 +110,7 @@ if [ -n "$force_color_prompt" ]; then
     # setaf        => (set_a_foreground) ANSI エスケープを使ってフォアグランドカラーを #1 にセットする (see man terminfo(5))
     # tput setaf 1 => ターミナルのフォアグランドカラーを 1 (赤) にセットする
     # >&/dev/null  => stdout, stderr を /dev/null 行きにする, >&WORD, &>WORD は同じで, >WORD 2>&1 と同じ.
-    # &>WORD では WORD が数字 or - に展開されないかもしれないので man では >&WORD が好ましいとされている　(see "Redirecting Standard Output and Standard Error" in man bash(1))
+    # >&WORD では WORD が数字 or - に展開されないかもしれないので man では &>WORD が好ましいとされている　(see "Redirecting Standard Output and Standard Error" in man bash(1))
 
     # We have color support; assume it's compliant with Ecma-48
     # (ISO/IEC-6429). (Lack of such support is extremely rare, and such
