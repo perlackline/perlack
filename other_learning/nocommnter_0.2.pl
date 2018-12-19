@@ -28,7 +28,7 @@ while (<$fh_in>){
 # reduce blank line to one
 # 重複する空行をひとつにする
 
-$line =~ s/\n\n\n/\n\n/g;
+$line =~ s/\n{3,}/\n\n/g;
 
 # separate by line break and set to array
 # 改行で分割して配列に格納
